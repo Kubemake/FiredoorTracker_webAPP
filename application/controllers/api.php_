@@ -1,0 +1,87 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Api extends CI_Controller {
+
+	function __construct()
+	{
+		parent::__construct();
+	}
+	
+	function show($type, $action, $param='default')
+	{
+		printdata(unserialize(file_get_contents(APPPATH.'data/'.$type.'-'.$action.'-'.$param)));
+		echo 'ok';
+	}
+
+	function auth($action='login', $param='default')
+	{
+		$data = $_GET;
+		file_put_contents(APPPATH.'data/auth-'.$action.'-'.$param, serialize($data));
+		$ans = array(
+			'result' 	=> 'ok',
+			'sid'		=> '123123123',
+			'session'	=> 'sessiondata123',
+			'user'		=> 'test',
+			'referrer'	=> 'refdata',
+			'phone' 	=> @$data['phone']
+		);
+		$return = json_encode($ans);
+		
+		$this->sendit($return);
+	}
+	
+	function profile($action='index', $mode='default')
+	{
+		$data = $_REQUEST;
+		file_put_contents(APPPATH.'data/profile-'.$action.'-'.$mode, serialize($data));
+		$ans = array(
+			'result' 	=> 'ok',
+			'sid'		=> '123123123',
+			'session'	=> 'sessiondata123',
+			'user'		=> 'test',
+			'referrer'	=> 'refdata',
+			'phone' 	=> @$data['phone']
+		);
+		$return = json_encode($ans);
+		
+		$this->sendit($return);
+	}
+
+	function job($action, $param='default')
+	{
+		$data = $_REQUEST;
+		file_put_contents(APPPATH.'data/job-'.$action.'-'.$param, serialize($data));
+		// $ans = array(
+		// 	'job'		=> 'MyJobName',
+		// 	'id'		=> 555,
+		// 	'result' 	=> 'ok',
+		// 	'sid'		=> '123123123',
+		// 	'session'	=> 'sessiondata123',
+		// 	'user'		=> 'test',
+		// 	'referrer'	=> 'refdata',
+		// 	'phone' 	=> @$data['phone']
+		// );
+		// $return = json_encode($ans);
+		
+		// $this->sendit($return);
+	}
+
+	function feedback($action, $param='default')
+	{
+		$data = $_REQUEST;
+		file_put_contents(APPPATH.'data/feedback-'.$action.'-'.$param, serialize($data));
+	}
+
+	function sendit($data)
+	{
+		header("Content-Type: application/json; charset=utf-8");
+		header("Content-Length: ".strlen($data));
+		header("Access-Control-Allow-Methods: GET, POST");
+		header("Access-Control-Allow-Origin: resource://jid1-dtklj1qrcntaiq-at-jetpack2");
+		header("access-control-allow-credentials: true");
+		header("Cache-Control: no-cache");
+		echo $data;
+	}
+}
+/* End of file service.php */
+/* Location: ./application/controllers/service.php */

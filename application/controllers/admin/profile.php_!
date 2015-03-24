@@ -1,0 +1,33 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Profile extends CI_Controller {
+
+	function __construct()
+	{
+		parent::__construct();
+		verifyLogged();
+		$this->load->model('resources_model');
+		$this->load->library('table');
+	}
+
+	
+	function index()
+	{
+		$this->load->helper('form');
+		// $this->load->library('form_validation');
+		$data['profile']['city'] = 'MyCity'; //DEBUG
+		$data['states'] = array('WA', 'CA', 'TE'); //DEBUG
+		$data['profile']['state'] = 'CA'; //DEBUG
+		$data['primary_contacts'] = array('Contact1', 'Contact2', 'Contact3'); //DEBUG
+		$data['profile']['primary_contact'] = 'Contact3'; //DEBUG
+		
+		
+		$header['page_title'] = 'RESOURCES';
+		$this->load->view('header', $header);
+		$this->load->view('resources/resources_profile', $data);
+		$this->load->view('footer');
+	}
+}
+
+/* End of file resources.php */
+/* Location: ./application/controllers/resources.php */

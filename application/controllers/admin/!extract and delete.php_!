@@ -1,0 +1,392 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Resources extends CI_Controller {
+
+	function __construct()
+	{
+		parent::__construct();
+		verifyLogged();
+		$this->load->model('resources_model');
+		$this->load->library('table');
+	}
+
+	function index()
+	{
+		$this->table->set_heading(
+			'id',
+			'Building',
+			'Review Company',
+			array('data' => 'Start date', 'class' => 'not-mobile'),
+			array('data' => 'Completion', 'class' => 'not-mobile'),
+			array('data' => 'Review'	, 'class' => 'not-mobile'),
+			array('data' => 'Reviewer'	, 'class' => 'not-mobile'),
+			array('data' => 'Status'	, 'class' => 'not-mobile')
+		);
+
+		$this->table->add_row(1, 'Fred', 'Blue', '12/12/12', '11/11/11', 'Small', 'Levy', 'Complited'); //DEBUG
+		$this->table->add_row(2, 'Mary', 'Red', '12/12/12', '11/11/11', 'Small', 'Levy', 'Large'); //DEBUG
+
+		$tmpl = array ( 'table_open'  => '<table class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">' );
+		$this->table->set_template($tmpl); 
+		
+		$data['result_table'] = $this->table->generate(); 
+		
+		$header['page_title'] = 'RESOURCES';
+		$header['styles']  = addDataTable('css');
+		$footer['scripts'] = addDataTable('js');
+		$this->load->view('header', $header);
+		$this->load->view('resources/resources_reviewers', $data);
+		$this->load->view('footer', $footer);
+	}
+
+	function buildings()
+	{
+		$this->table->set_heading(
+			'id',
+			'Name',
+			'Review Company',
+			array('data' => 'Main Contact'	, 'class' => 'not-mobile'),
+			array('data' => 'Phone'			, 'class' => 'not-mobile'),
+			array('data' => 'Address1'		, 'class' => 'not-mobile'),
+			array('data' => 'Address2'		, 'class' => 'not-mobile'),
+			array('data' => 'City'			, 'class' => 'not-mobile'),
+			array('data' => 'State'			, 'class' => 'not-mobile'),
+			array('data' => 'ZIP'			, 'class' => 'not-mobile')
+		);
+
+		$this->table->add_row(3, 'Fred', 'Blue', 'Jhon', '555-55-55', 'Small St.', '', 'New York', 'New York', '55755'); //DEBUG
+		$this->table->add_row(4, 'Freddy', 'Red', 'Jimm', '555-55-66', 'Large St.', 'Avenue', 'York', 'York', '45755'); //DEBUG
+
+		$tmpl = array ( 'table_open'  => '<table class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">' );
+		$this->table->set_template($tmpl); 
+		
+		$data['result_table'] = $this->table->generate(); 
+		
+		$header['page_title'] = 'RESOURCES';
+		$header['styles']  = addDataTable('css');
+		$footer['scripts'] = addDataTable('js');
+		$this->load->view('header', $header);
+		$this->load->view('resources/resources_buildings', $data);
+		$this->load->view('footer', $footer);
+	}
+
+	function owners()
+	{
+		$this->table->set_heading(
+			'id',
+			'Name',
+			array('data' => 'Main Contact'	, 'class' => 'not-mobile'),
+			array('data' => 'Phone'			, 'class' => 'not-mobile'),
+			array('data' => 'Address1'		, 'class' => 'not-mobile'),
+			array('data' => 'Address2'		, 'class' => 'not-mobile'),
+			array('data' => 'City'			, 'class' => 'not-mobile'),
+			array('data' => 'State'			, 'class' => 'not-mobile'),
+			array('data' => 'ZIP'			, 'class' => 'not-mobile')
+		);
+
+		$this->table->add_row(3, 'Fred', 'Jhon', '555-55-55', 'Small St.', '', 'New York', 'New York', '55755'); //DEBUG
+		$this->table->add_row(4, 'Freddy', 'Jimm', '555-55-66', 'Large St.', 'Avenue', 'York', 'York', '45755'); //DEBUG
+
+		$tmpl = array ( 'table_open'  => '<table class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">' );
+		$this->table->set_template($tmpl); 
+		
+		$data['result_table'] = $this->table->generate(); 
+		
+		$header['page_title'] = 'RESOURCES';
+		$header['styles']  = addDataTable('css');
+		$footer['scripts'] = addDataTable('js');
+		$this->load->view('header', $header);
+		$this->load->view('resources/resources_owners', $data);
+		$this->load->view('footer', $footer);
+	}
+
+	function employeers()
+	{
+		$this->lang->load('resources');
+		if ($this->input->post())
+		{
+			if ($this->input->post('form_type'))
+			{
+				$postdata = $this->input->post();
+				switch ($postdata['form_type'])
+				{
+					case 'add_employeer':
+						$adddata = array(
+							'email'		=> $postdata['email'],
+						    'password'	=> md5($postdata['new_password']),
+						    'FirstName'	=> $postdata['first_name'],
+						    'LastName'	=> $postdata['last_name'],
+						    'phone'		=> $postdata['phone'], 
+						    'role'		=> $postdata['user_role'],
+						    'license'	=> $postdata['license_number'],
+						    'expired'	=> $postdata['expiration_date']
+						);
+						$user = $this->resources_model->get_user_by_email($adddata['email']); //check if it email used
+						if (!empty($user)) {
+							$data['msg'] = '<div class="alert alert-warning alert-dismissable">This email allready used</div>';
+							break;
+						}
+						$newemp = $this->resources_model->add_employer($adddata);	//add new user
+						$mail 	= TRUE;
+						
+						if ($postdata['password_generator']=='generate')			//if selected generate password - send it by email
+						{
+							$mail = send_mail(
+								$adddata['email'],
+								$this->lang->line('email_add_employeer_subject'),
+								sprintf($this->lang->line('email_add_employeer_body'),  $_SERVER['HTTP_HOST'], $adddata['email'], $postdata['new_password'])
+							);
+						}
+
+						$data['msg'] = '<div class="alert alert-warning alert-dismissable">Something wrong!</div>';
+						if ($newemp && $mail)
+							$data['msg'] = '<div class="alert alert-success alert-dismissable">User successfully added</div>';
+					break;
+					default:
+					break;
+				}
+			}
+		}
+
+
+		$this->table->set_heading(
+			'id',
+			'First Name',
+			'Last Name',
+			array('data' => 'Phone'		, 'class' => 'not-mobile'),
+			array('data' => 'Email'		, 'class' => 'not-mobile'),
+			array('data' => 'Login name', 'class' => 'not-mobile'),
+			array('data' => 'Role'		, 'class' => 'not-mobile')
+		);
+
+		$users = $this->resources_model->get_all_user_data();
+		
+		$this->table->add_row(5, 'CJ', 'Levy', '555-55-55', 'jhon@yahoo.com', 'levy', 'Inspector'); //DEBUG
+
+		$tmpl = array ( 'table_open'  => '<table class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">' );
+		$this->table->set_template($tmpl); 
+		$data['result_table'] = $this->table->generate(); 
+		
+		$header['page_title'] = 'RESOURCES';
+
+		//Add js
+		$header['styles']  = addDataTable('css');
+		$header['styles'] .= '<link href="/js/bootstrap-datepicker/datepicker.css" rel="stylesheet">';
+		$footer['scripts'] = '<script type="text/javascript" src="/js/bootstrap-datepicker/bootstrap-datepicker.js"></script>';
+		$footer['scripts']  .= addDataTable('js');
+		$footer['scripts'] .= '<script type="text/javascript" src="/js/bootstrap-show-password.min.js"></script>';
+
+		$this->load->view('header', $header);
+		$this->load->view('resources/resources_employeers', $data);
+		$this->load->view('footer', $footer);
+	}
+
+	function profile()
+	{
+		$this->load->helper('form');
+		// $this->load->library('form_validation');
+		$data['profile']['city'] = 'MyCity'; //DEBUG
+		$data['states'] = array('WA', 'CA', 'TE'); //DEBUG
+		$data['profile']['state'] = 'CA'; //DEBUG
+		$data['primary_contacts'] = array('Contact1', 'Contact2', 'Contact3'); //DEBUG
+		$data['profile']['primary_contact'] = 'Contact3'; //DEBUG
+		
+		
+		$header['page_title'] = 'RESOURCES';
+		$this->load->view('header', $header);
+		$this->load->view('resources/resources_profile', $data);
+		$this->load->view('footer');
+	}
+
+	function issues()
+	{
+		if ($this->input->post())
+		{
+			if ($this->input->post('form_type'))
+			{
+				$postdata = $this->input->post();
+				switch ($postdata['form_type'])
+				{
+					case 'add_issue':
+						unset($postdata['form_type']);
+						$this->resources_model->add_issue($postdata);
+						$data['msg'] = '<div class="alert alert-success alert-dismissable">Issue successfully added</div>';
+					break;
+				}
+			}
+		}
+
+		$data['issues'] = $this->_get_issues_by_parent(0);
+
+		$header['page_title'] = 'List of Issues';
+		$footer['scripts'] = '<script type="text/javascript" src="/js/jquery.nestable.js"></script>';
+
+		$this->load->view('header', $header);
+		$this->load->view('resources/resources_issues', $data);
+		$this->load->view('footer', $footer);
+	}
+
+	function _get_issues_by_parent($parent_id)
+	{
+		$issues = $this->resources_model->get_all_issues_by_parent($parent_id);
+
+		if (empty($issues))
+			return '';
+
+		$result = '<ol class="dd-list">' . "\n";
+		foreach ($issues as $issue)
+		{
+			$result .= '<li class="dd-item" data-id="' . $issue['idFormFields'] . '">' . "\n";
+			$result .= '<div class="dd-handle"><span class="glyphicon glyphicon-align-justify"></span>' . $issue['label'] . ' <small>(id:' . $issue['idFormFields'] . ')</small></div><a onclick="editfield(this);return false;" class="btn btn-xs btn-default btn-pencil"><span class="glyphicon glyphicon-pencil"></span></a>
+						<a onclick="deletefield(this);return false;" class="btn btn-xs btn-default btn-trash"><span class="glyphicon glyphicon-trash"></span></a>' . "\n";
+			$result .=  $this->_get_issues_by_parent($issue['idFormFields']);
+			$result .= '</li>' . "\n";
+		}
+		$result .= '</ol>' . "\n";
+
+		return $result;
+	}
+
+	function ajax_get_issue_by_id()
+	{
+		if (!$id = $this->input->post('id')) return '';
+		
+		$data['issue'] = $this->resources_model->get_issue_by_id($id);
+		
+		$data['issue_types'] = $this->resources_model->get_issue_types();
+		
+		$this->load->view('resources/resources_issues_edit', $data);
+	}
+
+	function ajax_update_issue()
+	{
+		if (!$fielddata = $this->input->post()) die(json_encode(array('status' => 'error')));
+		// $fielddata = $this->input->get();
+		$result = $this->resources_model->update_issue_data($fielddata);
+
+		if ($result === 'duplicate') {
+            echo json_encode(array('status' => 'duplicate'));
+            exit;
+        }
+		echo json_encode(array('status' => 'ok'));
+	}
+
+	function ajax_delete_issue()
+	{
+		if (!$field_id = $this->input->post('id')) die(json_encode(array('status' => 'error')));
+		// $field_id = $this->input->get();
+		$result = $this->resources_model->delete_issue_by_id($field_id);
+
+		if (!$result) {
+            echo json_encode(array('status' => 'error'));
+            exit;
+        }
+		echo json_encode(array('status' => 'ok'));
+	}
+
+	function ajax_check_email()
+	{
+		if (!$email = $this->input->post('email')) return '';
+		$user = $this->resources_model->get_user_by_email($email);
+		$msg = 'busy';
+		if (empty($user))
+			$msg = 'free';
+		return print($msg);
+	}
+
+	function ajax_load_modal()
+	{
+		if (!$page = $this->input->post('page')) return '';
+		$params = array();
+
+		switch ($page) {
+			case 'add_employeer_modal':
+				$params['user_roles'] = $this->resources_model->get_all_employeers_roles();
+				break;
+			case 'add_issue_modal':
+				$params['issue_types'] = $this->resources_model->get_issue_types();
+				break;
+			case 'edit_employeer_modal':
+				if (!$employeer_id = $this->input->post('id')) return '';
+				$params['user_roles'] = $this->resources_model->get_all_employeers_roles();
+				$params['employeer']  = $this->resources_model->get_employeer_info_by_employeer_id($employeer_id);
+				break;
+			default:
+				# code...
+				break;
+		}
+		$this->load->view('modal/' . $page, $params);
+	}
+
+	function ajax_delete()
+	{
+		if (!$page = $this->input->post('page')) return '';
+
+		switch ($page) {
+			case 'employeers':
+				if (!$employeer_id = $this->input->post('id')) return print('empty id');
+				if (!$this->resources_model->delete_employeer_by_id($employeer_id))  return print('cen\'t delete employeer by id');
+				return print('done');
+				break;
+			
+			default:
+				# code...
+				break;
+		}
+	}
+
+	function ajax_issues_reorder()
+	{
+		if (!$postdata = $this->input->post()) die('no post');
+		
+		$all_elem_list = $this->resources_model->get_all_issues();
+
+		$order = array();
+
+		foreach (json_decode($postdata['issues']) as $issue) {
+			$issdata = $all_elem_list[$issue->id];
+			
+			if (!isset($order[$issdata['parent']]))
+				$order[$issdata['parent']] = 0;
+			else
+				$order[$issdata['parent']]++;
+
+			if ((isset($issue->children) && $issdata['isfinal']==1) or $issdata['order'] != $order[$issdata['parent']]) //if saved as final but it is not or if changed order UPDATE issue data
+			{
+				$issdata['isfinal'] = isset($issue->children) ? 0 : 1;
+				$issdata['order'] = $order[$issdata['parent']];
+				$this->resources_model->update_issue_data($issdata);
+			}
+
+			if (isset($issue->children)) {
+				$this->_submit_reorder($issue->children, $all_elem_list, $order);
+			}
+		}
+	}
+
+	function _submit_reorder($elemtree, $all_elem_list, $order)
+	{
+		foreach ($elemtree as $issue) {
+			$issdata = $all_elem_list[$issue->id];
+			
+			if (!isset($order[$issdata['parent']]))
+				$order[$issdata['parent']] = 0;
+			else
+				$order[$issdata['parent']]++;
+
+			if ((isset($issue->children) && $issdata['isfinal']==1) or $issdata['order'] != $order[$issdata['parent']]) //if saved as final but it is not or if changed order UPDATE issue data
+			{
+				$issdata['isfinal'] = isset($issue->children) ? 0 : 1;
+				$issdata['order'] = $order[$issdata['parent']];
+				$this->resources_model->update_issue_data($issdata);
+			}
+
+			if (isset($issue->children)) {
+				$this->_submit_reorder($issue->children, $all_elem_list, $order);
+			}
+		}
+	}
+}
+
+/* End of file resources.php */
+/* Location: ./application/controllers/resources.php */

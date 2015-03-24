@@ -1,0 +1,45 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class Owners extends CI_Controller {
+
+	function __construct()
+	{
+		parent::__construct();
+		verifyLogged();
+		$this->load->model('resources_model');
+		$this->load->library('table');
+	}
+
+	function index()
+	{
+		$this->table->set_heading(
+			'id',
+			'Name',
+			array('data' => 'Main Contact'	, 'class' => 'not-mobile'),
+			array('data' => 'Phone'			, 'class' => 'not-mobile'),
+			array('data' => 'Address1'		, 'class' => 'not-mobile'),
+			array('data' => 'Address2'		, 'class' => 'not-mobile'),
+			array('data' => 'City'			, 'class' => 'not-mobile'),
+			array('data' => 'State'			, 'class' => 'not-mobile'),
+			array('data' => 'ZIP'			, 'class' => 'not-mobile')
+		);
+
+		$this->table->add_row(3, 'Fred', 'Jhon', '555-55-55', 'Small St.', '', 'New York', 'New York', '55755'); //DEBUG
+		$this->table->add_row(4, 'Freddy', 'Jimm', '555-55-66', 'Large St.', 'Avenue', 'York', 'York', '45755'); //DEBUG
+
+		$tmpl = array ( 'table_open'  => '<table class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">' );
+		$this->table->set_template($tmpl); 
+		
+		$data['result_table'] = $this->table->generate(); 
+		
+		$header['page_title'] = 'RESOURCES';
+		$header['styles']  = addDataTable('css');
+		$footer['scripts'] = addDataTable('js');
+		$this->load->view('header', $header);
+		$this->load->view('resources/resources_owners', $data);
+		$this->load->view('footer', $footer);
+	}
+}
+
+/* End of file resources.php */
+/* Location: ./application/controllers/resources.php */
