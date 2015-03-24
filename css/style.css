@@ -32,7 +32,7 @@ html, body {
 #logo {
 	height: 100px	;
 	white-space: 270px;
-	background-image: url(/images/head-logo.png);
+	/*background-image: url(/images/head-logo.png);*/
 	background-position: 15px center;
 	background-repeat: no-repeat;
 	display: block;
@@ -309,6 +309,9 @@ div.dataTables_filter {
     position: relative;
     margin-bottom: 15px;
 }
+.company-logo {
+	height: 100px !important;
+}
 #progress-files {
 	width: 90%;
 	margin: 15px auto 0;
@@ -319,6 +322,10 @@ div.dataTables_filter {
 #upload-result {
     max-width: 550px;
     max-height: 296px;
+}
+.company-logo #upload-result {
+    max-width: 575px;
+    max-height: 100px;
 }
 .close-uploaded {
     position: absolute;

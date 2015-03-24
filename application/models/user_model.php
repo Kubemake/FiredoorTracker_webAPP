@@ -19,7 +19,12 @@ class User_model  extends CI_Model
 			'deleted'	=> 0
 		);
 		$this->db->where($user_data);
-		return $this->db->get('Users')->row_array();
+		$user = $this->db->get('Users')->row_array();
+
+		$logofile = $this->db->where('idUsers', $user['parent'])->select('logoFilePath')->get('Users')->row_array();
+		$user['logoFilePath'] = (strlen($logofile['logoFilePath']) > 0) ? $logofile['logoFilePath'] : '/images/head-logo.png';
+
+		return $user;
 	}
 
 	function get_user_info_by_email($email)

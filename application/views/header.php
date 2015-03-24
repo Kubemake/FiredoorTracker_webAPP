@@ -27,7 +27,7 @@
 <header>
 	<div class="container">
 		<div class="row">
-			<div class="col-md-3 col-xs-12"><a href="/" id="logo"></a></div>
+			<div class="col-md-3 col-xs-12"><a href="/" id="logo" style="background-image: url(<?=$this->session->userdata('logoFilePath')?>);"></a></div>
 			<div class="col-md-3 col-xs-12 pull-right text-right" id="wellcome">
 				<div>WELCOME,</div><div> <?=$this->session->userdata('firstName')?> <?=$this->session->userdata('lastName')?></div>
 				<div class="lastlogin">LAST LOGIN <?=$this->session->userdata('lastlogin')?></div>
@@ -51,7 +51,7 @@
 						<li class="menu-item menu-item-2"><a href="/resources"><span class="fa fa-5x"></span><br />RESOURCES</a></li>
 						<li class="menu-item menu-item-3"><a href="/media"><span class="fa fa-5x"></span><br />MEDIA</a></li>
 						<li class="menu-item menu-item-4"><a href="/contactanexpert"><span class="fa fa-5x"></span><br />CONTACT<br/>AN EXPERT</a></li>
-						<li class="menu-item menu-item-5"><a href="/user"><span class="fa fa-5x"></span><br />USER SETTINGS</a></li>
+						<li class="menu-item menu-item-5"><a href="/user/profile"><span class="fa fa-5x"></span><br />USER SETTINGS</a></li>
 						<li class="menu-item menu-item-6 last"><a href="/user/leave"><span class="fa fa-5x"></span><br />LOG OUT</a></li>
 					</ul>
 				</div>

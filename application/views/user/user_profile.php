@@ -4,9 +4,24 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-6 col-md-push-3">
-					<!--div class="row">
-						<h2 class="col-xs-9 col-xs-push-3">User profile</h2>
-					</div-->
+					<?php if ($this->session->userdata('user_role') == 1): ?>
+					<div class="row">
+						<div class="col-md-6">
+							<div id="drop-area-div" class="text-center"<?php if (strlen($profile['logoFilePath']) > 0) echo ' style="display:none;"'; ?>> <?//container for d&d upload?>
+								<div class="line-1">Upload your company logo file here</div>
+								<div class="line-2">drag and drop files to upload</div>
+								<div class="line-3">or <span class="upbtnwrap"><input type="file" name="files[]" title="Click to add Files" /></span></div>
+								<div id="progress-files"></div><?//container for upload progress?>
+							</div>
+							<div class="company-logo" id="drop-area-div-result"<?php if (strlen($profile['logoFilePath']) > 0) echo ' style="display:block;"'; ?>>
+								<button type="button" class="close close-uploaded" data-dismiss="modal" aria-hidden="true">×</button>
+								<div id="upload-acceptor" class="text-center">
+									<?php if (strlen($profile['logoFilePath']) > 0) echo '<img id="upload-result" src="' . $profile['logoFilePath'] . '" />'; ?>
+								</div>
+							</div>
+						</div>
+					</div>
+					<?php endif; ?>
 					<div class="row">
 						<form class="form-horizontal" method="POST">
 							<div class="panel panel-default">
@@ -55,6 +70,7 @@
 							<br />
 							<div class="form-group">
 								<div class="col-xs-offset-3 col-xs-9">
+									<input type="hidden" id="logoFilePath" name="logoFilePath" class="btn btn-primary" value="<?=@$profile['logoFilePath']?>">
 									<input type="submit" name="updateProfile" class="btn btn-primary" value="Update profile data">
 								</div>
 							</div>
@@ -65,3 +81,37 @@
 		</div>
 	</div>
 </div>
+<?php if ($this->session->userdata('user_role') == 1): ?>
+<script type="text/javascript">
+	$(function(){
+		makeupload('#drop-area-div', <?=$this->session->userdata('user_id')?>, function(data){
+			$('#drop-area-div').hide();
+			// ftype = data.substr(-3);
+			// if ($.inArray(ftype,['jpg','png','jpeg','gif']) > -1) {
+				$('#upload-acceptor').html('<img id="upload-result" src="' + data + '" />');
+			// 	filetype="image";
+			// } else {
+				// $('#upload-acceptor').html('<a href="' + data + '" style="display: block; width: 500px; height: 400px;" id="upload-result"></a><scr' + 'ipt type="text/javascript">flowplayer("upload-result", {src : "/js/flowplayer/flowplayer-3.2.2.swf", wmode: "transparent"});</scr' + 'ipt>');
+			// 	filetype="video";
+			// }
+			
+			// $('#savemedia').removeClass('disabled');
+
+			// ftime = data.substr(-14).substr(0, 10);
+			$('#logoFilePath').val(data);
+			// $('#file_time').val(ftime);
+			// $('#file_type').val(filetype);
+			$('#drop-area-div-result').show();
+		});
+	})
+
+	$('.close-uploaded').on('click', function(){
+		$('#upload-acceptor').html('');
+		$('#drop-area-div').show();
+		$('#logoFilePath').val('');
+		$('#drop-area-div-result').hide();
+		// $('#savemedia').addClass('disabled');
+		$('#progress-files').prop('file-counter', '0').html('');
+	})
+</script>
+<?php endif; ?>

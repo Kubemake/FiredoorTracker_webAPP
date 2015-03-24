@@ -23,6 +23,7 @@ class User extends CI_Controller {
 				'lastName'		=> $postData['lastName'],
 				'officePhone'	=> $postData['officePhone'],
 				'mobilePhone'	=> $postData['mobilePhone'],
+				'logoFilePath' 	=> $postData['logoFilePath'],
 			);
 			if (   !empty($postData['inputPassword']) 
 			 	&& !empty($postData['confirmPassword'])
@@ -33,6 +34,9 @@ class User extends CI_Controller {
 
 			$this->user_model->update_user_data($this->session->userdata('user_id'), $updateData);
 
+			if (strlen($postData['logoFilePath']) > 0 )
+				$this->session->set_userdata('logoFilePath', $postData['logoFilePath']);
+
 			$header['msg'] = msg('success', 'Profile updated successfuly');
 
 			$this->session->set_userdata($updateData); 	//update session data
@@ -40,10 +44,14 @@ class User extends CI_Controller {
 
 		$data['profile'] = $this->user_model->get_user_info_by_user_id($this->session->userdata('user_id'));
 		
+		//uploader
+		$footer['scripts']  = '<script type="text/javascript" src="/js/uploader/src/dmuploader.min.js"></script>' . "\n";
+		$footer['scripts'] .= '<script type="text/javascript" src="/js/custom-upload.js"></script>' . "\n";
+
 		$header['page_title'] = 'User profile';
 		$this->load->view('header', $header);
 		$this->load->view('user/user_profile', $data);
-		$this->load->view('footer');
+		$this->load->view('footer', $footer);
 		
 	}
 
@@ -107,6 +115,7 @@ class User extends CI_Controller {
 					'firstName'		=> $this->session->userdata('firstName'),
 					'lastName'		=> $this->session->userdata('lastName'),
 					'lastlogin'		=> $this->session->userdata('lastLogin'),
+					'logoFilePath'	=> $this->session->userdata('logoFilePath'),
 				);
 				$cookie = array(
 					'name'   => 'islogged',
@@ -148,6 +157,7 @@ class User extends CI_Controller {
 			'firstName'		=> $valid_login['firstName'],
 			'lastName'		=> $valid_login['lastName'],
 			'lastlogin'		=> $valid_login['lastLogin'],
+			'logoFilePath'	=> $valid_login['logoFilePath'],
 /*			'email' 		=> $valid_login['email'],
 			// 'password'	=> $password,
 			'officePhone'	=> $valid_login['officePhone'],
