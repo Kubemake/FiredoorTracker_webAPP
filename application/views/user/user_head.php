@@ -6,7 +6,7 @@
 				<li><a href="/user/address">Address</a></li>
 				<?php if (has_permission('Allow view buildings tree tab')): ?><li><a href="/user/buildings">Buildings</a></li><?php endif; ?>
 				<?php if (has_permission('Allow view apertures tab')): 		?><li><a href="/user/apertures">Apertures</a></li><?php endif; ?>
-				<?php if (has_permission('Allow view users tab')):			?><li><a href="/user/employeers">Employeers</a></li><?php endif; ?>
+				<?php if (has_permission('Allow view users tab')):			?><li><a href="/user/employeers">Employers</a></li><?php endif; ?>
 				<?php if (has_permission('Allow view clients tab')):		?><li><a href="/admin/clients">Clients</a></li><?php endif; ?>
 			</ul>
 		</div>

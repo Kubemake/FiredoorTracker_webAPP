@@ -120,6 +120,16 @@ class Tests extends CI_Controller {
 		$this->_show('3. get normal', 							array('type' => 'set_inspection_confirmation', 'token' => $token, 'inspection_id' => $inspection_id));
 		$this->_show('Operation results',						array('type' => 'get_inspection_list_by_user', 'token' => $token));
 
+//----------------------------------
+		echo '<br>VII. <b>get_locations_tree</b>' . '<br>';
+		$this->_show('1. get normal ', 							array('type' => 'get_locations_tree', 'token' => $token));
+
+//----------------------------------
+		echo '<br>VIII. <b>get_apertures_by_location_id</b>' . '<br>';
+		$this->_show('1. without location_id param', 			array('type' => 'get_apertures_by_location_id', 'token' => $token));
+		$this->_show('2. empty location_id param',				array('type' => 'get_apertures_by_location_id', 'token' => $token, 'location_id' => 999));
+		$this->_show('3. get normal ', 							array('type' => 'get_apertures_by_location_id', 'token' => $token, 'location_id' => 26));
+
 	}
 
 

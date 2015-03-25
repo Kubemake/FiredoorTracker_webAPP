@@ -453,7 +453,7 @@ class User extends CI_Controller {
 			$data['result_table'] = $this->table->generate(); 
 		}
 
-		$header['page_title'] = 'EMPLOYEERS';
+		$header['page_title'] = 'EMPLOYERS';
 
 		//datatables
 		$header['styles']  = addDataTable('css');

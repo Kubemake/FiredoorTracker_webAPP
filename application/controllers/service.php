@@ -659,6 +659,136 @@ class Service extends CI_Controller {
 		$this->_show_output($userData);
 	}
 
+	/*
+	 * Get client locations tree
+	 *
+	 * Input data:
+	 * token    		=> auth id from login
+	 *
+	 * Output data:
+	 * status 	=> ok
+	 * tree 	=> locations tree array
+	 */
+	function _exec_function_get_locations_tree($data)
+	{
+		$this->load->model('user_model');
+		$this->load->model('resources_model');
+
+		$user_id = $data['tokendata']['user_id'];
+
+		$user = $this->user_model->get_user_info_by_user_id($user_id);
+
+		$user_buildings	= $this->resources_model->get_user_buildings($user['parent']);
+
+		$userData['status'] = 'ok';
+		$userData['tree'] = $user_buildings;
+
+		$this->_show_output($userData);
+	}
+
+	/*
+	 * Get apertures by location id
+	 *
+	 * Input data:
+	 * token    		=> auth id from login
+	 * location_id  	=> location id
+	 *
+	 * Output data:
+	 * status 		=> ok
+	 * apertures	=> apertures array
+	 */
+	function _exec_function_get_apertures_by_location_id($data)
+	{
+		if (!isset($data['location_id']) or empty($data['location_id']))
+		{
+			$userData['status'] = 'error';
+			$userData['error'] = 'not isset or empty input parameter location_id';
+			$this->_show_output($userData);
+		}
+
+		$this->load->model('user_model');
+		$this->load->model('resources_model');
+
+		$user_id = $data['tokendata']['user_id'];
+
+		$user = $this->user_model->get_user_info_by_user_id($user_id);
+
+		$apertures = $this->resources_model->get_user_apertures($data['location_id'], $user['parent']);
+
+		$userData['status'] 	= 'ok';
+		$userData['apertures'] 	= $apertures;
+
+		$this->_show_output($userData);
+	}
+
+	/*
+	 * Add Inspection
+	 *
+	 * Input data:
+	 * token    		=> auth id from login
+	 * aperture_id 		=> idAperture in table
+	 * StartDate 		=> StartDate in table
+	 * location_id 		=> Buildings_idBuildings in table
+	 * summary			=> review description
+	 *
+	 * Output data:
+	 * status 		=> ok
+	 * apertures	=> apertures array
+	 */
+	function _exec_function_add_inspection($data)
+	{
+		if (!isset($data['aperture_id']) or empty($data['aperture_id']))
+		{
+			$userData['status'] = 'error';
+			$userData['error'] = 'not isset or empty input parameter aperture_id';
+			$this->_show_output($userData);
+		}
+		
+		if (!isset($data['StartDate']) or empty($data['StartDate']))
+		{
+			$userData['status'] = 'error';
+			$userData['error'] = 'not isset or empty input parameter StartDate';
+			$this->_show_output($userData);
+		}
+
+		if (!isset($data['location_id']) or empty($data['location_id']))
+		{
+			$userData['status'] = 'error';
+			$userData['error'] = 'not isset or empty input parameter location_id';
+			$this->_show_output($userData);
+		}
+
+		$this->load->model('user_model');
+		$this->load->model('resources_model');
+		
+		$user_id = $data['tokendata']['user_id'];
+
+		$user = $this->user_model->get_user_info_by_user_id($user_id);
+		
+		$available_review = $this->resources_model->get_client_inspection_by_aperture_id($data['aperture_id'], $user['parent']);
+
+		if (!empty($available_review)) {
+			$userData['status'] = 'error';
+			$userData['error'] = 'review allready exist';
+			$this->_show_output($userData);
+		}
+
+		$adddata = array(
+			'idAperture' 				=> $data['aperture_id'],
+			'StartDate' 				=> $data['StartDate'],
+			'Buildings_idBuildings' 	=> $data['location_id'],
+			'InspectionStatus' 			=> 'New',
+			'Inspector' 				=> $user_id,
+			'UserId' 					=> $user['parent'],
+			'summary' 					=> @$data['summary']
+		);
+
+		$this->resources_model->add_inspection($adddata);
+
+		$userData['status'] 	= 'ok';
+
+		$this->_show_output($userData);
+	}
 
 }
 

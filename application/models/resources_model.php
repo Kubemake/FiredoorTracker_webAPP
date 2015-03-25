@@ -179,27 +179,29 @@ class Resources_model  extends CI_Model
 		return $this->db->get('ConditionalChoices')->result_array();
 	}
 
-	function get_user_buildings()
+	function get_user_buildings($user_parent = FALSE)
 	{
-		$parent = $this->session->userdata('user_parent'); //use director id
+		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
 
 		$this->db->select('b.*');
 		$this->db->from('UserBuildings ub');
 		$this->db->join('Buildings b', 'b.idBuildings = ub.Buildings_idBuildings');
 		$this->db->where('ub.Users_idUsers', $parent);
+		$this->db->where('b.deleted', 0);
 		$this->db->order_by('b.buildingOrder', 'asc');
 		return $this->db->get()->result_array();
 	}
 
-	function get_user_buildings_root()
+	function get_user_buildings_root($user_parent = FALSE)
 	{
-		$parent = $this->session->userdata('user_parent'); //use director id
+		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
 
 		$this->db->select('b.*');
 		$this->db->from('UserBuildings ub');
 		$this->db->join('Buildings b', 'b.idBuildings = ub.Buildings_idBuildings');
 		$this->db->where('ub.Users_idUsers', $parent);
 		$this->db->where('b.parent', 0);
+		$this->db->where('b.deleted', 0);
 		$this->db->order_by('b.buildingOrder', 'asc');
 		
 		$output = array();
@@ -209,9 +211,9 @@ class Resources_model  extends CI_Model
 		return $output;
 	}
 
-	function get_user_apertures($location_id = FALSE)
+	function get_user_apertures($location_id = FALSE, $user_parent = FALSE)
 	{
-		$parent = $this->session->userdata('user_parent'); //use director id
+		$parent =  $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
 		
 		$this->db->where('UserId', $parent);
 		if ($location_id)
@@ -296,6 +298,10 @@ class Resources_model  extends CI_Model
 		return $this->db->where('idInspections', $inspection_id)->update('Inspections', array('InspectionStatus' => $status));
 	}
 
+	function get_client_inspection_by_aperture_id($aperture_id, $parent)
+	{
+		return $this->db->where(array('idAperture' => $aperture_id, 'UserId' => $parent))->get('Inspections')->row_array();
+	}
 
 }
 
