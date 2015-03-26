@@ -96,6 +96,17 @@ class Resources_model  extends CI_Model
 		return $this->db->get()->row_array();
 	}
 
+	function get_aperture_info_by_barcode($barcode)
+	{
+		
+		$this->db->select('d.*, b.name as location_name');
+		$this->db->from('Doors d');
+		$this->db->join('Buildings b', 'b.idBuildings = d.Buildings_idBuildings');
+		$this->db->where('barcode', $barcode);
+		$this->db->where('d.deleted', 0);
+		return $this->db->get()->row_array();
+	}
+
 	function update_aperture_data($aperture_id, $upddata)
 	{
 		return $this->db->where('idDoors', $aperture_id)->update('Doors', $upddata);
@@ -298,11 +309,11 @@ class Resources_model  extends CI_Model
 		return $this->db->where('idInspections', $inspection_id)->update('Inspections', array('InspectionStatus' => $status));
 	}
 
-	function get_client_inspection_by_aperture_id($aperture_id, $parent)
+	function get_inspection_by_aperture_id($aperture_id)
 	{
-		return $this->db->where(array('idAperture' => $aperture_id, 'UserId' => $parent))->get('Inspections')->row_array();
+		$this->db->where('idAperture', $aperture_id);
+		return $this->db->get('Inspections')->result_array();
 	}
-
 }
 
 /* End of file resources_model.php */

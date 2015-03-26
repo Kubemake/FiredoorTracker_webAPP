@@ -130,6 +130,12 @@ class Tests extends CI_Controller {
 		$this->_show('2. empty location_id param',				array('type' => 'get_apertures_by_location_id', 'token' => $token, 'location_id' => 999));
 		$this->_show('3. get normal ', 							array('type' => 'get_apertures_by_location_id', 'token' => $token, 'location_id' => 26));
 
+//----------------------------------
+		echo '<br>IX. <b>check_door_uid</b>' . '<br>';
+		$this->_show('1. without barcode param', 				array('type' => 'check_door_uid', 'token' => $token));
+		$this->_show('2. empty barcode param',					array('type' => 'check_door_uid', 'token' => $token, 'barcode' => ''));
+		$this->_show('3. get normal ', 							array('type' => 'check_door_uid', 'token' => $token, 'barcode' => 1));
+
 	}
 
 

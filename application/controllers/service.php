@@ -790,6 +790,60 @@ class Service extends CI_Controller {
 		$this->_show_output($userData);
 	}
 
+	/*
+	 * Check door Unique ID
+	 *
+	 * Input data:
+	 * token    		=> auth id from login
+	 * barcode 			=> QR or scancode of door in 1-6 digit format
+	 *
+	 * Output data:
+	 * status 			=> ok if inspection not present
+	 * case 			=> new unique id OR inspection allready exists OR door UID is present
+	 * location			=> one or more location if door is present or new door
+	 */
+	function  _exec_function_check_door_uid($data)
+	{
+		if (!isset($data['barcode']) or empty($data['barcode']))
+		{
+			$userData['status'] = 'error';
+			$userData['error'] = 'not isset or empty input parameter barcode';
+			$this->_show_output($userData);
+		}
+
+		$this->load->model('user_model');
+		$this->load->model('resources_model');
+		$user_id = $data['tokendata']['user_id'];
+
+		$aperture = $this->resources_model->get_aperture_info_by_barcode($data['barcode']);
+
+		$user = $this->user_model->get_user_info_by_user_id($user_id);
+		if (empty($aperture))
+		{
+			$userData['status'] 	= 'ok';
+			$userData['case'] 		= 'new unique id';
+			$userData['location'] 	= $this->resources_model->get_user_buildings($user['parent']);;
+
+			$this->_show_output($userData);
+		}
+
+		$inspection = $this->resources_model->get_inspection_by_aperture_id($aperture['idDoors']);
+		if (!empty($inspection))
+		{
+			$userData['status'] = 'ok';
+			$userData['case'] 	= 'inspection allready exists';
+
+			$this->_show_output($userData);
+		}
+		
+
+		$userData['status'] 		= 'ok';
+		$userData['case'] 			= 'door UID is present';
+		$userData['location'][0]	= $this->user_model->get_building_data($aperture['Buildings_idBuildings']);
+
+		$this->_show_output($userData);
+
+	}
 }
 
 /* End of file service.php */
