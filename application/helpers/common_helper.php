@@ -13,14 +13,17 @@ function verifyLogged($type='user') //can be checked exactly for admin rgihts if
 	}
 	$logged_in = $CI->session->userdata('islogged');
 	$is_admin = $CI->session->userdata('isadmin');
+
 	if ($logged_in == FALSE)
 	{
-		redirect('/user/login', 'refresh');
-		return FALSE;
+		die('<script type="text/javascript">window.location = "/user/login"</script>');
+		// redirect('/user/login', 'refresh');
+		// return FALSE;
 	}
 	if ($type == 'admin' && $is_admin < 1) {
-		redirect('/user/login', 'refresh');
-		return FALSE;
+		die('<script type="text/javascript">window.location = "/user/login"</script>');
+		// redirect('/user/login', 'refresh');
+		// return FALSE;
 	}
 	return TRUE;
 }

@@ -659,7 +659,7 @@ class Service extends CI_Controller {
 		$this->_show_output($userData);
 	}
 
-	/*
+	/* DEPRECATED!!!
 	 * Get client locations tree
 	 *
 	 * Input data:
@@ -686,7 +686,7 @@ class Service extends CI_Controller {
 		$this->_show_output($userData);
 	}
 
-	/*
+	/* DEPRECATED!!!
 	 * Get apertures by location id
 	 *
 	 * Input data:

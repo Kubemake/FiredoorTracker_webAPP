@@ -35,6 +35,11 @@ class Dashboard extends CI_Controller {
 			switch ($postdata['form_type'])
 			{
 				case 'add_inspection':
+					$avail = $this->resources_model->get_inspection_by_aperture_id($postdata['aperture']);
+
+					if (!empty($avail))
+						$adddata['revision'] = $avail[0]['revision'] + 1;
+
 					$this->resources_model->add_inspection($adddata);
 				break;
 				case 'edit_inspection':

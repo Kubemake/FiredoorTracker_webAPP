@@ -312,6 +312,7 @@ class Resources_model  extends CI_Model
 	function get_inspection_by_aperture_id($aperture_id)
 	{
 		$this->db->where('idAperture', $aperture_id);
+		$this->db->order_by('revision','desc');
 		return $this->db->get('Inspections')->result_array();
 	}
 }
