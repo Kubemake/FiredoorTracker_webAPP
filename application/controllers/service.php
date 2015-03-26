@@ -341,8 +341,10 @@ class Service extends CI_Controller {
 				$userData['inspections'] = $output;
 
 			foreach ($userData['inspections'] as &$inspection) {
+
 				$result = $this->resources_model->get_building_name_by_building_id($inspection['building_id']);
-				$inspection['building_name'] = $result['building_name'];
+
+				$inspection['building_name'] = @$result['building_name'];
 			}
 		}
 
@@ -726,7 +728,7 @@ class Service extends CI_Controller {
 	 *
 	 * Input data:
 	 * token    		=> auth id from login
-	 * aperture_id 		=> idAperture in table
+	 * barcode 			=> QR or barcode of door
 	 * StartDate 		=> StartDate in table
 	 * location_id 		=> Buildings_idBuildings in table
 	 * summary			=> review description
@@ -737,10 +739,10 @@ class Service extends CI_Controller {
 	 */
 	function _exec_function_add_inspection($data)
 	{
-		if (!isset($data['aperture_id']) or empty($data['aperture_id']))
+		if (!isset($data['barcode']) or empty($data['barcode']))
 		{
 			$userData['status'] = 'error';
-			$userData['error'] = 'not isset or empty input parameter aperture_id';
+			$userData['error'] = 'not isset or empty input parameter barcode';
 			$this->_show_output($userData);
 		}
 		
@@ -765,16 +767,34 @@ class Service extends CI_Controller {
 
 		$user = $this->user_model->get_user_info_by_user_id($user_id);
 		
-		$available_review = $this->resources_model->get_client_inspection_by_aperture_id($data['aperture_id'], $user['parent']);
+		$aperture = $this->resources_model->get_aperture_info_by_barcode($data['barcode']);
 
-		if (!empty($available_review)) {
-			$userData['status'] = 'error';
-			$userData['error'] = 'review allready exist';
-			$this->_show_output($userData);
+		if (empty($aperture))
+		{
+			$adddata = array(
+				'barcode' 					=> $data['barcode'],
+				'Buildings_idBuildings' 	=> $data['location_id'],
+				'UserId' 					=> $user['parent'],
+				'name'						=> $data['barcode']
+			);
+			$aperture_id = $this->resources_model->add_aperture($adddata);
+	
+		}
+		else
+		{
+			$aperture_id = $aperture['idDoors'];
+
+			$available_review = $this->resources_model->get_client_inspection_by_aperture_id($aperture_id, $user['parent']);
+
+			if (!empty($available_review)) {
+				$userData['status'] = 'error';
+				$userData['error'] = 'review allready exist';
+				$this->_show_output($userData);
+			}
 		}
 
 		$adddata = array(
-			'idAperture' 				=> $data['aperture_id'],
+			'idAperture' 				=> $aperture_id,
 			'StartDate' 				=> $data['StartDate'],
 			'Buildings_idBuildings' 	=> $data['location_id'],
 			'InspectionStatus' 			=> 'New',

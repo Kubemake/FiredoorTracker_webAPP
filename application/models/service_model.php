@@ -55,9 +55,12 @@ class Service_model  extends CI_Model
 	function get_aperture_info_and_selected($aperture_id)
 	{
 		$doorval = $this->db->select('wall_Rating, smoke_Rating, material, rating')->where('idDoors', $aperture_id)->get('Doors')->row_array();
-		foreach ($doorval as $key => $value)
+		if (!empty($doorval))
 		{
-			$fields[$key]['selected'] = $value;
+			foreach ($doorval as $key => $value)
+			{
+				$fields[$key]['selected'] = $value;
+			}
 		}
 		
 		$wall_rating 	= $this->config->item('wall_rates');
@@ -66,19 +69,19 @@ class Service_model  extends CI_Model
 		$rating 		= $this->config->item('door_rating');
 		$fields['wall_Rating']['type'] = 'enum';
 		$fields['wall_Rating']['values'] = $wall_rating;
-		$fields['wall_Rating']['selected'] = $wall_rating[$fields['wall_Rating']['selected']];
+		$fields['wall_Rating']['selected'] = @$wall_rating[$fields['wall_Rating']['selected']];
 		$fields['wall_Rating']['name'] = 'Wall Rating';
 		$fields['smoke_Rating']['type'] = 'enum';
 		$fields['smoke_Rating']['values'] = $smoke_rating;
-		$fields['smoke_Rating']['selected'] = $smoke_rating[$fields['smoke_Rating']['selected']];
+		$fields['smoke_Rating']['selected'] = @$smoke_rating[$fields['smoke_Rating']['selected']];
 		$fields['smoke_Rating']['name'] = 'Smoke Rating';
 		$fields['material']['type'] = 'enum';
 		$fields['material']['values'] = $material;
-		$fields['material']['selected'] = $material[$fields['material']['selected']];
+		$fields['material']['selected'] = @$material[$fields['material']['selected']];
 		$fields['material']['name'] = 'Material';
 		$fields['rating']['type'] = 'enum';
 		$fields['rating']['values'] = $rating;
-		$fields['rating']['selected'] = $rating[$fields['rating']['selected']];
+		$fields['rating']['selected'] = @$rating[$fields['rating']['selected']];
 		$fields['rating']['name'] = 'Rating';
 
 		return $fields;

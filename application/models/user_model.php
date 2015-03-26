@@ -101,11 +101,11 @@ class User_model  extends CI_Model
 
     function delete_building_by_id($id)
     {
-        $this->db->where('idBuildings', $id)->delete('Buildings');
+        $this->db->where('idBuildings', $id)->update('Buildings', array('deleted' => $this->session->userdata('user_id')));
 
-        $this->db->where('Buildings_idBuildings', $id);
-        $this->db->where('Users_idUsers', $this->session->userdata('user_id'));
-        $this->db->delete('UserBuildings');
+        // $this->db->where('Buildings_idBuildings', $id);
+        // $this->db->where('Users_idUsers', $this->session->userdata('user_id'));
+        // $this->db->delete('UserBuildings');
         $elems = $this->db->where('parent', $id)->get('Buildings')->result_array();
         foreach ($elems as $elem) {
             $this->delete_building_by_id($elem['idBuildings']);
@@ -116,7 +116,6 @@ class User_model  extends CI_Model
 	{
 		$this->db->insert('Buildings', $adddata);
 		$bid = $this->db->insert_id();
-		
 		
 		//add root param for building element
 		$data['idBuildings'] = $bid;
@@ -132,7 +131,7 @@ class User_model  extends CI_Model
 		//add building to user link
 		$ubData = array(
 			'Buildings_idBuildings' => $bid,
-			'Users_idUsers'			=> $this->session->userdata('user_id')
+			'Users_idUsers'			=> $this->session->userdata('user_parent')
 		);
 		$this->db->insert('UserBuildings', $ubData);
 
