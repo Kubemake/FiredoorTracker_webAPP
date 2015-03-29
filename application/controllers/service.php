@@ -70,6 +70,18 @@ class Service extends CI_Controller {
 
 	/*
 	 * Upload file acceptor
+	 *
+	 * Input data:
+	 * token 		=> user token
+	 * file 		=> file data
+	 * file_type 	=> type of file image or video, image by default
+	 * file_name 	=> file name for display
+	 * file_descr 	=> file description
+	 * aperture_id	=> barcode or QR code of Door
+	 *
+	 * Output data:
+	 * status 	=> ok
+	 * file_id 	=> id uploaded
 	 */
 	function upload()
 	{
@@ -342,9 +354,23 @@ class Service extends CI_Controller {
 
 			foreach ($userData['inspections'] as &$inspection) {
 
-				$result = $this->resources_model->get_building_name_by_building_id($inspection['building_id']);
+				$building = $this->resources_model->get_building_name_by_building_id($inspection['building_id']);
 
-				$inspection['building_name'] = @$result['building_name'];
+				$anwers = $this->service_model->get_inspection_answers($inspection['id'], $inspection['aperture_id'], $user_id);
+				
+				$color = array();
+				foreach ($anwers as $answer)
+					$color[$answer['value']] = 1;
+
+				if (isset($color[1]) && count($color) > 1)
+					unset($color[1]);
+
+				$colorresult = array();
+				foreach ($color as $key => $value)
+					$colorresult[] = $key;
+				
+				$inspection['colorcode'] = $colorresult;
+				$inspection['building_name'] = @$building['building_name'];
 			}
 		}
 

@@ -437,7 +437,7 @@ class User extends CI_Controller {
 
 			if (has_permission('Allow view director users'))
 				$users = $this->resources_model->get_all_user_data(TRUE);
-			elseif (has_permission('Allow view supervizor users'))
+			elseif (has_permission('Allow view supervisor users'))
 				$users = $this->resources_model->get_all_user_data();
 
 
@@ -531,15 +531,20 @@ class User extends CI_Controller {
 				$order[$issdata['parent']] = 0;
 			else
 				$order[$issdata['parent']]++;
+			
+			if (!isset($zeroorder))
+				$zeroorder = 0;
+			else
+				$zeroorder++;
 
 			// if ($issdata['buildingOrder'] != $order[$issdata['parent']]) //if saved as final but it is not or if changed order UPDATE building data
 			// {
-				$issdata['buildingOrder'] = $order[$issdata['parent']];
+				$issdata['buildingOrder'] = $zeroorder;
 				$this->user_model->update_building_data($issdata);
 			// }
 
 			if (isset($building->children)) {
-				$this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $building->id);
+				$order = $this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $building->id);
 			}
 		}
 
@@ -565,9 +570,10 @@ class User extends CI_Controller {
 			// }
 
 			if (isset($building->children)) {
-				$this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $root);
+				$order = $this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $root);
 			}
 		}
+		return $order;
 	}
 
 	function ajax_get_building_by_id()

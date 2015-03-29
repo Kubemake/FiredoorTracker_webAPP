@@ -39,10 +39,10 @@
 				$.ajax({
 					url: '/user/ajax_buildings_reorder',
 					type: 'POST',
-					data: {buildings: output}/*,
+					data: {buildings: output},
 					success: function(msg){
 						console.log(msg);
-					}*/
+					}
 				})
 			};
 

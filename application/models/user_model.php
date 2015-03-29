@@ -65,6 +65,7 @@ class User_model  extends CI_Model
 		$this->db->from('UserBuildings ub');
 		$this->db->join('Buildings b', 'b.idBuildings = ub.Buildings_idBuildings');
 		$this->db->where('ub.Users_idUsers', $user_id);
+		$this->db->where('b.deleted', 0);
 		$this->db->order_by('b.buildingOrder', 'asc');
 		return $this->db->get()->result_array();
 	}

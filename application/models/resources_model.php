@@ -240,7 +240,7 @@ class Resources_model  extends CI_Model
 
 	function get_user_inspections()
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id');
+		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
 		$this->db->from('Inspections i');
 		$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings', 'left');
 		$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
@@ -252,7 +252,7 @@ class Resources_model  extends CI_Model
 
 	function get_user_inspections_by_parent($parent_id)
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id');
+		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
 	   	$this->db->from('Inspections i');
 	   	$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings', 'left');
 	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
@@ -265,7 +265,7 @@ class Resources_model  extends CI_Model
 
 	function get_user_inspections_by_user_id($user_id)
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id');
+		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
 	   	$this->db->from('Inspections i');
 	   	$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings', 'left');
 	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');

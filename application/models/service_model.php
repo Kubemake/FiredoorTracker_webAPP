@@ -175,7 +175,7 @@ class Service_model  extends CI_Model
 
 		$this->db->select('ff.questionId');
 		$this->db->from('FormFields ff');
-		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $apert['wall_Rating'] . ' AND cc.ratesTypes = ' . $apert['smoke_Rating'] . ' AND doorRating = ' . $apert['rating'] . ' AND doorMatherial = ' . $apert['material'], 'left');
+		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $apert['wall_Rating'] . ' AND cc.ratesTypes = ' . $apert['smoke_Rating'] . ' AND cc.doorRating = ' . $apert['rating'] . ' AND cc.doorMatherial = ' . $apert['material'], 'left');
 		$this->db->group_by('ff.questionId');
 		$this->db->where('cc.value >', 0);
 		
@@ -192,12 +192,26 @@ class Service_model  extends CI_Model
 
 		$this->db->select('ff.questionId');
 		$this->db->from('FormFields ff');
-		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $apert['wall_Rating'] . ' AND cc.ratesTypes = ' . $apert['smoke_Rating'] . ' AND doorRating = ' . $apert['rating'] . ' AND doorMatherial = ' . $apert['material'], 'left');
+		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $apert['wall_Rating'] . ' AND cc.ratesTypes = ' . $apert['smoke_Rating'] . ' AND cc.doorRating = ' . $apert['rating'] . ' AND cc.doorMatherial = ' . $apert['material'], 'left');
 		$this->db->join('DoorsFormFields dff', 'dff.FormFields_idFormFields = ff.idFormFields AND dff.Inspections_idInspections = ' . $inspection . ' AND dff.Users_idUsers = ' . $user, 'left');
 		$this->db->group_by('ff.questionId');
 		$this->db->where('cc.value >', 0);
 		$this->db->where('dff.value IS NOT ', 'NULL', FALSE);
 
 		return count($this->db->get()->result_array());
+	}
+
+	function get_inspection_answers($inspection, $aperture_id, $user)
+	{
+		$apert = $this->db->where('idDoors', $aperture_id)->get('Doors')->row_array();
+		
+		$this->db->select('cc.value');
+		$this->db->from('DoorsFormFields dff');
+		$this->db->join('ConditionalChoices cc', 'cc.idField=dff.FormFields_idFormFields AND cc.wallRates=' . $apert['wall_Rating'] . ' AND cc.ratesTypes=' . $apert['smoke_Rating'] . ' AND cc.doorRating =' . $apert['rating'] . ' AND cc.doorMatherial=' . $apert['material'], 'left');
+		$this->db->where('dff.Inspections_idInspections', $inspection);
+		$this->db->where('dff.Users_idUsers', $user);
+		$this->db->group_by('cc.value');
+		$this->db->where('cc.value >', 0);
+		return $this->db->get()->result_array();
 	}
 }
