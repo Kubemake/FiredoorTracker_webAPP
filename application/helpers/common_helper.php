@@ -220,6 +220,46 @@ function has_permission($rule_name)
 
 	return FALSE;
 }
+ 
+function get_image_by_height($full_img_path, $height, $action, $width=false) //image path from root site path like /images/12/img.jpg
+{
+	$CI = & get_instance();
+	if (empty($full_img_path)) return FALSE;
+	$CI->load->library('image_lib');
+	
+	$url = explode('/', $full_img_path);
+	$img = array_pop($url);
+	$url = implode('/', $url) . '/';
+
+	preg_match('#(.*)\.([\w]+)$#si', $img, $img);
+
+	$newfile = $_SERVER['DOCUMENT_ROOT'] . $url . $img[1] . '_' . $height . '.' . $img[2];
+
+	if (!file_exists($newfile))
+	{
+		$config['source_image'] = $_SERVER['DOCUMENT_ROOT'] . $full_img_path;
+		$config['new_image'] = $newfile;
+		$config['create_thumb'] = FALSE;
+		$config['maintain_ratio'] = FALSE;
+		$config['height'] = $height;
+		if ($width) 
+			$config['width'] = $width;
+		else
+		{
+			$sizes = getimagesize($_SERVER['DOCUMENT_ROOT'] . $full_img_path);
+			$a = $sizes[0] / $sizes[1];
+			$w = ceil($height * $a);
+			$config['width'] = $w;
+		}
+		$CI->image_lib->initialize($config);
+		if ( !$CI->image_lib->{$action}())
+		    echo $CI->image_lib->display_errors();
+		$CI->image_lib->clear();
+	}
+
+	$url = $url . $img[1] . '_' . $height . '.' . $img[2];
+	return $url;
+}
 
 /* End of file common_helper.php */
 /* Location: ./system/helpers/common_helper.php */

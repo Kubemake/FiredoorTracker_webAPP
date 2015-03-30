@@ -18,6 +18,14 @@ class User extends CI_Controller {
 		
 		if ($this->input->post('updateProfile')) {
 			$postData = $this->input->post();
+			if (strlen($postData['logoFilePath']) > 0 )
+			{
+				$postData['logoFilePath'] = str_replace('http://firedoortracker.org', '', $postData['logoFilePath']);
+				$postData['logoFilePath'] = get_image_by_height($postData['logoFilePath'], 100, 'resize');
+			}
+			else
+				$postData['logoFilePath'] = '/images/head-logo.png';
+
 			$updateData = array(
 				'firstName'		=> $postData['firstName'],
 				'lastName'		=> $postData['lastName'],
@@ -34,8 +42,7 @@ class User extends CI_Controller {
 
 			$this->user_model->update_user_data($this->session->userdata('user_id'), $updateData);
 
-			if (strlen($postData['logoFilePath']) > 0 )
-				$this->session->set_userdata('logoFilePath', $postData['logoFilePath']);
+			$this->session->set_userdata('logoFilePath', $postData['logoFilePath']);
 
 			$header['msg'] = msg('success', 'Profile updated successfuly');
 
