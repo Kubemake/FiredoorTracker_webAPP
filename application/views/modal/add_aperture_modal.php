@@ -16,12 +16,12 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="first_name" class="control-label col-xs-4">Select aperture location</label>
+							<label for="first_name" class="control-label col-xs-4">Select door location</label>
 							<div class="col-xs-8">
 								<div class="dropdown locationselect">
 									<button type="button" role="button" data-toggle="dropdown" class="btn btn-primary fullwidth" data-target="#">Select location <span class="caret"></span></button>
 									<?php echo make_buildings_dropdown($user_buildings); ?>
-									<input name="location" type="hidden" />
+									<input id="location" name="location" type="hidden" />
 								</div>
 							</div>
 						</div>
@@ -82,6 +82,15 @@
 							$('.locationselect button').html($(this).html());
 							$('.locationselect input').val($(this).data('id'));
 						});
+					});
+
+					$("#addbtnform").submit(function(e){
+						if ($('#location').val()=='')
+						{
+							alert('Please select aperture location!');
+							return false;
+						}
+
 					});
 				</script>
 			</form>

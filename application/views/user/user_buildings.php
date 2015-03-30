@@ -9,7 +9,7 @@
 					<button type="button" class="btn btn-default button-expand" data-action="expand-all">Expand All</button>
 					<button type="button" class="btn btn-default button-collapse"  data-action="collapse-all">Collapse All</button>
 					<?//<button type="button" onclick="button_add_building_action();return false;" class="btn btn-default button-add">Add Building</button>?>
-					<button type="button" onclick="button_add_element_action();return false;" class="btn btn-default button-add">Add Element</button>
+					<button type="button" onclick="button_add_element_action(0);return false;" class="btn btn-default button-add">Add Building</button>
 				</div>
 			</div>
 		</div>
@@ -63,9 +63,9 @@
 	</script>
 
 	<script type="text/javascript">
-		function button_add_element_action()
+		function button_add_element_action(parent)
 		{
-			$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'add_user_building_modal'},function(){$('#AddUserBuildingModal').modal({show: true})});
+			$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page:'add_user_building_modal',parent:parent},function(){$('#AddUserBuildingModal').modal({show: true})});
 			
 		}
 

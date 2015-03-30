@@ -21,8 +21,11 @@ class User_model  extends CI_Model
 		$this->db->where($user_data);
 		$user = $this->db->get('Users')->row_array();
 
-		$logofile = $this->db->where('idUsers', $user['parent'])->select('logoFilePath')->get('Users')->row_array();
-		$user['logoFilePath'] = (strlen($logofile['logoFilePath']) > 0) ? $logofile['logoFilePath'] : '/images/head-logo.png';
+		if (!empty($user))
+		{
+			$logofile = $this->db->where('idUsers', $user['parent'])->select('logoFilePath')->get('Users')->row_array();
+			$user['logoFilePath'] = (strlen($logofile['logoFilePath']) > 0) ? $logofile['logoFilePath'] : '/images/head-logo.png';
+		}
 
 		return $user;
 	}

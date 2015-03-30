@@ -16,7 +16,7 @@
 			<div class="col-md-6">
 				<form method="POST" name="add_uploaded_file" id="adduploadedfile" class="form-horizontal">
 					<div class="form-group">
-						<label for="first_name" class="control-label col-xs-4">Select aperture location</label>
+						<label for="first_name" class="control-label col-xs-4">Select door location</label>
 						<div class="col-xs-8">
 							<div class="dropdown locationselect">
 								<button type="button" role="button" data-toggle="dropdown" class="btn btn-primary fullwidth" data-target="#">Select location <span class="caret"></span></button>
@@ -26,10 +26,10 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="aperture" class="control-label col-xs-4"><span>Aperture</span></label>
+						<label for="aperture" class="control-label col-xs-4"><span>Door</span></label>
 						<div class="col-xs-8 apertureselect">
 							<select name="aperture" id="aperture" class="selectpicker fullwidth" data-live-search="true">
-								<option value="0">Choose aperture</option>
+								<option value="0">Choose door</option>
 								<?php foreach ($user_apertures as $aperture): ?>
 									<option value="<?=$aperture['idDoors']?>"><?=$aperture['name']?></option>
 								<?php endforeach; ?>
@@ -65,7 +65,7 @@
 				<thead>
 					<tr>
 						<th>Photos</th>
-						<th>Aperture</th>
+						<th>Door</th>
 						<th>Upload date</th>
 					</tr>
 				</thead>
@@ -76,7 +76,7 @@
 								<span class="file-icon glyphicon glyphicon-picture"></span>
 								<span class="fileactions">
 									<a href="javascript:;" onclick="edit_image_action(this);return false;" data-id="<?=$image['idFiles']?>"><span class="glyphicon glyphicon-pencil"></span></a>
-									<a href="javascript:;" onclick="delete_image_action();return false;" data-id="<?=$image['idFiles']?>"><span class="glyphicon glyphicon-trash"></span></a>
+									<a href="javascript:;" onclick="delete_image_action(this);return false;" data-id="<?=$image['idFiles']?>"><span class="glyphicon glyphicon-trash"></span></a>
 								</span>
 								<a href="javascript:;" class="file-link" data-remote="<?=$image['path']?>" data-title="<?=$image['name']?>"><?=$image['name']?></a>
 							</td> 
@@ -92,7 +92,7 @@
 				<thead>
 					<tr>
 						<th>Videos</th>
-						<th>Aperture</th>
+						<th>Door</th>
 						<th>Upload date</th>
 					</tr>
 				</thead>
@@ -103,7 +103,7 @@
 								<span class="file-icon glyphicon glyphicon-film"></span>
 								<span class="fileactions">
 									<a href="javascript:;" onclick="edit_image_action(this);return false;" data-id="<?=$video['idFiles']?>"><span class="glyphicon glyphicon-pencil"></span></a>
-									<a href="javascript:;" onclick="delete_image_action();return false;" data-id="<?=$video['idFiles']?>"><span class="glyphicon glyphicon-trash"></span></a>
+									<a href="javascript:;" onclick="delete_image_action(this);return false;" data-id="<?=$video['idFiles']?>"><span class="glyphicon glyphicon-trash"></span></a>
 								</span>
 								<a href="javascript:;" class="v-file-link" data-remote="<?=$video['path']?>" data-title="<?=$video['name']?>"><?=$video['name']?></a>
 							</td>
@@ -166,6 +166,23 @@
 	{
 		seldata = $(e).data('id');
 		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'edit_file_modal', id: seldata},function(){unselectall();$('#EditFileModal').modal({show: true})});
+	}
+
+	function delete_image_action(e)
+	{
+		seldata = $(e).data('id');
+		$.ajax({
+			url: "/media/ajax_file_delete",
+			type: "POST",
+			data: {
+				id: seldata
+			},
+			success: function(msg) {
+				console.log(msg);
+				if (msg=='done')
+					$(e).closest('tr').remove();
+			}
+		});
 	}
 
 	function unselectall()

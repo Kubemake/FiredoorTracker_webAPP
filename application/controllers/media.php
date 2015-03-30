@@ -15,15 +15,27 @@ class Media extends CI_Controller {
 
 		if ($postdata = $this->input->post())
 		{
-			$adddata = array(
-				'Users_idUsers'  => $this->session->userdata('user_id'),
-				'path' 			 => $postdata['file_path'],
-				'name'			 => $postdata['file_name'],
-				'description' 	 => $postdata['file_descr'],
-				'type' 			 => $postdata['file_type'],
-				'FileUploadDate' => date('Y-m-d H:i:s', $postdata['file_time'])
-			);
-			$fileid = $this->media_model->add_uploaded_file($adddata);
+			if ($postdata['form_type'] == 'edit_file') {
+				$upddata = array(
+					'name' 			=> $postdata['file_name'],
+					'description' 	=> $postdata['file_descr']
+				);
+				$this->media_model->update_aperture_file($postdata['idfiles'], $upddata);
+				$fileid = $postdata['idfiles'];
+			}
+			else
+			{
+				$adddata = array(
+					'Users_idUsers'  => $this->session->userdata('user_id'),
+					'path' 			 => $postdata['file_path'],
+					'name'			 => $postdata['file_name'],
+					'description' 	 => $postdata['file_descr'],
+					'type' 			 => $postdata['file_type'],
+					'FileUploadDate' => date('Y-m-d H:i:s', $postdata['file_time'])
+				);
+				$fileid = $this->media_model->add_uploaded_file($adddata);
+
+			}
 
 			if ($postdata['aperture'] > 0)
 				$this->media_model->add_aperture_file($fileid, $postdata['aperture']);
@@ -99,7 +111,13 @@ class Media extends CI_Controller {
 		$data['remote'] = $params['url'];
 
 		$this->load->view('/modal/view_video_modal', $data);
+	}
 
+	function ajax_file_delete()
+	{
+		if (!$params = $this->input->post()) return '';
+		if ($this->media_model->delete_user_file($params['id']))
+			die('done');
 	}
 	
 }

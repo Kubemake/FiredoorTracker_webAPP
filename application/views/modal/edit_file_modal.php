@@ -13,7 +13,8 @@
 						<?php if ($file['type']=='image'): ?>
 							<img id="upload-result" src="<?=$file['path']?>" />
 						<?php else: ?>
-							<a href="<?=$file['path']?>" style="display: inline-block; width: 500px; height: 400px;" id="upload-result"></a>
+							<div id="upload-result"></div>
+							<a href="<?=$file['path']?>" style="display: inline-block; width: 500px; height: 400px;" >&nbsp;</a>
 							<script type="text/javascript">flowplayer("upload-result", {src : "/js/flowplayer/flowplayer-3.2.2.swf", wmode: "transparent"});</script>
 						<?php endif; ?>
 						</div>
@@ -39,7 +40,7 @@
 								<div class="dropdown locationselect">
 									<button type="button" role="button" data-toggle="dropdown" class="btn btn-primary fullwidth" data-target="#"><?php echo empty($file['location_name']) ? 'Select location' : $file['location_name']; ?> <span class="caret"></span></button>
 									<?php echo make_buildings_dropdown($user_buildings); ?>
-									<input name="location" type="hidden" value="<?=$file['Buildings_idBuildings']?>" />
+									<input id="location" name="location" type="hidden" value="<?=$file['Buildings_idBuildings']?>" />
 								</div>
 							</div>
 						</div>
@@ -87,5 +88,4 @@
 
 		});
 	});
-
 </script>

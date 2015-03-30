@@ -24,6 +24,7 @@ class Media_model  extends CI_Model
 		$this->db->join('InspectionFieldFiles iff', 'iff.Files_idFiles = f.idFiles', 'left');
 		$this->db->join('Doors d', 'd.idDoors = iff.Doors_idDoors', 'left');
 		$this->db->where('f.type', $type);
+		$this->db->where('f.deleted', 0);
 		return $this->db->get()->result_array();
 	}
 
@@ -31,7 +32,7 @@ class Media_model  extends CI_Model
 	{
 		$this->db->select('f.idFiles, f.path, f.name, f.type, f.description, d.idDoors as aperture_id, d.name as aperture, f.FileUploadDate, d.Buildings_idBuildings, b.name as location_name');
 		$this->db->from('Files f');
-		$this->db->join('InspectionFieldFiles iff', 'iff.Files_idFiles = f.idFiles', 'left');
+		$this->db->join('InspectionFieldFiles iff', 'iff.Files_idFiles = f.idFiles AND iff.deleted = 0', 'left');
 		$this->db->join('Doors d', 'd.idDoors = iff.Doors_idDoors', 'left');
 		$this->db->join('Buildings b', 'b.idBuildings = d.Buildings_idBuildings', 'left');
 		$this->db->where('f.idFiles', $file_id);
@@ -40,11 +41,27 @@ class Media_model  extends CI_Model
 
 	function add_aperture_file($file_id, $door_id)
 	{
+		$this->db->where('Files_idFiles', $file_id)->update('InspectionFieldFiles', array('deleted' => $this->session->userdata('user_id')));
 		$insdata = array(
 			'Doors_idDoors' => $door_id,
 			'Files_idFiles' => $file_id
 		);
-		return $this->db->insert('InspectionFieldFiles', $insdata);
+		$insert_query = $this->db->insert_string('InspectionFieldFiles', $insdata);
+		$insert_query = str_replace('INSERT INTO', 'INSERT IGNORE INTO', $insert_query);
+		return $this->db->query($insert_query);
+	}
+
+	function update_aperture_file($file_id, $upddata)
+	{
+		$this->db->where('idFiles', $file_id);
+		return $this->db->update('Files', $upddata);
+	}
+
+	function delete_user_file($file_id)
+	{
+		$this->db->where('Files_idFiles', $file_id)->update('InspectionFieldFiles', array('deleted' => $this->session->userdata('user_id')));
+
+		return $this->db->where('idFiles', $file_id)->update('Files', array('deleted' => $this->session->userdata('user_id')));
 	}
 }
 

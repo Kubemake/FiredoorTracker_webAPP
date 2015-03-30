@@ -6,7 +6,7 @@
 	 		<form method="POST" name="add_user_building_modal" id="addbtnform" class="form-horizontal">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title text-center" id="myModalLabel">Add Element</h4>
+					<h4 class="modal-title text-center" id="myModalLabel"><?php echo ($parent>0)? 'Add Element' : 'Add Building'; ?></h4>
 				</div>
 				<div class="modal-body">
 					<div class="row pad15">
@@ -16,16 +16,11 @@
 								<input name="name" id="name" class="form-control" required="required" type="text" value="" />
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="parent" class="control-label col-xs-4">Parent</label>
-							<div class="col-xs-8">
-								<input name="parent" id="parent" class="form-control" required="required" type="text" value="" />
-							</div>
-						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
 					<input type="hidden" name="form_type" value="add_user_building">
+					<input type="hidden" name="parent" value="<?=$parent?>" />
 					<button type="submit" class="btn btn-primary">Add element</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel changes</button>
 				</div>

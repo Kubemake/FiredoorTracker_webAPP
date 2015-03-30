@@ -164,6 +164,12 @@ div.dataTables_filter {
 	top: 4px;
 	cursor: pointer;
 }
+.dd-item > .btn-plus {
+	position: absolute;
+	right: 60px;
+	top: 4px;
+	cursor: pointer;
+}
 .dd-handle .glyphicon {
 	padding-right: 5px;
 }

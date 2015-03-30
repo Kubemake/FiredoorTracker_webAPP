@@ -49,9 +49,9 @@ class Dashboard extends CI_Controller {
 		}
 
 		$this->table->set_heading(
-			'id',
+			'Id',
 			'Location',
-			'aperture',
+			'Door',
 			array('data' => 'Start date', 'class' => 'not-mobile'),
 			array('data' => 'Completion', 'class' => 'not-mobile'),
 			array('data' => 'Reviewer'	, 'class' => 'not-mobile'),

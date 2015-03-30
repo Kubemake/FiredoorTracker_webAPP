@@ -258,8 +258,9 @@ class User extends CI_Controller {
 						continue;
 
 					$result .= '<li class="dd-item" data-id="' . $buildingdata['idBuildings'] . '">' . "\n";
-					$result .= '<div class="dd-handle"><span class="glyphicon glyphicon-align-justify"></span><span class="label-text">' . $buildingdata['name'] . '</span> <small>(id:' . $buildingdata['idBuildings'] . ')</small></div>';
-					$result .= (has_permission('Allow modify buildings tree')) ? '<a onclick="editfield(this);return false;" class="btn btn-xs btn-default btn-pencil"><span class="glyphicon glyphicon-pencil"></span></a>
+					$result .= '<div class="dd-handle"><span class="glyphicon glyphicon-align-justify"></span><span class="label-text">' . $buildingdata['name'] . '</span></div>';
+					$result .= (has_permission('Allow modify buildings tree')) ? '<a onclick="button_add_element_action(' . $buildingdata['idBuildings'] . ');return false;" class="btn btn-xs btn-default btn-plus"><span class="glyphicon glyphicon-plus"></span></a>
+								<a onclick="editfield(this);return false;" class="btn btn-xs btn-default btn-pencil"><span class="glyphicon glyphicon-pencil"></span></a>
 								<a onclick="deletefield(this);return false;" class="btn btn-xs btn-default btn-trash"><span class="glyphicon glyphicon-trash"></span></a>' . "\n" : '';
 					$result .=  $this->_get_buildings_by_parent($buildingdata['idBuildings']);
 					$result .= '</li>' . "\n";
@@ -496,7 +497,7 @@ class User extends CI_Controller {
 		{
 			$result .= '<li class="dd-item" data-id="' . $building['idBuildings'] . '">' . "\n";
 			$result .= '<div class="dd-handle"><span class="glyphicon glyphicon-align-justify"></span><span class="label-text">' . $building['name'] . '</span> <small>(id:' . $building['idBuildings'] . ')</small></div>';
-			$result .= (has_permission('Allow modify buildings tree')) ? '<a onclick="editfield(this);return false;" class="btn btn-xs btn-default btn-pencil"><span class="glyphicon glyphicon-pencil"></span></a>
+			$result .= (has_permission('Allow modify buildings tree')) ? '<a onclick="button_add_element_action(' . $building['idBuildings'] . ');return false;" class="btn btn-xs btn-default btn-plus"><span class="glyphicon glyphicon-plus"></span></a><a onclick="editfield(this);return false;" class="btn btn-xs btn-default btn-pencil"><span class="glyphicon glyphicon-pencil"></span></a>
 								<a onclick="deletefield(this);return false;" class="btn btn-xs btn-default btn-trash"><span class="glyphicon glyphicon-trash"></span></a>' . "\n" : '';
 			$result .=  $this->_get_buildings_by_parent($building['idBuildings']);
 			$result .= '</li>' . "\n";

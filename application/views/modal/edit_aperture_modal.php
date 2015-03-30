@@ -16,7 +16,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="first_name" class="control-label col-xs-4">Select aperture location</label>
+							<label for="first_name" class="control-label col-xs-4">Select door location</label>
 							<div class="col-xs-8">
 								<div class="dropdown locationselect">
 									<button type="button" role="button" data-toggle="dropdown" class="btn btn-primary fullwidth" data-target="#"><?php echo empty($aperture['location_name']) ? 'Select location' : $aperture['location_name']; ?> <span class="caret"></span></button>

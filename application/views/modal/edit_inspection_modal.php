@@ -10,7 +10,7 @@
 				<div class="modal-body">
 					<div class="row pad15">
 						<div class="form-group">
-							<label for="first_name" class="control-label col-xs-4">Select aperture location</label>
+							<label for="first_name" class="control-label col-xs-4">Select door location</label>
 							<div class="col-xs-8">
 								<div class="dropdown locationselect">
 									<button type="button" role="button" data-toggle="dropdown" class="btn btn-primary fullwidth" data-target="#"><?php echo empty($inspection['name']) ? 'Select location' : $inspection['name']; ?> <span class="caret"></span></button>
@@ -20,10 +20,10 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="aperture" class="control-label col-xs-4">Select aperture</label>
+							<label for="aperture" class="control-label col-xs-4">Select door</label>
 							<div class="col-xs-8 apertureselect">
 								<select name="aperture" id="aperture" class="selectpicker fullwidth" data-live-search="true">
-									<option value="0">Choose aperture</option>
+									<option value="0">Choose door</option>
 									<?php foreach ($user_apertures as $aperture): ?>
 										<?php $select = ($inspection['idAperture'] == $aperture['idDoors']) ? ' selected="selected"' : '';?>
 										<option<?=$select?> value="<?=$aperture['idDoors']?>"><?=$aperture['name']?></option>
@@ -114,9 +114,9 @@
 	});
 
 	$("#editbtnform").submit(function(e){
-	    if ($('.apertureselect select').val()=='Choose aperture')
+	    if ($('.apertureselect select').val()=='Choose door')
 		{
-			alert('Please choose aperture!');
+			alert('Please choose door!');
 			return false;
 		}
 	});
