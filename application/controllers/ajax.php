@@ -101,6 +101,23 @@ class Ajax extends CI_Controller {
 				$params['file']  				= $this->media_model->get_file_data_by_id($file_id);
 				$params['user_apertures'] 		= $this->resources_model->get_user_apertures();
 			break;
+
+			case 'choose_condition_value_modal':
+				if (!$id 				= $this->input->post('id')) 				return '';
+				if (!$wall_rate_id 		= $this->input->post('wall_rate_id')) 		return '';
+				if (!$ratestypesid 		= $this->input->post('ratestypesid')) 		return '';
+				if (!$doormatherialid 	= $this->input->post('doormatherialid')) 	return '';
+				if (!$doorratingid 		= $this->input->post('doorratingid')) 		return '';
+				
+				$params['id'] 					= $id;
+				$params['wall_rate_id']			= $wall_rate_id;
+				$params['ratestypesid'] 		= $ratestypesid;
+				$params['doormatherialid'] 		= $doormatherialid;
+				$params['doorratingid'] 		= $doorratingid;
+				$params['door_states'] 			= $this->config->item('door_state');
+				$params['thisvalue'] 			= @$this->input->post('thisvalue');
+
+			break;
 			default:
 				# code...
 			break;

@@ -443,11 +443,7 @@ class User extends CI_Controller {
 				array('data' => 'Role'			, 'class' => 'not-mobile')
 			);
 
-			if (has_permission('Allow view director users'))
-				$users = $this->resources_model->get_all_user_data(TRUE);
-			elseif (has_permission('Allow view supervisor users'))
-				$users = $this->resources_model->get_all_user_data();
-
+			$users = $this->resources_model->get_all_user_data();
 
 			if (!empty($users))
 			{
@@ -461,7 +457,7 @@ class User extends CI_Controller {
 			$data['result_table'] = $this->table->generate(); 
 		}
 
-		$header['page_title'] = 'EMPLOYERS';
+		$header['page_title'] = 'EMPLOYEES';
 
 		//datatables
 		$header['styles']  = addDataTable('css');
@@ -487,7 +483,7 @@ class User extends CI_Controller {
 
 		if (!$employeer_id = $this->input->post('id')) return print('empty id');
 
-		if (!$this->resources_model->delete_employeer_by_id($employeer_id))  return print('can\'t delete employeer by id');
+		if (!$this->resources_model->delete_employeer_by_id($employeer_id))  return print('can\'t delete employee by id');
 
 		return print('done');
 	}

@@ -82,7 +82,7 @@
 									<div class="form-group">
 										<label for="new_password" class="control-label col-xs-4">New password</label>
 										<div class="col-xs-8">
-											<input type="password" name="new_password" id="new_password" class="form-control" required="required" value="" onchange="checkPasswords()" />
+											<input type="password" name="new_password" id="new_password" class="form-control" required="required" value="" onchange="checkPasswords()" onclick="$('input:radio[name=password_generator]:nth(0)').attr('checked',true);"/>
 										</div>
 									</div>
 									<div class="form-group">

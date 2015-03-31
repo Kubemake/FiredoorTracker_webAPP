@@ -77,13 +77,13 @@
 									<div class="form-group">
 										<label for="new_password" class="control-label col-xs-4">New password</label>
 										<div class="col-xs-8">
-											<input type="password" name="new_password" id="new_password" class="form-control" value="" />
+											<input type="password" name="new_password" id="new_password" class="form-control" value=""  onchange="checkPasswords()"  onclick="$('input:radio[name=password_generator]:nth(0)').attr('checked',true);"/>
 										</div>
 									</div>
 									<div class="form-group">
 										<label for="repeat_password" class="control-label col-xs-4">Repeat password</label>
 										<div class="col-xs-8">
-											<input type="password" name="repeat_password" id="repeat_password" class="form-control" value="" />
+											<input type="password" name="repeat_password" id="repeat_password" class="form-control"  onchange="checkPasswords()"  value="" />
 										</div>
 									</div>
 								</div>
@@ -122,3 +122,13 @@
 		</div>
 	</div>
 </div>
+<script type="text/javascript">
+	function checkPasswords() {
+		var passl = document.getElementById('new_password');
+		var pass2 = document.getElementById('repeat_password');
+		if (passl.value!=pass2.value)
+			passl.setCustomValidity("Password mismatch. Please check password in both fields!");
+		else
+			passl.setCustomValidity("");
+	}
+</script>

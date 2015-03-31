@@ -25,7 +25,7 @@
 		6 => 'color-7'
 	);
 	?>
-	<table class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">
+	<table id="conditions" class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">
 	<thead>
 		<tr>
 			<td rowspan="3">Issues</td>
@@ -35,7 +35,6 @@
 		</tr>
 		<tr>
 			<?php foreach ($choices as $ratesTypesId => $ratesType): //make 2part of table head?>
-				<?php ksort($ratesType); ?>
 				<?php foreach ($ratesType as $doorMatherialid => $doorMatherial): //make 2part of table head?>
 					<td class="<?=@$doorMatherialcolor[$doorMatherialid]?>" colspan="<?=count($doorMatherial)?>"><?=$param['door_matherial'][$doorMatherialid]?></td>
 				<?php endforeach;?>
@@ -58,7 +57,16 @@
 				<?php foreach ($choices as $ratesTypesId => $ratesType): ?>
 					<?php foreach ($ratesType as $doorMatherialid => $doorMatherial): ?>
 						<?php foreach ($doorMatherial as $doorRatingId => $doorRating): ?>
-							<td data-wall_rate_id="<?=$current_wall_rate_id?>" data-id="<?=$order[$i]?>" data-ratesTypesId="<?=$ratesTypesId?>" data-doorMatherialid="<?=$doorMatherialid?>" data-doorRatingId="<?=$doorRatingId?>" class="clicktochange <?=@$statuscolor[$choices_rows[$order[$i]][$ratesTypesId][$doorMatherialid][$doorRatingId]]?>"><?=@$param['door_state'][$choices_rows[$order[$i]][$ratesTypesId][$doorMatherialid][$doorRatingId]] ?></td>
+							<td 
+								data-wall_rate_id="<?=$current_wall_rate_id?>" 
+								data-id="<?=$order[$i]?>" 
+								data-ratesTypesId="<?=$ratesTypesId?>" 
+								data-doorMatherialid="<?=$doorMatherialid?>" 
+								data-doorRatingId="<?=$doorRatingId?>" 
+								data-thisvalue="<?=@$choices_rows[$order[$i]][$ratesTypesId][$doorMatherialid][$doorRatingId]?>" 
+								class="clicktochange <?=@$statuscolor[$choices_rows[$order[$i]][$ratesTypesId][$doorMatherialid][$doorRatingId]]?>">
+									<?=@$param['door_state'][$choices_rows[$order[$i]][$ratesTypesId][$doorMatherialid][$doorRatingId]] ?>
+							</td>
 						<?php endforeach; ?>
 					<?php endforeach; ?>
 				<?php endforeach; ?>
@@ -67,9 +75,16 @@
 		<?php endfor; ?>
 	</tbody>
 	</table>
-	<div class="cf nestable-lists">
-		<div class='dd' id="nestable">
-			<?=$issues?>
-		</div>
-	</div>
 </div>
+
+<script type="text/javascript">
+	$(function(){
+		$('body').css('width', ($('#conditions').width()+50)+'px');
+
+		$('td').dblclick(function(){ //edit value on double click
+			params = $(this).data();
+			// console.log(params);
+			$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'choose_condition_value_modal',id:params.id, wall_rate_id:params.wall_rate_id, ratestypesid:params.ratestypesid, doormatherialid:params.doormatherialid, doorratingid:params.doorratingid, thisvalue:params.thisvalue},function(){$('#ChooseCondtionValueModal').modal({show: true})});
+		});
+	});
+</script>

@@ -18,11 +18,12 @@ class Resources_model  extends CI_Model
 	function get_all_employeers_roles()
 	{
 		$curent_role = $this->db->where('idRoles', $this->session->userdata('user_role'))->get('Roles')->row_array();
-		
-		if ($curent_role['idRoles'] == 4)
+		$roleOrder = $curent_role['rolesOrder'];
+
+		if ($curent_role['idRoles'] == 4) //for admin
 			$this->db->where_in('idRoles', array(1,4));
 		else
-			$this->db->where('rolesOrder >', $curent_role['rolesOrder']);
+			$this->db->where('rolesOrder >', $roleOrder);
 
 		$result = $this->db->get('Roles')->result_array();
 		$output = array();
@@ -55,18 +56,18 @@ class Resources_model  extends CI_Model
 		return $this->db->get('Users')->row_array();
 	}
 
-	function get_all_user_data($show_director = FALSE)
+	function get_all_user_data(/*$show_director = FALSE*/)
 	{
+		$roleOrder = $this->db->where('idRoles', $this->session->userdata('user_role'))->get('Roles')->row_array();
+		$roleOrder = $roleOrder['rolesOrder'];
+
 		$this->db->select('u.*, r.name as role_name');
 		$this->db->from('Users u');
-		$this->db->join('Roles r', 'r.idRoles = u.role');
+		$this->db->join('Roles r', 'r.idRoles = u.role', 'left');
 		$this->db->where('u.parent', $this->session->userdata('user_parent'));
-		$this->db->where('u.idUsers !=', $this->session->userdata('user_parent'));
 		$this->db->where('u.deleted', 0);
-		if (!$show_director)
-		{
-			$this->db->where('u.role !=', $this->session->userdata('user_role'));
-		}
+		$this->db->where('r.rolesOrder >', $roleOrder); //show only less weight order
+
 		return $this->db->get()->result_array();
 	}
 
@@ -188,6 +189,40 @@ class Resources_model  extends CI_Model
 	{
 		$this->db->where('wallRates', $wall_rate_id);
 		return $this->db->get('ConditionalChoices')->result_array();
+	}
+
+	function update_choice($field_id, $wall_rate_id, $ratesTypesId, $doorMatherialid, $doorRatingId, $value)
+	{
+		$whr = array(
+			'idField' 		=> $field_id,
+			'wallRates' 	=> $wall_rate_id,
+			'ratesTypes' 	=> $ratesTypesId,
+			'doorRating' 	=> $doorRatingId,
+			'doorMatherial' => $doorMatherialid
+
+		);
+		$isseted = $this->db->where($whr)->get('ConditionalChoices')->row_array();
+		if (!empty($isseted))
+		{
+			$this->db->where($whr);
+			return $this->db->update('ConditionalChoices', array('value' => $value));
+		}
+		else
+			$whr['value'] = $value;
+			return $this->db->insert('ConditionalChoices', $whr);
+	}
+
+	function delete_choice($field_id, $wall_rate_id, $ratesTypesId, $doorMatherialid, $doorRatingId)
+	{
+		$this->db->where(array(
+			'idField' 		=> $field_id,
+			'wallRates' 	=> $wall_rate_id,
+			'ratesTypes' 	=> $ratesTypesId,
+			'doorRating' 	=> $doorRatingId,
+			'doorMatherial' => $doorMatherialid
+
+		));
+		return $this->db->delete('ConditionalChoices');
 	}
 
 	function get_user_buildings($user_parent = FALSE)
