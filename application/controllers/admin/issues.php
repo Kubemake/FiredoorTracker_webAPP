@@ -48,8 +48,9 @@ class Issues extends CI_Controller {
 		$result = '<ol class="dd-list">' . "\n";
 		foreach ($issues as $issue)
 		{
+			$color = ($issue['type'] != 'answer') ? ' question-color' : ' answer-color';
 			$result .= '<li class="dd-item" data-id="' . $issue['idFormFields'] . '">' . "\n";
-			$result .= '<div class="dd-handle"><span class="glyphicon glyphicon-align-justify"></span><span class="label-text">' . $issue['label'] . '</span> <small>(id:' . $issue['idFormFields'] . ')</small></div><a onclick="editfield(this);return false;" class="btn btn-xs btn-default btn-pencil"><span class="glyphicon glyphicon-pencil"></span></a>
+			$result .= '<div class="dd-handle' . $color . '"><span class="glyphicon glyphicon-align-justify"></span><span class="label-text">' . $issue['label'] . '</span> <small>(id:' . $issue['idFormFields'] . ')</small></div><a onclick="editfield(this);return false;" class="btn btn-xs btn-default btn-pencil"><span class="glyphicon glyphicon-pencil"></span></a>
 						<a onclick="deletefield(this);return false;" class="btn btn-xs btn-default btn-trash"><span class="glyphicon glyphicon-trash"></span></a>' . "\n";
 			$result .=  $this->_get_issues_by_parent($issue['idFormFields']);
 			$result .= '</li>' . "\n";
@@ -108,10 +109,10 @@ class Issues extends CI_Controller {
 
 		$order = array();
 
-		foreach (json_decode($postdata['issues']) as $issue) {
-			
+		foreach (json_decode($postdata['issues']) as $issue)
+		{
 			$issdata = $all_elem_list[$issue->id];
-			$changed = ($issdata['parent'] != 0 or $issdata['level'] != 0) ? TRUE : FALSE;
+
 			$issdata['parent'] = 0;
 			$issdata['level'] = 0;
 
@@ -120,25 +121,24 @@ class Issues extends CI_Controller {
 			else
 				$order[$issdata['parent']]++;
 
-			if ((isset($issue->children) && $issdata['isfinal']==1) or $issdata['order'] != $order[$issdata['parent']] or $changed) //if saved as final but it is not or if changed order UPDATE issue data
-			{
-				$issdata['isfinal'] = isset($issue->children) ? 0 : 1;
-				$issdata['order'] = $order[$issdata['parent']];
-				$this->resources_model->update_issue_data($issdata);
-			}
+			$issdata['questionId'] = 0;
+			// $issdata['nextQuestionId'] = isset($issue->children[0]->id) ? $issue->children[0]->id : 0;
+			$issdata['questionOrder'] = $order[$issdata['parent']];
+
+			$this->resources_model->update_issue_data($issdata);
 
 			if (isset($issue->children)) {
-				$this->_submit_reorder($issue->children, $all_elem_list, $order, $issue->id, 1);
+				$order = $this->_submit_reorder($issue->children, $all_elem_list, $order, $issue->id, 1/*, $issdata['nextQuestionId']*/);
 			}
 		}
 	}
 
-	function _submit_reorder($elemtree, $all_elem_list, $order, $parent_id, $level)
+	function _submit_reorder($elemtree, $all_elem_list, $order, $parent_id, $level/*, $root_question*/)
 	{
 		foreach ($elemtree as $issue) {
 			
 			$issdata = $all_elem_list[$issue->id];
-			$changed = ($issdata['parent'] != $parent_id or $issdata['level'] != $level) ? TRUE : FALSE;
+
 			$issdata['parent'] = $parent_id;
 			$issdata['level'] = $level;
 			
@@ -147,18 +147,23 @@ class Issues extends CI_Controller {
 			else
 				$order[$issdata['parent']]++;
 
-			if ((isset($issue->children) && $issdata['isfinal']==1) or $issdata['order'] != $order[$issdata['parent']] or $changed) //if saved as final but it is not or if changed order UPDATE issue data
-			{
-				$issdata['isfinal'] = isset($issue->children) ? 0 : 1;
-				$issdata['order'] = $order[$issdata['parent']];
-				
-				$this->resources_model->update_issue_data($issdata);
-			}
+			$issdata['questionId'] = ($issdata['type'] == 'answer') ? $parent_id: 0;
+
+			// $issdata['nextQuestionId'] = 0;
+			
+			// if ($issdata['type'] == 'answer')
+			// 	$issdata['nextQuestionId'] = isset($issue->children[0]->id) ? $issue->children[0]->id : $root_question;
+
+			$issdata['questionOrder'] = $order[$issdata['parent']];
+			
+			$this->resources_model->update_issue_data($issdata);
 
 			if (isset($issue->children)) {
-				$this->_submit_reorder($issue->children, $all_elem_list, $order, $issue->id, $level+1);
+				$this->_submit_reorder($issue->children, $all_elem_list, $order, $issue->id, $level+1/*, $root_question*/);
 			}
 		}
+
+		return $order;
 	}
 }
 

@@ -14,7 +14,7 @@
 			<div class="form-group">
 		    	<label class="control-label col-xs-3" for="name">name:</label>
 			    <div class="col-xs-9">
-			      <input required="required" onkeyup="this.value = this.value.replace(/[^\w\d\-.]/, '')" type="text" class="form-control input-xs" name="name" id="name" value="<?=$issue['name']?>" />
+			      <input required="required" onchange="this.value = this.value.replace(/[^\w\d\-.]/, '');" onkeyup="this.value = this.value.replace(/[^\w\d\-.]/, '');" type="text" class="form-control input-xs" name="name" id="name" value="<?=$issue['name']?>" />
 			    </div>
 		  	</div>
 		  	<div class="form-group">
@@ -26,9 +26,9 @@
 		</div>
 		<div class="col-md-6">
 			<div class="form-group">
-		    	<label class="control-label col-xs-3" for="parent">parent id:</label>
+		    	<label class="control-label col-xs-3" for="nextQuestionId">next question id:</label>
 			    <div class="col-xs-9">
-			      <input required="required" type="text" class="form-control input-xs" name="parent" id="parent" value="<?=$issue['parent']?>" />
+			      <input required="required" type="text" class="form-control input-xs" name="nextQuestionId" id="nextQuestionId" value="<?=$issue['nextQuestionId']?>" />
 			    </div>
 		  	</div>
 			<div class="form-group">

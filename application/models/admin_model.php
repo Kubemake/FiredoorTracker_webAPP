@@ -15,6 +15,7 @@ class Admin_model  extends CI_Model
 		$this->db->from('Users u');
 		$this->db->join('Roles r', 'r.idRoles = u.role');
 		$this->db->where_in('u.role', array(1,4)); //clients view only
+		$this->db->where('u.deleted', 0);
 		return $this->db->get()->result_array();
 	}
 }

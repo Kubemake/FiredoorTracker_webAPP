@@ -82,6 +82,12 @@ class Info_model  extends CI_Model
 		return $this->db->update('Experts', array('deleted' => $this->session->userdata('user_id')));
 	}
 
+	function get_expert_info_by_expert_id($expert_id)
+	{
+        $this->db->where('deleted', 0);
+		return $this->db->where('idExperts', $expert_id)->get('Experts')->row_array();
+	}
+
     function add_expert($insdata)
     {
         return $this->db->insert('Experts', $insdata);

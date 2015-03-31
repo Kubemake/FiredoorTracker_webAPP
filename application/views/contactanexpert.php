@@ -5,6 +5,7 @@
 			<div class="col-md-6" id="expert<?=$expert['idExperts']?>">
 				<div class="expert">
 					<h3><?=$expert['name']?></h3><?php if (has_permission('Allow modify experts')): ?><span> ( <a data-id="<?=$expert['idExperts']?>" href="javascript:;" onclick="edit_action(this);return false;">Edit</a> | <a data-id="<?=$expert['idExperts']?>" href="javascript:;" onclick="delete_action(this);return false;">Delete</a> )</span><?php endif; ?>
+					<div class="clearfix"></div>
 					<div class="col-md-5 expert-img"><img title="<?=$expert['name']?>" alt="<?=$expert['name']?>" src="<?=$expert['logo']?>" /></div>
 					<div class="col-md-7 expert-text"><?=$expert['description']?></div>
 					<div class="col-md-12 text-right expert-link"><a href="<?=$expert['link']?>"><?=preg_replace('#(http://|https://)?([^/]+)/?(.*?)#', '$2', $expert['link'])?></a></div>

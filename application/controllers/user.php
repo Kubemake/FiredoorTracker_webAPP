@@ -365,7 +365,7 @@ class User extends CI_Controller {
 		$this->load->view('footer', $footer);
 	}
 
-	function employeers()
+	function employees()
 	{
 		verifyLogged();
 

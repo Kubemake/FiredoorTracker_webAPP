@@ -240,10 +240,13 @@ function get_image_by_height($full_img_path, $height, $action, $width=false) //i
 		$config['source_image'] = $_SERVER['DOCUMENT_ROOT'] . $full_img_path;
 		$config['new_image'] = $newfile;
 		$config['create_thumb'] = FALSE;
-		$config['maintain_ratio'] = FALSE;
+		$config['maintain_ratio'] = TRUE;
 		$config['height'] = $height;
 		if ($width) 
+		{
 			$config['width'] = $width;
+			$config['maintain_ratio'] = FALSE;
+		}
 		else
 		{
 			$sizes = getimagesize($_SERVER['DOCUMENT_ROOT'] . $full_img_path);
