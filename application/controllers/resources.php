@@ -35,13 +35,16 @@ class Resources extends CI_Controller {
 			}
 		}
 
-		$data['letters'] = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
+		$data['letters'] = array('#','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
 		
 		$glossary_letters = $this->info_model->get_all_glossary_letters();
 		
 		$fst = '';
 		foreach ($glossary_letters as $letter)
 		{
+			if (is_numeric($letter['letter']))
+				$letter['letter'] = '#';
+
 			$data['letter_available'][$letter['letter']] = 1;
 
 			if ($fst == '')

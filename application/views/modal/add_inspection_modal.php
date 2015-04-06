@@ -111,7 +111,7 @@
 	});
 
 	$("#addbtnform").submit(function(e){
-	    if ($('.apertureselect select').val()=='Choose door')
+	    if ($('.apertureselect select').val()==0)
 		{
 			alert('Please choose door!');
 			return false;

@@ -49,10 +49,17 @@ class Ajax extends CI_Controller {
 				if (!$inspection_id = $this->input->post('id')) return '';
 				$this->load->model('user_model');
 				$params['inspection']  			= $this->resources_model->get_inspection_info_by_inspection_id($inspection_id);
-				$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
-				$params['user_apertures'] 		= $this->resources_model->get_user_apertures();
 				$params['inspection_statuses'] 	= $this->resources_model->get_all_inspection_statuses();
-				$params['users_reviewer'] 		= $this->user_model->get_users_by_role_and_user_parent(3, $this->session->userdata('user_parent')); //Only mechanics
+				if (has_permission('Allow view all reviews'))
+				{
+
+				}
+				else
+				{
+					$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
+					$params['user_apertures'] 		= $this->resources_model->get_user_apertures();
+					$params['users_reviewer'] 		= $this->user_model->get_users_by_role_and_user_parent(3, $this->session->userdata('user_parent')); //Only mechanics
+				}
 			break;
 
 			case 'add_employeer_modal':

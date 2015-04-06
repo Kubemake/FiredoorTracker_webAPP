@@ -52,6 +52,7 @@
 						</div>
 					</div>
 					<div class="form-group col-md-6 col-md-push-6 uploadaddsubmit">
+						<input type="hidden" name="form_type" value="add_file" />
 						<button type="submit" id="savemedia" class="btn btn-block btn-primary disabled">Save</button>
 					</div>
 				</form>

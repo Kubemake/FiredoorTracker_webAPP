@@ -38,7 +38,7 @@ class Dashboard extends CI_Controller {
 					$avail = $this->resources_model->get_inspection_by_aperture_id($postdata['aperture']);
 
 					if (!empty($avail))
-						$adddata['revision'] = $avail[0]['revision'] + 1;
+						$adddata['revision'] = $avail['revision'] + 1;
 
 					$this->resources_model->add_inspection($adddata);
 				break;
@@ -133,7 +133,7 @@ class Dashboard extends CI_Controller {
 		$user_apertures = $this->resources_model->get_user_apertures($building_id);
 		
 		$output = '<select name="aperture" class="selectpicker fullwidth" data-live-search="true">';
-		$output .= '<option>Choose aperture</option>';
+		$output .= '<option value="0">Choose door</option>';
 		foreach ($user_apertures as $aperture)
 		{
 			$output .= '<option value="' . $aperture['idDoors'] . '">' . $aperture['name'] . '</option>';

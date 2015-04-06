@@ -319,6 +319,14 @@ class Resources_model  extends CI_Model
 		return $this->db->get('Inspections i')->row_array();
 	}
 
+	function get_inspection_by_aperture_id($aperture_id)
+	{
+		$this->db->where('idAperture', $aperture_id);
+		$this->db->where('deleted', 0);
+		$this->db->where('UserId', $this->session->userdata('user_parent'));
+		return $this->db->get('Inspections')->row_array();	
+	}
+
 	function get_building_name_by_building_id($building_id)
 	{
 		$this->db->select('name as building_name');

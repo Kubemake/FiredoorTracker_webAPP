@@ -18,10 +18,14 @@ class User extends CI_Controller {
 		
 		if ($this->input->post('updateProfile')) {
 			$postData = $this->input->post();
+
 			if (strlen($postData['logoFilePath']) > 0 )
 			{
 				$postData['logoFilePath'] = str_replace('http://firedoortracker.org', '', $postData['logoFilePath']);
-				$postData['logoFilePath'] = get_image_by_height($postData['logoFilePath'], 100, 'resize');
+
+				if (!file_exists( $_SERVER['DOCUMENT_ROOT'] . $postData['logoFilePath']))
+					$postData['logoFilePath'] = get_image_by_height($postData['logoFilePath'], 100, 'resize');
+				
 			}
 			else
 				$postData['logoFilePath'] = '/images/head-logo.png';
@@ -354,7 +358,7 @@ class User extends CI_Controller {
 			$data['result_table'] = $this->table->generate(); 
 		}
 
-		$header['page_title'] = 'APERTURES';
+		$header['page_title'] = 'Doors';
 
 		//datatables
 		$header['styles']  = addDataTable('css');
