@@ -86,21 +86,8 @@
 	$(function(){
 		makeupload('#drop-area-div', <?=$this->session->userdata('user_id')?>, function(data){
 			$('#drop-area-div').hide();
-			// ftype = data.substr(-3);
-			// if ($.inArray(ftype,['jpg','png','jpeg','gif']) > -1) {
-				$('#upload-acceptor').html('<img id="upload-result" src="' + data + '" />');
-			// 	filetype="image";
-			// } else {
-				// $('#upload-acceptor').html('<a href="' + data + '" style="display: block; width: 500px; height: 400px;" id="upload-result"></a><scr' + 'ipt type="text/javascript">flowplayer("upload-result", {src : "/js/flowplayer/flowplayer-3.2.2.swf", wmode: "transparent"});</scr' + 'ipt>');
-			// 	filetype="video";
-			// }
-			
-			// $('#savemedia').removeClass('disabled');
-
-			// ftime = data.substr(-14).substr(0, 10);
+			$('#upload-acceptor').html('<img id="upload-result" src="' + data + '" />');
 			$('#logoFilePath').val(data);
-			// $('#file_time').val(ftime);
-			// $('#file_type').val(filetype);
 			$('#drop-area-div-result').show();
 		});
 	})
@@ -110,7 +97,6 @@
 		$('#drop-area-div').show();
 		$('#logoFilePath').val('');
 		$('#drop-area-div-result').hide();
-		// $('#savemedia').addClass('disabled');
 		$('#progress-files').prop('file-counter', '0').html('');
 	})
 </script>

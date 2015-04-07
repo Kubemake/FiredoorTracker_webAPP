@@ -19,7 +19,7 @@
 				<ul class="glossary-items">
 					<?php foreach ($glossary as $glos): ?>
 						<li class="glossary-item" id="info<?=$glos['idInfo']?>">
-							<div class="glos-title"><?=$glos['name']?><?php if (has_permission('Allow modify resources')): ?> ( <a data-id="<?=$glos['idInfo']?>" href="javascript:;" onclick="edit_action(this);return false;">Edit</a> | <a data-id="<?=$glos['idInfo']?>" href="javascript:;" onclick="delete_action(this);return false;">Delete</a> )<?php endif; ?></div>
+							<div class="glos-title"><?=$glos['name']?><?php if (has_permission('Allow modify resources')): ?> ( <a data-id="<?=$glos['idInfo']?>" href="javascript:;" onclick="edit_action(this, 'glossary');return false;">Edit</a> | <a data-id="<?=$glos['idInfo']?>" href="javascript:;" onclick="delete_action(this);return false;">Delete</a> )<?php endif; ?></div>
 							<div class="glos-descr"><?=$glos['description']?></div>
 						</li>
 					<?php endforeach; ?>
@@ -32,8 +32,19 @@
 				<ul class="faq-items">
 					<?php foreach ($faqs as $faq): ?>
 						<li class="faq-item" id="info<?=$faq['idInfo']?>">
-							<div class="faq-title"><?=$faq['name']?><?php if (has_permission('Allow modify resources')): ?> ( <a data-id="<?=$faq['idInfo']?>" href="javascript:;" onclick="edit_action(this);return false;">Edit</a> | <a data-id="<?=$faq['idInfo']?>" href="javascript:;" onclick="delete_action(this);return false;">Delete</a> )<?php endif; ?></div>
+							<div class="faq-title"><?=$faq['name']?><?php if (has_permission('Allow modify resources')): ?> ( <a data-id="<?=$faq['idInfo']?>" href="javascript:;" onclick="edit_action(this, 'faq');return false;">Edit</a> | <a data-id="<?=$faq['idInfo']?>" href="javascript:;" onclick="delete_action(this);return false;">Delete</a> )<?php endif; ?></div>
 							<div class="faq-descr"><?=$faq['description']?></div>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+
+			<div class="row faq"><h2>VIDEO TUTORIALS</h2><?php if (has_permission('Allow modify resources')): ?><a href="javascript:;" onclick="button_add_action('video');return false;" class="btn btn-default button-add">Add</a><?php endif; ?></div>
+			<div class="row">
+				<ul class="faq-items">
+					<?php foreach ($videos as $video): ?>
+						<li class="video-item" id="info<?=$video['idInfo']?>">
+							<div class="video-title"><a href="<?=$video['description']?>" target="_blank"><?=$video['name']?></a><?php if (has_permission('Allow modify resources')): ?> ( <a data-id="<?=$video['idInfo']?>" href="javascript:;" onclick="edit_action(this, 'video');return false;">Edit</a> | <a data-id="<?=$video['idInfo']?>" href="javascript:;" onclick="delete_action(this);return false;">Delete</a> )<?php endif; ?></div>
 						</li>
 					<?php endforeach; ?>
 				</ul>
@@ -50,10 +61,10 @@
 		
 	}
 
-	function edit_action(e)
+	function edit_action(e, type)
 	{
 		infoid = $(e).data('id');
-		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'edit_info_modal', id: infoid},function(){$('#EditInfoModal').modal({show: true})});
+		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'edit_info_modal', id: infoid, type: type},function(){$('#EditInfoModal').modal({show: true})});
 	}
 
 	function delete_action(e)

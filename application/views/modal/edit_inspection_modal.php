@@ -26,29 +26,11 @@
 									<option value="0">Choose door</option>
 									<?php foreach ($user_apertures as $aperture): ?>
 										<?php $select = ($inspection['idAperture'] == $aperture['idDoors']) ? ' selected="selected"' : '';?>
-										<option<?=$select?> value="<?=$aperture['idDoors']?>"><?=$aperture['name']?></option>
+										<option<?=$select?> value="<?=$aperture['idDoors']?>"><?=$aperture['barcode']?></option>
 									<?php endforeach; ?>
 								</select>
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="start_date" class="control-label col-xs-4">Start date</label>
-							<div class="col-xs-8">
-								 <div class="input-group date" id="start_date">
-									<input name="start_date" class="form-control" value="<?=$inspection['StartDate']?>" />
-									<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
-								</div>
-							</div>
-						</div>
-						<?/*<div class="form-group">
-							<label for="completion_date" class="control-label col-xs-4">Completion date</label>
-							<div class="col-xs-8">
-								 <div class="input-group date" id="completion_date">
-									<input name="completion_date" class="form-control" value="<?=$inspection['Completion']?>" />
-									<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
-								</div>
-							</div>
-						</div>*/?>
 						<div class="form-group">
 							<label for="reviewer" class="control-label col-xs-4">Reviewer</label>
 							<div class="col-xs-8">

@@ -56,6 +56,7 @@ class Resources extends CI_Controller {
 
 		$data['glossary'] = $this->info_model->get_glossary_by_letter($curlet);
 		$data['faqs'] 	  = $this->info_model->get_all_faq();
+		$data['videos']	  = $this->info_model->get_all_videos();
 
 		$header['page_title'] = 'RESOURCES';
 		

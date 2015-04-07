@@ -25,43 +25,27 @@
 								<select name="aperture" id="aperture" class="selectpicker fullwidth" data-live-search="true">
 									<option value="0">Choose door</option>
 									<?php foreach ($user_apertures as $aperture): ?>
-										<option value="<?=$aperture['idDoors']?>"><?=$aperture['name']?></option>
+										<option value="<?=$aperture['idDoors']?>"><?=$aperture['barcode']?></option>
 									<?php endforeach; ?>
 								</select>
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="start_date" class="control-label col-xs-4">Start date</label>
-							<div class="col-xs-8">
-								 <div class="input-group date" id="start_date">
-									<input name="start_date" class="form-control" value="" />
-									<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+						<?php if ($this->session->userdata('user_role')!=3): ?>
+							<div class="form-group">
+								<label for="reviewer" class="control-label col-xs-4">Reviewer</label>
+								<div class="col-xs-8">
+									<select name="reviewer" class="selectpicker fullwidth" data-live-search="true">
+										<option value="0">Choose reviewer</option>
+										<?php foreach ($users_reviewer as $reviewer): ?>
+											<option value="<?=$reviewer['idUsers']?>"><?=$reviewer['firstName'] . ' ' . $reviewer['lastName']?></option>
+										<?php endforeach; ?>
+										
+										
+									</select>
 								</div>
 							</div>
-						</div>
-						<?/*<div class="form-group">
-							<label for="completion_date" class="control-label col-xs-4">Completion date</label>
-							<div class="col-xs-8">
-								 <div class="input-group date" id="completion_date">
-									<input name="completion_date" class="form-control" value="" />
-									<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
-								</div>
-							</div>
-						</div>*/?>
-						<div class="form-group">
-							<label for="reviewer" class="control-label col-xs-4">Reviewer</label>
-							<div class="col-xs-8">
-								<select name="reviewer" class="selectpicker fullwidth" data-live-search="true">
-									<option value="0">Choose reviewer</option>
-									<?php foreach ($users_reviewer as $reviewer): ?>
-										<option value="<?=$reviewer['idUsers']?>"><?=$reviewer['firstName'] . ' ' . $reviewer['lastName']?></option>
-									<?php endforeach; ?>
-									
-									
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
+						<?php endif; ?>
+						<!--div class="form-group">
 							<label for="state" class="control-label col-xs-4">Review state</label>
 							<div class="col-xs-8">
 								<select name="state" class="selectpicker fullwidth" data-live-search="true">
@@ -71,11 +55,14 @@
 									<?php endforeach; ?>
 								</select>
 							</div>
-						</div>
+						</div-->
 					</div>
 				</div>
 				<div class="modal-footer">
 					<input type="hidden" name="form_type" value="add_inspection" />
+					<?php if ($this->session->userdata('user_role')==3): ?>
+						<input name="reviewer" type="hidden" value="<?=$users_reviewer?>" />
+					<?php endif; ?>
 					<button type="submit" class="btn btn-primary">Accept chages</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel changes</button>
 				</div>

@@ -41,25 +41,34 @@ class Ajax extends CI_Controller {
 				$this->load->model('user_model');
 				$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
 				$params['user_apertures'] 		= $this->resources_model->get_user_apertures();
-				$params['inspection_statuses'] 	= $this->resources_model->get_all_inspection_statuses();
-				$params['users_reviewer'] 		= $this->user_model->get_users_by_role_and_user_parent(3, $this->session->userdata('user_parent')); //Only mechanics
+				// $params['inspection_statuses'] 	= $this->resources_model->get_all_inspection_statuses();
+				
+				$params['users_reviewer'] = $this->session->userdata('user_id');
+				if ($this->session->userdata('user_role')!=3)
+					$params['users_reviewer'] 		= $this->user_model->get_users_by_role_and_user_parent($this->session->userdata('user_role'), $this->session->userdata('user_parent'));
 			break;
 
 			case 'edit_inspection_modal':
 				if (!$inspection_id = $this->input->post('id')) return '';
 				$this->load->model('user_model');
 				$params['inspection']  			= $this->resources_model->get_inspection_info_by_inspection_id($inspection_id);
+				
+				$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
+				$params['user_apertures'] 		= $this->resources_model->get_user_apertures();
 				$params['inspection_statuses'] 	= $this->resources_model->get_all_inspection_statuses();
-				if (has_permission('Allow view all reviews'))
-				{
 
-				}
-				else
-				{
-					$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
-					$params['user_apertures'] 		= $this->resources_model->get_user_apertures();
-					$params['users_reviewer'] 		= $this->user_model->get_users_by_role_and_user_parent(3, $this->session->userdata('user_parent')); //Only mechanics
-				}
+				$params['users_reviewer'] = $this->session->userdata('user_id');
+				if ($this->session->userdata('user_role')!=3)
+					$params['users_reviewer'] 		= $this->user_model->get_users_by_role_and_user_parent($this->session->userdata('user_role'), $this->session->userdata('user_parent'));
+				
+				// if (has_permission('Allow view all reviews'))
+				// {
+
+				// }
+				// else
+				// {
+					// $params['users_reviewer'] 		= $this->user_model->get_users_by_role_and_user_parent(3, $this->session->userdata('user_parent')); //Only mechanics
+				// }
 			break;
 
 			case 'add_employeer_modal':

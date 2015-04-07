@@ -19,15 +19,14 @@ class Dashboard extends CI_Controller {
 			$adddata = array(
 				'Buildings_idBuildings'	=> @$postdata['location'],
 				'idAperture'			=> @$postdata['aperture'],
-				'InspectionStatus'		=> @$postdata['state'],
 				'UserId'				=> $this->session->userdata('user_parent'),
 			);
 
-			if (!empty($postdata['start_date']))
-				$adddata['StartDate'] = date('Y-m-d', strtotime($postdata['start_date']));
+			// if (!empty($postdata['start_date']))
+			// 	$adddata['StartDate'] = date('Y-m-d', strtotime($postdata['start_date']));
 
-			if (!empty($postdata['completion_date']))
-				$adddata['Completion'] = date('Y-m-d', strtotime($postdata['completion_date']));
+			// if (!empty($postdata['completion_date']))
+			// 	$adddata['Completion'] = date('Y-m-d', strtotime($postdata['completion_date']));
 
 			if ($postdata['reviewer'] > 0)
 				$adddata['Inspector']= $postdata['reviewer'];
@@ -40,6 +39,7 @@ class Dashboard extends CI_Controller {
 					if (!empty($avail))
 						$adddata['revision'] = $avail['revision'] + 1;
 
+					$adddata['InspectionStatus'] = 'New';
 					$this->resources_model->add_inspection($adddata);
 				break;
 				case 'edit_inspection':
@@ -51,7 +51,7 @@ class Dashboard extends CI_Controller {
 		$this->table->set_heading(
 			'Id',
 			'Location',
-			'Door',
+			'Door Id',
 			array('data' => 'Start date', 'class' => 'not-mobile'),
 			array('data' => 'Completion', 'class' => 'not-mobile'),
 			array('data' => 'Reviewer'	, 'class' => 'not-mobile'),
@@ -59,12 +59,13 @@ class Dashboard extends CI_Controller {
 		);
 
 		
-		if (has_permission('Allow view all reviews'))
-			$inspections = $this->resources_model->get_user_inspections();
-		elseif (has_permission('Allow view users review'))
+		// if (has_permission('Allow view all reviews'))
+			// $inspections = $this->resources_model->get_user_inspections();
+		// elseif (has_permission('Allow view users review'))
+			// $inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+		// else
 			$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
-		else
-			$inspections = $this->resources_model->get_user_inspections_by_user_id($this->session->userdata('user_id'));
+			// $inspections = $this->resources_model->get_user_inspections_by_user_id($this->session->userdata('user_id'));
 
 		if (!empty($inspections))
 		{
@@ -81,7 +82,7 @@ class Dashboard extends CI_Controller {
 
 			foreach ($inspections as $inspection)
 			{
-				$this->table->add_row($inspection['id'], $inspection['location_name'], $inspection['aperture_name'], $inspection['StartDate'],$inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
+				$this->table->add_row($inspection['id'], $inspection['location_name'], $inspection['barcode'], $inspection['StartDate'],$inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
 			}
 		}
 
@@ -175,10 +176,11 @@ class Dashboard extends CI_Controller {
 
 		if (has_permission('Allow view all reviews'))
 			$inspections = $this->resources_model->get_user_inspections();
-		elseif (has_permission('Allow view users review'))
-			$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+		// elseif (has_permission('Allow view users review'))
+		// 	$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
 		else
-			$inspections = $this->resources_model->get_user_inspections_by_user_id($this->session->userdata('user_id'));
+			$inspections = $this->resources_model->get_user_inspections_by_user_role($this->session->userdata('user_role'), $this->session->userdata('user_parent'));
+			// $inspections = $this->resources_model->get_user_inspections_by_user_id($this->session->userdata('user_id'));
 
 		if (!empty($buildins_root) && !empty($inspections)) {
 			

@@ -161,9 +161,16 @@ class User_model  extends CI_Model
 
 	function get_users_by_role_and_user_parent($roleid, $parent)
 	{
-		$this->db->where('role', $roleid);
-		$this->db->where('parent', $parent);
-		return $this->db->get('Users')->result_array();
+		$curent_role = $this->db->where('idRoles', $this->session->userdata('user_role'))->get('Roles')->row_array();
+		$roleOrder = $curent_role['rolesOrder'];
+		
+		$this->db->select('u.*');
+		$this->db->from('Users u');
+		$this->db->join('Roles r', 'r.idRoles=u.role', 'left');
+		$this->db->where('u.deleted', 0);
+		$this->db->where('r.rolesOrder >=', $roleid);
+		$this->db->where('u.parent', $parent);
+		return $this->db->get()->result_array();
 	}
 
 }

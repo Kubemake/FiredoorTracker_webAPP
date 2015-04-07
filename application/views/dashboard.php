@@ -8,7 +8,7 @@
 				<button type="button" class="btn btn-default button-pdf">View PDF</button>
 				<button type="button" class="btn btn-default button-import">Import</button>
 				<button type="button" class="btn btn-default button-assign">Assign</button>
-				<a href="javascript:;" onclick="button_delete_action();return false;" class="btn btn-default button-delete">Delete</a>
+				<?php if (has_permission('Allow delete review')): ?><a href="javascript:;" onclick="button_delete_action();return false;" class="btn btn-default button-delete">Delete</a><?php endif; ?>
 				<a href="javascript:;" onclick="button_reinspect_action();return false;" class="btn btn-default button-reinspect">Reinspect</a>
 			</div>
 		</div>
@@ -97,6 +97,7 @@
 		});
 	}
 
+<?php if (has_permission('Allow delete review')): ?>
 	function button_delete_action()
 	{
 		var oTT = TableTools.fnGetInstance('DataTables_Table_0');
@@ -116,6 +117,7 @@
 			}
 		});
 	}
+<?php endif; ?>
 </script>
 <?php endif; ?>
 

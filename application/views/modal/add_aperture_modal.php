@@ -87,7 +87,7 @@
 					$("#addbtnform").submit(function(e){
 						if ($('#location').val()=='')
 						{
-							alert('Please select aperture location!');
+							alert('Please select door location!');
 							return false;
 						}
 

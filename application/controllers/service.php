@@ -10,9 +10,24 @@ class Service extends CI_Controller {
 	
 	function index()
 	{
-		$this->load->view('welcome_message');
+		redirect('/user/login');
 	}
 	
+	function videopage()
+	{
+		$this->load->model('info_model');
+		$data['videos']	  = $this->info_model->get_all_videos();
+		$this->load->view('mobile/mobile_videos', $data);
+	}
+
+	function faqpage()
+	{
+		$this->load->model('info_model');
+		$data['faqs'] = $this->info_model->get_all_faq();
+		$this->load->view('mobile/mobile_faq', $data);
+	}
+
+
 	/*
 	 * Main function to dispatch API requests
 	 * It redirect api call for specified function
@@ -326,6 +341,7 @@ class Service extends CI_Controller {
 	 *
 	 * Input data:
 	 * token    => auth id from login
+	 * keyword  => key filter for filtering inspections list
 	 *
 	 * Output data:
 	 * status => ok
@@ -337,13 +353,28 @@ class Service extends CI_Controller {
 
 		$this->load->model('resources_model');
 
-		$userData['inspections'] = $this->resources_model->get_user_inspections_by_user_id($user_id);
+		$keyword = (isset($data['keyword']) && !empty($data['keyword'])) ? $data['keyword'] : '';
+		$keyword = strtolower($keyword);
+
+		$userData['inspections'] = $this->resources_model->get_user_inspections_by_user_id($user_id, $keyword);
 
 		if (!empty($userData['inspections']))
 		{
 			$output = array();
 				foreach ($userData['inspections'] as $inspection)
 				{
+					if (!empty($keyword) &&
+						strpos(strtolower($inspection['barcode']), $keyword) === FALSE &&
+						strpos(strtolower($inspection['location_name']), $keyword) === FALSE &&
+						strpos(strtolower($inspection['firstName']), $keyword) === FALSE &&
+						strpos(strtolower($inspection['lastName']), $keyword) === FALSE &&
+						strpos($inspection['StartDate'], $keyword) === FALSE &&
+						strpos($inspection['Completion'], $keyword) === FALSE &&
+						strpos(strtolower($inspection['InspectionStatus']), $keyword) === FALSE &&
+						strpos($inspection['id'], $keyword) === FALSE
+					) {
+						continue;
+					}
 					if (!isset($output[$inspection['aperture_id']]))
 						$output[$inspection['aperture_id']] = $inspection;
 					elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])

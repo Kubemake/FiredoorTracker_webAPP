@@ -1,6 +1,6 @@
 <?php include 'user_head.php' ?>
-<?php if (has_permission('Allow view apertures tab')): ?>
-<?php if (has_permission('Allow modify apertures')): ?>
+<?php if (has_permission('Allow view doors tab')): ?>
+<?php if (has_permission('Allow modify doors')): ?>
 <div class="row">
 	<div class="container">
 		<div class="text-right col-md-push-6 col-md-6 col-sm-12">
@@ -15,7 +15,7 @@
 <?php endif; ?>
 <?=@$result_table?>
 
-<?php if (has_permission('Allow modify apertures')): ?>
+<?php if (has_permission('Allow modify doors')): ?>
 <script type="text/javascript">
 	$('td').dblclick(function(){ //edit row on double clicking
 		$(this).click();

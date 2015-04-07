@@ -71,6 +71,8 @@ class Clients extends CI_Controller {
 					break;
 
 					case 'edit_employeer':
+						if ($postdata['user_role']==1)
+							$adddata['parent'] = $postdata['user_id'];
 						$this->resources_model->update_employer_data($postdata['user_id'], $adddata);
 
 					break;

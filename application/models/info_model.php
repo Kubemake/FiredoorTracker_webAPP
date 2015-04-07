@@ -53,6 +53,14 @@ class Info_model  extends CI_Model
 		return $this->db->get('Info')->result_array();
 	}
 
+	function get_all_videos()
+	{
+		$this->db->where('type', 'video');
+		$this->db->where('deleted', 0);
+		$this->db->order_by('name');
+		return $this->db->get('Info')->result_array();
+	}
+
 	function get_experts_list()
 	{
         $this->db->where('deleted', 0);

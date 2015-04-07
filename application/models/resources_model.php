@@ -23,7 +23,7 @@ class Resources_model  extends CI_Model
 		if ($curent_role['idRoles'] == 4) //for admin
 			$this->db->where_in('idRoles', array(1,4));
 		else
-			$this->db->where('rolesOrder >', $roleOrder);
+			$this->db->where('rolesOrder >=', $roleOrder);
 
 		$result = $this->db->get('Roles')->result_array();
 		$output = array();
@@ -66,7 +66,7 @@ class Resources_model  extends CI_Model
 		$this->db->join('Roles r', 'r.idRoles = u.role', 'left');
 		$this->db->where('u.parent', $this->session->userdata('user_parent'));
 		$this->db->where('u.deleted', 0);
-		$this->db->where('r.rolesOrder >', $roleOrder); //show only less weight order
+		$this->db->where('r.rolesOrder >=', $roleOrder); //show only less weight order
 
 		return $this->db->get()->result_array();
 	}
@@ -307,6 +307,24 @@ class Resources_model  extends CI_Model
 	   	$this->db->join('Users u', 'u.idUsers = i.Inspector', 'left');
 	   	$this->db->where('i.deleted', 0);
 	   	$this->db->where('i.Inspector', $user_id);
+
+	   	return $this->db->get()->result_array();
+	}
+
+	function get_user_inspections_by_user_role($user_role, $parent_id)
+	{
+		$curent_role = $this->db->where('idRoles', $user_role)->get('Roles')->row_array();
+		$roleOrder = $curent_role['rolesOrder'];
+
+		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
+	   	$this->db->from('Inspections i');
+	   	$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings', 'left');
+	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
+	   	$this->db->join('Users u', 'u.idUsers = i.Inspector', 'left');
+	   	$this->db->join('Roles r', 'r.idRoles = u.role', 'left');
+	   	$this->db->where('i.deleted', 0);
+	   	$this->db->where('r.rolesOrder >=', $roleOrder, FALSE);
+		$this->db->where('i.UserId', $parent_id);
 
 	   	return $this->db->get()->result_array();
 	}

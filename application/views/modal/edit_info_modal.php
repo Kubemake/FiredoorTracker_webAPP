@@ -16,7 +16,7 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="description" class="control-label col-xs-4">Description</label>
+							<label for="description" class="control-label col-xs-4"><?php echo ($info_type=='video') ? 'Url' : 'Description'; ?></label>
 							<div class="col-xs-8">
 								<input name="description" id="description" class="form-control" value="<?=$info['description']?>" />
 							</div>

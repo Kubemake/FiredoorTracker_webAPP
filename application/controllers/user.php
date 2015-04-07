@@ -290,7 +290,7 @@ class User extends CI_Controller {
 		$this->load->view('footer', $footer);
 	}
 
-	function apertures()
+	function doors()
 	{
 		verifyLogged();
 
@@ -316,18 +316,18 @@ class User extends CI_Controller {
 					$newemp = $this->resources_model->add_aperture($adddata);	//add new aperture
 					
 					if ($newemp)
-						$header['msg'] = msg('success', 'Aperture successfully added');
+						$header['msg'] = msg('success', 'Door successfully added');
 				break;
 				case 'edit_aperture':
 					$this->resources_model->update_aperture_data($postdata['aperture_id'], $adddata);
-					$header['msg'] = msg('success', 'Aperture successfully updated');
+					$header['msg'] = msg('success', 'Door successfully updated');
 				break;
 				default:
 				break;
 			}
 		}
 
-		if (has_permission('Allow view apertures tab'))
+		if (has_permission('Allow view doors tab'))
 		{
 			$this->table->set_heading(
 				'Id',
@@ -618,7 +618,7 @@ class User extends CI_Controller {
 
 		if (!$aperture_id = $this->input->post('id')) return print('empty id');
 
-		if (!$this->resources_model->delete_aperture_by_id($aperture_id))  return print('can\'t delete aperture by id');
+		if (!$this->resources_model->delete_aperture_by_id($aperture_id))  return print('can\'t delete door by id');
 
 		return print('done');
 	}

@@ -98,7 +98,7 @@
 			var li = $(e).parent(),
 			elem_id = li.data('id');
 
-			if (confirm("If you press YES, it delete this element and all it childs.\n Are you shure ?")) {
+			if (confirm("Are you sure you want to delete?\n If you press yes, all data for the door and door review will be deleted permanently")) {
 				$.ajax({
 					url: '/user/ajax_delete_building',
 					type: "POST",
