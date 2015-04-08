@@ -41,7 +41,8 @@ class Issues extends CI_Controller {
 	function _get_issues_by_parent($parent_id)
 	{
 		$issues = $this->resources_model->get_all_issues_by_parent($parent_id);
-
+echo '<pre>';
+print_r($issues);die();
 		if (empty($issues))
 			return '';
 

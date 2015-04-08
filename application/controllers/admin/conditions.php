@@ -23,10 +23,7 @@ class Conditions extends CI_Controller {
 		$data['param']['door_state'] = $this->config->item('door_state');
 
 		$data['order'] = array();
-		foreach ($data['issues'] as $issue_id => $value) //make order for view choices table
-			$data['order'][$issue_id] = 1;
-		
-		$data['order'] = array_keys($data['order']); //key as itterator
+		$data['order'] = $this->_get_issues_by_parent(0, $data['order']);  // issues order
 
 		foreach ($this->resources_model->get_all_choices($wall_rate_id) as $element)
 		{
@@ -61,6 +58,22 @@ class Conditions extends CI_Controller {
 		$this->load->view('header', $header);
 		$this->load->view('admin/admin_conditions', $data);
 		$this->load->view('footer');
+	}
+
+	function _get_issues_by_parent($parent_id, $order)
+	{
+		$issues = $this->resources_model->get_all_issues_by_parent($parent_id);
+
+		if (empty($issues))
+			return $order;
+
+		foreach ($issues as $issue)
+		{
+			$order[] = $issue['idFormFields'];
+			$order =  $this->_get_issues_by_parent($issue['idFormFields'], $order);
+
+		}
+		return $order;
 	}
 
 	function ajax_update_condition()

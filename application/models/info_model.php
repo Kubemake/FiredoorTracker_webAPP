@@ -63,6 +63,7 @@ class Info_model  extends CI_Model
 
 	function get_experts_list()
 	{
+        $this->db->select('idExperts, name, logo, description, description, link');
         $this->db->where('deleted', 0);
 		return $this->db->get('Experts')->result_array();
 	}

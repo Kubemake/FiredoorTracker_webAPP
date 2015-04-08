@@ -189,6 +189,13 @@ class Resources_model  extends CI_Model
 	{
 		$this->db->where('wallRates', $wall_rate_id);
 		return $this->db->get('ConditionalChoices')->result_array();
+
+		/*$this->db->select('cc.*');
+		$this->db->from('FormFields ff');
+		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields', 'left');
+		$this->db->where('ff.deleted', 0);
+		$this->db->where('cc.wallRates', $wall_rate_id);
+		return $this->db->get()->result_array();*/
 	}
 
 	function update_choice($field_id, $wall_rate_id, $ratesTypesId, $doorMatherialid, $doorRatingId, $value)

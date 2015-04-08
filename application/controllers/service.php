@@ -522,6 +522,29 @@ class Service extends CI_Controller {
 	}
 
 	/*
+	 * Get contact an expert list
+	 *
+	 * Input data:
+	 * token    => auth id from login
+	 *
+	 * Output data:
+	 * status => ok
+	 * experts => contact an expert list
+	 */
+	function _exec_function_get_experts($data)
+	{
+		$this->load->model('info_model');
+
+		$userData['status'] = 'ok';
+		$userData['experts']  = $this->info_model->get_experts_list();
+		
+		foreach ($userData['experts'] as &$expert)
+			$expert['logo'] = 'http://' . $_SERVER['HTTP_HOST'] . $expert['logo'];
+
+		$this->_show_output($userData);
+	}
+
+	/*
 	 * Get aperture overview info
 	 *
 	 * Input data:
