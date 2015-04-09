@@ -213,6 +213,7 @@ function has_permission($rule_name)
 	$CI->db->from('Rules r');
 	$CI->db->join('RolesRules rr', 'rr.idRules = r.idRules');
 	$CI->db->where('rr.idRoles', $CI->session->userdata('user_role'));
+	$CI->db->where('rr.UserId', $CI->session->userdata('user_parent'));
 	$CI->db->where('r.name', $rule_name);
 	$result = $CI->db->get()->row_array();
 	if (isset($result['value']) && !empty($result['value']) && $result['value'] > 0)

@@ -1,3 +1,4 @@
+<?php $this->load->view('user/user_head'); ?>
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-12">

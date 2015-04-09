@@ -16,18 +16,18 @@ class Rules extends CI_Controller {
 		$rules 		= $this->rules_model->get_all_rules();
 		$roles 		= $this->rules_model->get_all_roles();
 
-		if ($postdata = $this->input->post()) {
-
+		if ($postdata = $this->input->post())
+		{
 			foreach ($rules as $rule)
 			{
 				foreach ($roles as $role)
 				{
-					$this->rules_model->update_role_permission($rule['idRules'], $role['idRoles'], @$postdata['rr'][$rule['idRules']][$role['idRoles']]);
+					$this->rules_model->update_role_permission($rule['idRules'], $role['idRoles'], $this->session->userdata('user_parent'), @$postdata['rr'][$rule['idRules']][$role['idRoles']]);
 				}
 			}
 		}
 
-		$result		= $this->rules_model->get_all_rolesrules();
+		$result		= $this->rules_model->get_all_rolesrules($this->session->userdata('user_parent'));
 
 		foreach ($result as $rolesrulesdata)
 			$rulesroles[$rolesrulesdata['idRules']][$rolesrulesdata['idRoles']] = $rolesrulesdata['value'];
@@ -47,7 +47,7 @@ class Rules extends CI_Controller {
 				if ($this->session->userdata('user_role') != 4)
 				{
 					unset($data['roles'][4]);
-					if ($rule['group'] == 'admin')
+					if (	$rule['group'] == 'admin')
 						unset($data['rulesroles'][$rule['idRules']], $data['rules'][$rule['idRules']]);
 				}
 			}
