@@ -39,13 +39,18 @@ class Media_model  extends CI_Model
 		return $this->db->get()->row_array();
 	}
 
-	function add_aperture_file($file_id, $door_id)
+	function add_aperture_file($file_id, $door_id, $field_id=FALSE)
 	{
-		$this->db->where('Files_idFiles', $file_id)->update('InspectionFieldFiles', array('deleted' => $this->session->userdata('user_id')));
+		$this->db->where('Files_idFiles', $file_id)->delete('InspectionFieldFiles');
+		
 		$insdata = array(
 			'Doors_idDoors' => $door_id,
 			'Files_idFiles' => $file_id
 		);
+		
+		if ($field_id)
+			$insdata['FormFields_idFormFields'] = $field_id;
+
 		$insert_query = $this->db->insert_string('InspectionFieldFiles', $insdata);
 		$insert_query = str_replace('INSERT INTO', 'INSERT IGNORE INTO', $insert_query);
 		return $this->db->query($insert_query);

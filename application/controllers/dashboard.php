@@ -137,7 +137,7 @@ class Dashboard extends CI_Controller {
 		$output .= '<option value="0">Choose door</option>';
 		foreach ($user_apertures as $aperture)
 		{
-			$output .= '<option value="' . $aperture['idDoors'] . '">' . $aperture['name'] . '</option>';
+			$output .= '<option value="' . $aperture['idDoors'] . '">' . $aperture['barcode'] . '</option>';
 		}
 
 		echo $output . '</select>';

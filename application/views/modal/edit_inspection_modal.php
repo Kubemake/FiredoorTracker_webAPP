@@ -31,21 +31,21 @@
 								</select>
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="reviewer" class="control-label col-xs-4">Reviewer</label>
-							<div class="col-xs-8">
-								<select name="reviewer" class="selectpicker fullwidth" data-live-search="true">
-									<option<?php echo ($inspection['Inspector'] == 0) ? ' selected="selected"':'';?> value="0">Choose reviewer</option>
-									<?php foreach ($users_reviewer as $reviewer): ?>
-										<?php $select = ($inspection['Inspector'] == $reviewer['idUsers']) ? ' selected="selected"' : '';?>
-										<option<?=$select?> value="<?=$reviewer['idUsers']?>"><?=$reviewer['firstName'] . ' ' . $reviewer['lastName']?></option>
-									<?php endforeach; ?>
-									
-									
-								</select>
+						<?php if ($this->session->userdata('user_role')!=3): ?>
+							<div class="form-group">
+								<label for="reviewer" class="control-label col-xs-4">Reviewer</label>
+								<div class="col-xs-8">
+									<select name="reviewer" class="selectpicker fullwidth" data-live-search="true">
+										<option<?php echo ($inspection['Inspector'] == 0) ? ' selected="selected"':'';?> value="0">Choose reviewer</option>
+										<?php foreach ($users_reviewer as $reviewer): ?>
+											<?php $select = ($inspection['Inspector'] == $reviewer['idUsers']) ? ' selected="selected"' : '';?>
+											<option<?=$select?> value="<?=$reviewer['idUsers']?>"><?=$reviewer['firstName'] . ' ' . $reviewer['lastName']?></option>
+										<?php endforeach; ?>
+									</select>
+								</div>
 							</div>
-						</div>
-						<div class="form-group">
+						<?php endif; ?>
+						<?/*<div class="form-group">
 							<label for="state" class="control-label col-xs-4">Review state</label>
 							<div class="col-xs-8">
 								<select name="state" class="selectpicker fullwidth" data-live-search="true">
@@ -55,11 +55,14 @@
 									<?php endforeach; ?>
 								</select>
 							</div>
-						</div>
+						</div>*/?>
 					</div>
 				</div>
 				<div class="modal-footer">
 					<input type="hidden" name="form_type" value="edit_inspection" />
+					<?php if ($this->session->userdata('user_role')==3): ?>
+						<input name="reviewer" type="hidden" value="<?=$users_reviewer?>" />
+					<?php endif; ?>
 					<input type="hidden" name="idInspections" value="<?=$inspection['idInspections']?>" />
 					<button type="submit" class="btn btn-primary">Accept chages</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel changes</button>

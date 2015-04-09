@@ -25,6 +25,7 @@ class Conditions extends CI_Controller {
 		$data['order'] = array();
 		$data['order'] = $this->_get_issues_by_parent(0, $data['order']);  // issues order
 
+		$data['choices'] = array();
 		foreach ($this->resources_model->get_all_choices($wall_rate_id) as $element)
 		{
 			$data['choices'][$element['ratesTypes']][$element['doorMatherial']][$element['doorRating']] = 1;

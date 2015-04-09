@@ -10,9 +10,9 @@
 				<div class="modal-body">
 					<div class="row pad15">
 						<div class="form-group">
-							<label for="name" class="control-label col-xs-4">Name</label>
+							<label for="barcode" class="control-label col-xs-4">Door Id</label>
 							<div class="col-xs-8">
-								<input name="name" id="name" class="form-control" value="<?=@$aperture['name']?>" />
+								<input name="barcode" required pattern="[\d]+" placeholder="digits only" id="barcode" class="form-control" value="<?=@$aperture['barcode']?>" />
 							</div>
 						</div>
 						<div class="form-group">

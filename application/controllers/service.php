@@ -92,7 +92,8 @@ class Service extends CI_Controller {
 	 * file_type 	=> type of file image or video, image by default
 	 * file_name 	=> file name for display
 	 * file_descr 	=> file description
-	 * aperture_id	=> barcode or QR code of Door
+	 * aperture_id	=> aperture_id
+	 * field_id		=> Q or A id (fieldId in DB)
 	 *
 	 * Output data:
 	 * status 	=> ok
@@ -125,6 +126,8 @@ class Service extends CI_Controller {
 		if (empty($postdata['file_name']))
 			$this->_show_output(array('status' => 'error', 'error' => 'empty file name'));
 		
+		if (isset($postdata['field_id']) && $postdata['field_id'] > 0 && (!isset($postdata['aperture_id']) or empty($postdata['aperture_id']) or $postdata['aperture_id']==0))
+			$this->_show_output(array('status' => 'error', 'error' => 'get field_id but empty aperture_id'));
 
 		// $name = $_FILES['file']['name'];
 		// $ext = substr($name, -4);
@@ -154,9 +157,37 @@ class Service extends CI_Controller {
 
 			$fileid = $this->media_model->add_uploaded_file($adddata);
 
+			$aperture_id = FALSE;
+			$field_id = FALSE;
+			$images = array();
+
 			if ($postdata['aperture_id'] > 0)
-				$this->media_model->add_aperture_file($fileid, $postdata['aperture_id']);
-			$this->_show_output(array('status' => 'ok', 'file_id' => $fileid));
+			{
+				$aperture_id = $postdata['aperture_id'];
+
+				if (isset($postdata['field_id']) && $postdata['field_id'] > 0)
+					$field_id = $postdata['field_id'];
+
+				$this->media_model->add_aperture_file($fileid, $aperture_id, $field_id);
+
+				$imgs = $this->service_model->get_images_by_aperture_id_and_field_id($aperture_id, $field_id);
+
+				foreach ($imgs as $image)
+				{
+					$images[] = array(
+						'file_id'	=> $image['file_id'],
+						'url'		=> $image['path']
+					);
+				}
+
+			}
+			else
+				$images[] = array(
+					'file_id'	=> $fileid,
+					'url'		=> base_url($file_path)
+				);
+
+			$this->_show_output(array('status' => 'ok', 'images' => $images, 'aperture_id' => $aperture_id ? $aperture_id : '', 'field_id' => $field_id ? $field_id : ''));
 		}
 	}
 
@@ -361,27 +392,45 @@ class Service extends CI_Controller {
 		if (!empty($userData['inspections']))
 		{
 			$output = array();
-				foreach ($userData['inspections'] as $inspection)
+
+			foreach ($userData['inspections'] as $inspection)
+			{
+				if (!empty($keyword) && //for search
+					strpos(strtolower($inspection['barcode']), $keyword) === FALSE &&
+					strpos(strtolower($inspection['location_name']), $keyword) === FALSE &&
+					strpos(strtolower($inspection['firstName']), $keyword) === FALSE &&
+					strpos(strtolower($inspection['lastName']), $keyword) === FALSE &&
+					strpos($inspection['StartDate'], $keyword) === FALSE &&
+					strpos($inspection['Completion'], $keyword) === FALSE &&
+					strpos(strtolower($inspection['InspectionStatus']), $keyword) === FALSE &&
+					strpos($inspection['id'], $keyword) === FALSE
+				) {
+					continue;
+				}
+
+				if (!isset($output[$inspection['aperture_id']]))
+					$output[$inspection['aperture_id']] = $inspection;
+				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
+					$output[$inspection['aperture_id']] = $inspection;
+			}
+		
+			$userData['inspections'] = $output;
+
+			
+			$inspections_images = array();
+			$allimgs = $this->service_model->get_images_by_aperture_id_and_field_id(array_keys($userData['inspections']));
+			if (!empty($allimgs))
+			{
+				foreach ($allimgs as $image)
 				{
-					if (!empty($keyword) &&
-						strpos(strtolower($inspection['barcode']), $keyword) === FALSE &&
-						strpos(strtolower($inspection['location_name']), $keyword) === FALSE &&
-						strpos(strtolower($inspection['firstName']), $keyword) === FALSE &&
-						strpos(strtolower($inspection['lastName']), $keyword) === FALSE &&
-						strpos($inspection['StartDate'], $keyword) === FALSE &&
-						strpos($inspection['Completion'], $keyword) === FALSE &&
-						strpos(strtolower($inspection['InspectionStatus']), $keyword) === FALSE &&
-						strpos($inspection['id'], $keyword) === FALSE
-					) {
-						continue;
-					}
-					if (!isset($output[$inspection['aperture_id']]))
-						$output[$inspection['aperture_id']] = $inspection;
-					elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
-						$output[$inspection['aperture_id']] = $inspection;
+					$inspections_images[$image['aperture_id']][] = array(
+						'file_id'	=> $image['file_id'],
+						'url'		=> $image['path']
+					);
 				}
 			
-				$userData['inspections'] = $output;
+			}			
+			
 
 			foreach ($userData['inspections'] as &$inspection) {
 
@@ -402,6 +451,7 @@ class Service extends CI_Controller {
 				
 				$inspection['colorcode'] = $colorresult;
 				$inspection['building_name'] = @$building['building_name'];
+				$inspection['images'] = isset($inspections_images[$inspection['aperture_id']]) ? $inspections_images[$inspection['aperture_id']] : array();
 			}
 		}
 
@@ -539,7 +589,7 @@ class Service extends CI_Controller {
 		$userData['experts']  = $this->info_model->get_experts_list();
 		
 		foreach ($userData['experts'] as &$expert)
-			$expert['logo'] = 'http://' . $_SERVER['HTTP_HOST'] . $expert['logo'];
+			$expert['logo'] = base_url($expert['logo']);
 
 		$this->_show_output($userData);
 	}

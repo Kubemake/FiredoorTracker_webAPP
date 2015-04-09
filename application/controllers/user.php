@@ -140,7 +140,7 @@ class User extends CI_Controller {
 				$this->input->set_cookie($cookie); 
 
 			}
-			if ($this->session->flashdata('refferer'))
+			if ($this->session->flashdata('refferer') && strpos($this->session->flashdata('refferer'), 'ajax') !== FALSE)
 				redirect($this->session->flashdata('refferer'));
 			redirect('user/profile/');
 		}
@@ -302,7 +302,7 @@ class User extends CI_Controller {
 		{
 			$adddata = array(
 			    'Buildings_idBuildings'	=> $postdata['location'],
-			    'name'					=> $postdata['name'],
+			    'barcode'				=> $postdata['barcode'],
 			    'wall_Rating'			=> $postdata['wallRating'],
 			    'smoke_Rating'			=> $postdata['smokeRating'],
 			    'material'				=> $postdata['material'],
@@ -330,8 +330,8 @@ class User extends CI_Controller {
 		if (has_permission('Allow view doors tab'))
 		{
 			$this->table->set_heading(
-				'Id',
-				'Name',
+				array('data' => ''   , 'style' => 'display: none !important;'),
+				'Door Id',
 				'Location',
 				array('data' => 'Wall Rating'   , 'class' => 'not-mobile'),
 				array('data' => 'Smoke Rating'	, 'class' => 'not-mobile'),
@@ -349,7 +349,10 @@ class User extends CI_Controller {
 			if (!empty($apertures))
 			{
 				foreach ($apertures as $aperture)
-					$this->table->add_row($aperture['idDoors'], @$aperture['name'], @$aperture['location_name'], @$data['wall_Rating'][$aperture['wall_Rating']], @$data['smoke_Rating'][$aperture['smoke_Rating']], @$data['material'][$aperture['material']], @$data['rating'][$aperture['rating']]);
+				{
+					$cell = array('data' => $aperture['idDoors'], 'style' => 'display: none !important;');
+					$this->table->add_row($cell, $aperture['barcode'], @$aperture['location_name'], @$data['wall_Rating'][$aperture['wall_Rating']], @$data['smoke_Rating'][$aperture['smoke_Rating']], @$data['material'][$aperture['material']], @$data['rating'][$aperture['rating']]);
+				}
 			}
 			
 

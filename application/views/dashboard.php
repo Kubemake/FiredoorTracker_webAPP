@@ -5,9 +5,9 @@
 			<div class="btn-group">
 				<a href="javascript:;" onclick="button_add_action();return false;" class="btn btn-default button-add">Add</a>
 				<a href="javascript:;" onclick="button_edit_action();return false;" class="btn btn-default button-edit">Edit</a>
-				<button type="button" class="btn btn-default button-pdf">View PDF</button>
+				<?/*<button type="button" class="btn btn-default button-pdf">View PDF</button>
 				<button type="button" class="btn btn-default button-import">Import</button>
-				<button type="button" class="btn btn-default button-assign">Assign</button>
+				<button type="button" class="btn btn-default button-assign">Assign</button>*/?>
 				<?php if (has_permission('Allow delete review')): ?><a href="javascript:;" onclick="button_delete_action();return false;" class="btn btn-default button-delete">Delete</a><?php endif; ?>
 				<a href="javascript:;" onclick="button_reinspect_action();return false;" class="btn btn-default button-reinspect">Reinspect</a>
 			</div>
