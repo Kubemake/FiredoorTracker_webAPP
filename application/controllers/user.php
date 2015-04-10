@@ -440,7 +440,7 @@ class User extends CI_Controller {
 
 		if (has_permission('Allow view users tab'))
 		{
-			$this->table->set_heading(
+			$heading = array(
 				'id',
 				'First Name',
 				'Last Name',
@@ -450,12 +450,25 @@ class User extends CI_Controller {
 				array('data' => 'Role'			, 'class' => 'not-mobile')
 			);
 
+			if (has_permission('Allow Activate/Deactivate users'))
+				$heading[] = array('data' => 'State'			, 'class' => 'not-mobile');
+
+			$this->table->set_heading($heading);
+
 			$users = $this->resources_model->get_all_user_data();
 
 			if (!empty($users))
 			{
 				foreach ($users as $user)
-					$this->table->add_row($user['idUsers'], $user['firstName'], $user['lastName'], $user['officePhone'], $user['mobilePhone'], $user['email'], $user['role_name']);
+				{
+					$row = array($user['idUsers'], $user['firstName'], $user['lastName'], $user['officePhone'], $user['mobilePhone'], $user['email'], $user['role_name']);
+					if (has_permission('Allow Activate/Deactivate users'))
+						$row[] = ($user['deleted']>0) ? 'Unactive' : 'Active';
+					else
+						if ($user['deleted']>0) continue;
+
+					$this->table->add_row($row);
+				}
 			}
 			
 

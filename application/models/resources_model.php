@@ -46,8 +46,12 @@ class Resources_model  extends CI_Model
 
 	function delete_employeer_by_id($employeer_id)
 	{
+		$user = $this->db->where('idUsers', $employeer_id)->get('Users')->row_array();
+
+		$delnumber = ($user['deleted'] > 0) ? '0' : $this->session->userdata('user_id');
+
 		$this->db->where('idUsers', $employeer_id);
-		return $this->db->update('Users', array('deleted' => $this->session->userdata('user_id')));
+		return $this->db->update('Users', array('deleted' => $delnumber));
 	}
 
 	function get_user_by_email($email)
@@ -65,7 +69,7 @@ class Resources_model  extends CI_Model
 		$this->db->from('Users u');
 		$this->db->join('Roles r', 'r.idRoles = u.role', 'left');
 		$this->db->where('u.parent', $this->session->userdata('user_parent'));
-		$this->db->where('u.deleted', 0);
+		// $this->db->where('u.deleted', 0);
 		$this->db->where('r.rolesOrder >=', $roleOrder); //show only less weight order
 
 		return $this->db->get()->result_array();

@@ -11,7 +11,7 @@
 			<div class="btn-group">
 				<a href="javascript:;" onclick="button_add_action();return false;" class="btn btn-default button-add">Add</a>
 				<a href="javascript:;" onclick="button_edit_action();return false;" class="btn btn-default button-edit">Edit</a>
-				<a href="javascript:;" onclick="button_delete_action();return false;" class="btn btn-default button-delete">Delete</a>
+				<?php if (has_permission('Allow Activate/Deactivate users')): ?><a href="javascript:;" onclick="button_delete_action();return false;" class="btn btn-default button-delete">Activate/Deactivate</a><?php endif; ?>
 			</div>
 		</div>
 	</div>
@@ -56,7 +56,8 @@
 			success: function(msg) {
 				console.log(msg);
 				if (msg=='done')
-					$('#DataTables_Table_0 tr.active').remove();
+					window.location.reload(true);
+					// $('#DataTables_Table_0 tr.active').remove();
 			}
 		});
 	}

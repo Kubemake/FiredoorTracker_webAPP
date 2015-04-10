@@ -87,13 +87,14 @@ class Service extends CI_Controller {
 	 * Upload file acceptor
 	 *
 	 * Input data:
-	 * token 		=> user token
-	 * file 		=> file data
-	 * file_type 	=> type of file image or video, image by default
-	 * file_name 	=> file name for display
-	 * file_descr 	=> file description
-	 * aperture_id	=> aperture_id
-	 * field_id		=> Q or A id (fieldId in DB)
+	 * token 			=> user token
+	 * file 			=> file data
+	 * file_type 		=> type of file image or video, image by default
+	 * file_name 		=> file name for display
+	 * file_descr 		=> file description
+	 * aperture_id		=> aperture_id
+	 * idFormFields		=> Q or A id (fieldId in DB)
+	 * inspection_id 	=> instead if aperture_id
 	 *
 	 * Output data:
 	 * status 	=> ok
@@ -102,7 +103,7 @@ class Service extends CI_Controller {
 	function upload()
 	{
 		$this->load->model('media_model');
-
+	
 		$postdata = $this->input->post();
 // file_put_contents($_SERVER['DOCUMENT_ROOT'].'/upload/post', json_encode($postdata));
 // $this->_show_output(array('status' => 'error', 'error' => 'debug'));
@@ -126,8 +127,23 @@ class Service extends CI_Controller {
 		if (empty($postdata['file_name']))
 			$this->_show_output(array('status' => 'error', 'error' => 'empty file name'));
 		
-		if (isset($postdata['field_id']) && $postdata['field_id'] > 0 && (!isset($postdata['aperture_id']) or empty($postdata['aperture_id']) or $postdata['aperture_id']==0))
-			$this->_show_output(array('status' => 'error', 'error' => 'get field_id but empty aperture_id'));
+		if (
+			isset($postdata['idFormFields']) && 
+			$postdata['idFormFields'] > 0 && 
+			(
+				(
+					!isset($postdata['aperture_id']) or 
+					empty($postdata['aperture_id']) or 
+					$postdata['aperture_id']==0
+				) &&
+				(
+					!isset($postdata['inspection_id']) or 
+					empty($postdata['inspection_id']) or 
+					$postdata['inspection_id']==0
+				)
+			)
+		)
+			$this->_show_output(array('status' => 'error', 'error' => 'get idFormFields but empty aperture_id'));
 
 		// $name = $_FILES['file']['name'];
 		// $ext = substr($name, -4);
@@ -158,36 +174,38 @@ class Service extends CI_Controller {
 			$fileid = $this->media_model->add_uploaded_file($adddata);
 
 			$aperture_id = FALSE;
-			$field_id = FALSE;
+			$idFormFields = FALSE;
 			$images = array();
 
-			if ($postdata['aperture_id'] > 0)
+			if ((isset($postdata['aperture_id']) && $postdata['aperture_id'] > 0) or (isset($postdata['inspection_id']) && $postdata['inspection_id'] > 0))
 			{
-				$aperture_id = $postdata['aperture_id'];
+				$aperture_id = @$postdata['aperture_id'];
+				
+				if (isset($postdata['inspection_id']) && $postdata['inspection_id'] > 0)
+				{
+					$aperture_id = $this->service_model->get_aperture_id_by_inspection_id($postdata['inspection_id']);
+					$aperture_id = $aperture_id['idAperture'];
+				}
 
-				if (isset($postdata['field_id']) && $postdata['field_id'] > 0)
-					$field_id = $postdata['field_id'];
+				if (isset($postdata['idFormFields']) && $postdata['idFormFields'] > 0)
+					$idFormFields = $postdata['idFormFields'];
 
-				$this->media_model->add_aperture_file($fileid, $aperture_id, $field_id);
+				$this->media_model->add_aperture_file($fileid, $aperture_id, $idFormFields);
 
-				$imgs = $this->service_model->get_images_by_aperture_id_and_field_id($aperture_id, $field_id);
+				$imgs = $this->service_model->get_images_by_aperture_id_and_field_id($aperture_id, $idFormFields);
 
 				foreach ($imgs as $image)
 				{
-					$images[] = array(
-						'file_id'	=> $image['file_id'],
-						'url'		=> $image['path']
-					);
+					$images[] = $image['path'];
+					// $images[] = array('file_id'	=> $image['file_id'],'url'		=> $image['path']);
 				}
 
 			}
 			else
-				$images[] = array(
-					'file_id'	=> $fileid,
-					'url'		=> base_url($file_path)
-				);
+				$images[] = base_url($file_path);
+				// $images[] = array('file_id'	=> $fileid,'url'		=> base_url($file_path));
 
-			$this->_show_output(array('status' => 'ok', 'images' => $images, 'aperture_id' => $aperture_id ? $aperture_id : '', 'field_id' => $field_id ? $field_id : ''));
+			$this->_show_output(array('status' => 'ok', 'images' => $images, 'aperture_id' => $aperture_id ? $aperture_id : '', 'idFormFields' => $idFormFields ? $idFormFields : ''));
 		}
 	}
 
@@ -423,10 +441,8 @@ class Service extends CI_Controller {
 			{
 				foreach ($allimgs as $image)
 				{
-					$inspections_images[$image['aperture_id']][] = array(
-						'file_id'	=> $image['file_id'],
-						'url'		=> $image['path']
-					);
+					$inspections_images[$image['aperture_id']][] = $image['path'];
+					// $inspections_images[$image['aperture_id']][] = array('file_id'	=> $image['file_id'],'url'		=> $image['path']);
 				}
 			
 			}			
