@@ -463,7 +463,7 @@ class User extends CI_Controller {
 				{
 					$row = array($user['idUsers'], $user['firstName'], $user['lastName'], $user['officePhone'], $user['mobilePhone'], $user['email'], $user['role_name']);
 					if (has_permission('Allow Activate/Deactivate users'))
-						$row[] = ($user['deleted']>0) ? 'Unactive' : 'Active';
+						$row[] = ($user['deleted']>0) ? 'Disabled' : 'Active';
 					else
 						if ($user['deleted']>0) continue;
 
