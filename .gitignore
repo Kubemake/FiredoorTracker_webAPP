@@ -9,3 +9,7 @@ application/logs/*
 !application/logs/.htaccess
 
 upload/*
+stats/*
+user_guide/*
+phpMyAdmin-4.2.8-all-languages/*
+gopd/*
