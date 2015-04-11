@@ -53,7 +53,11 @@ class Media_model  extends CI_Model
 
 		$insert_query = $this->db->insert_string('InspectionFieldFiles', $insdata);
 		$insert_query = str_replace('INSERT INTO', 'INSERT IGNORE INTO', $insert_query);
-		return $this->db->query($insert_query);
+		$this->db->query($insert_query);
+
+		$iffid = $this->db->where($insdata)->get('InspectionFieldFiles')->row_array();
+        return $iffid['id'];
+
 	}
 
 	function update_aperture_file($file_id, $upddata)

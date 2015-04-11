@@ -25,7 +25,53 @@ class History_model  extends CI_Model
 	function get_expert_by_expert_id($line_id)
 	{
 		return $this->db->where('idExperts', $line_id)->get('Experts')->row_array();
+	}
 
+	function get_file_by_file_id($line_id)
+	{
+		return $this->db->where('idFiles', $line_id)->get('Files')->row_array();
+	}
+
+	function get_info_by_info_id($line_id)
+	{
+		return $this->db->where('idInfo', $line_id)->get('Info')->row_array();
+	}
+
+	function get_user_by_user_id($line_id)
+	{
+		return $this->db->where('idUsers', $line_id)->get('Users')->row_array();
+	}
+
+	function get_location_by_location_id($line_id)
+	{
+		return $this->db->where('idBuildings', $line_id)->get('Buildings')->row_array();
+	}
+
+	function get_door_by_door_id($line_id)
+	{
+		return $this->db->where('idDoors', $line_id)->get('Doors')->row_array();
+	}
+
+	function get_rr_by_user_parent($line_id)
+	{
+		return $this->db->where('UserId', $line_id)->get('RolesRules')->result_array();
+	}
+
+	function get_review_by_review_id($line_id)
+	{
+		return $this->db->where('idInspections', $line_id)->get('Inspections')->result_array();
+	}
+
+	function get_iff_by_iff_id($line_id)
+	{
+		return $this->db->where('id', $line_id)->get('InspectionFieldFiles')->result_array();
+	}
+
+	function get_aperture_id_by_inspection_id($inspection_id)
+	{
+		$app_id = $this->db->select('idAperture')->where('idInspections', $inspection_id)->get('Inspections')->row_array();
+
+		return $app_id['idAperture'];
 	}
 }
 

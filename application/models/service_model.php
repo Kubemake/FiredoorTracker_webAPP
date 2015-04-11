@@ -203,7 +203,8 @@ class Service_model  extends CI_Model
     		'value' 				  	=> $value
 		);
 
-		return $this->db->insert('DoorsFormFields', $insdata);
+		$this->db->insert('DoorsFormFields', $insdata);
+		return $this->db->insert_id();
 	}
 
 	function get_all_questions_with_status_answers($inspection)

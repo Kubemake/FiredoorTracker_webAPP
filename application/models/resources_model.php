@@ -281,7 +281,8 @@ class Resources_model  extends CI_Model
 
 	function add_inspection($adddata)
 	{
-		return $this->db->insert('Inspections', $adddata);
+		$this->db->insert('Inspections', $adddata);
+		return $this->db->insert_id();
 	}
 
 	function get_user_inspections()

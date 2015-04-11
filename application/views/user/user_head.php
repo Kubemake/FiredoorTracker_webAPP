@@ -27,3 +27,6 @@
 		})
 	}) 
 </script>
+<div class="row">
+	<div class="container"><?=@$msg?></div>
+</div>

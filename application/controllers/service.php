@@ -173,6 +173,10 @@ class Service extends CI_Controller {
 
 			$fileid = $this->media_model->add_uploaded_file($adddata);
 
+			$this->load->library('History_library');
+			
+			$this->history_library->saveFiles(array('user_id' => $tokendata['user_id'], 'line_id' => $fileid, 'new_val' => json_encode($adddata), 'type' => 'add'));
+
 			$aperture_id = FALSE;
 			$idFormFields = FALSE;
 			$images = array();
@@ -190,7 +194,9 @@ class Service extends CI_Controller {
 				if (isset($postdata['idFormFields']) && $postdata['idFormFields'] > 0)
 					$idFormFields = $postdata['idFormFields'];
 
-				$this->media_model->add_aperture_file($fileid, $aperture_id, $idFormFields);
+				$iff = $this->media_model->add_aperture_file($fileid, $aperture_id, $idFormFields);
+
+				$this->history_library->saveIff(array('user_id' => $tokendata['user_id'], 'line_id' => $iff, 'new_val' => json_encode(array('Doors_idDoors' => $aperture_id, 'Files_idFiles' => $fileid, 'FormFields_idFormFields' => $idFormFields)), 'type' => 'add'));
 
 				$imgs = $this->service_model->get_images_by_aperture_id_and_field_id($aperture_id, $idFormFields);
 
@@ -333,6 +339,10 @@ class Service extends CI_Controller {
 
 		if (empty($data))
 			$this->_show_output(array('status' => 'error', 'error' => 'not isset update parameters'));
+
+		$this->load->library('History_library');
+		
+		$this->history_library->saveUsers(array('user_id' => $user_id, 'line_id' =>  $user_id, 'new_val' => json_encode($data), 'type' => 'edit'));
 
 		$this->user_model->update_user_data($user_id, $data);
 		
@@ -507,6 +517,10 @@ class Service extends CI_Controller {
 
 		$upddata['InspectionStatus'] = ($total_status_answ==$total_curent_status_answ) ? 'Complete' : 'In Progress';
 		$upddata['Completion'] 		 = date('Y-m-d');
+
+		$this->load->library('History_library');
+		
+		$this->history_library->saveInspections(array('user_id' => $user_id, 'line_id' => $data['inspection_id'], 'new_val' => json_encode($upddata), 'type' => 'edit'));
 
 		$this->resources_model->update_inspection($data['inspection_id'], $upddata);
 
@@ -703,6 +717,10 @@ class Service extends CI_Controller {
 		$upddata 					= $data; //save selected overview parameters
 		unset($upddata['type'], $upddata['token'], $upddata['tokendata'], $upddata['inspection_id']); //remove waste data
 
+		$this->load->library('History_library');
+		
+		$this->history_library->saveDoors(array('user_id' => $user_id, 'iid' => $data['inspection_id'], 'new_val' => json_encode($upddata), 'type' => 'edit'));
+
 		$result = $this->service_model->update_aperture_overview_info($data['inspection_id'], $upddata);
 
 		$result = $this->service_model->get_aperture_issues_and_selected($data);
@@ -759,10 +777,6 @@ class Service extends CI_Controller {
 			$this->_show_output($userData);
 		}
 
-		//1. если selected=1 - нажата, если 0 - отжата
-		//2. проверять если нажат ответ не комплиант то удалаять запись с комплант
-
-
 		$this->load->model('resources_model');
 
 		$userData['status'] = 'error';
@@ -772,7 +786,11 @@ class Service extends CI_Controller {
 		$user 		= $data['tokendata']['user_id'];
 		$value 		= $data['selected'];
 		$status  	= $data['status'];
-		
+
+		$this->load->library('History_library');
+
+		$cur_dff = $this->history_library->get_cur_dff($inspection, $field, $user);
+
 		$this->service_model->delete_inspection_data($inspection, $field, $user); //del current answ record
 
 
@@ -797,9 +815,13 @@ class Service extends CI_Controller {
 						$this->service_model->delete_inspection_data($inspection, $answer['idFormFields'], $user);
 				}
 			}
-					
-			if ($this->service_model->add_inspection_data($inspection, $field, $user, $value))
+			$dffid = $this->service_model->add_inspection_data($inspection, $field, $user, $value);
+
+			$this->history_library->saveDff(array('user_id' => $user, 'line_id' => $dffid, 'new_val' => json_encode(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'Users_idUsers' => $user, 'value' => $value)), 'cur_val' => $cur_dff));
+
+			if ($dffid)
 				$this->resources_model->update_inspection($data['inspection_id'], array('InspectionStatus' => 'In Progress'));
+
 		}
 
 		$userData['status'] = 'ok';
@@ -915,6 +937,8 @@ class Service extends CI_Controller {
 		
 		$aperture = $this->resources_model->get_aperture_info_by_barcode($data['barcode']);
 
+		$this->load->library('History_library');
+
 		if (empty($aperture))
 		{
 			$adddata = array(
@@ -924,7 +948,8 @@ class Service extends CI_Controller {
 				'name'						=> $data['barcode']
 			);
 			$aperture_id = $this->resources_model->add_aperture($adddata);
-	
+					
+			$this->history_library->saveDoors(array('user_id' => $tokendata['user_id'], 'line_id' => $aperture_id, 'new_val' => json_encode($adddata), 'type' => 'add'));
 		}
 		else
 		{
@@ -949,7 +974,9 @@ class Service extends CI_Controller {
 			'summary' 					=> @$data['summary']
 		);
 
-		$this->resources_model->add_inspection($adddata);
+		$iid = $this->resources_model->add_inspection($adddata);
+		
+		$this->history_library->saveInspections(array('user_id' => $tokendata['user_id'], 'line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
 
 		$userData['status'] 	= 'ok';
 

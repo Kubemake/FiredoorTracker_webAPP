@@ -13,14 +13,20 @@ class Media extends CI_Controller {
 	{
 		$this->load->model('resources_model');
 
+
 		if ($postdata = $this->input->post())
 		{
+			$this->load->library('History_library');
+			
 			if ($postdata['form_type'] == 'edit_file') {
 				$upddata = array(
 					'name' 			=> $postdata['file_name'],
 					'description' 	=> $postdata['file_descr']
 				);
+				$this->history_library->saveFiles(array('line_id' => $postdata['idfiles'], 'new_val' => json_encode($upddata), 'type' => 'edit'));
+
 				$this->media_model->update_aperture_file($postdata['idfiles'], $upddata);
+				
 				$fileid = $postdata['idfiles'];
 			}
 			else
@@ -35,6 +41,7 @@ class Media extends CI_Controller {
 				);
 				$fileid = $this->media_model->add_uploaded_file($adddata);
 
+				$this->history_library->saveFiles(array('line_id' => $fileid, 'new_val' => json_encode($adddata), 'type' => 'add'));
 			}
 
 			if ($postdata['aperture'] > 0)

@@ -54,7 +54,7 @@
 				<div class="modal-footer">
 					<input type="hidden" name="form_type" value="edit_expert">
 					<input type="hidden" name="expert_id" value="<?=$expert['idExperts']?>">
-					<input type="hidden" name="file_path" id="file_path" value="">
+					<input type="hidden" name="file_path" id="file_path" value="<?=$expert['logo']?>">
 					<button type="submit" class="btn btn-primary">Accept chages</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel changes</button>
 				</div>
@@ -75,6 +75,7 @@
 
 	$('.close-uploaded').on('click', function(){
 		$('#upload-acceptor').html('');
+		$('#file_path').val('');
 		$('#drop-area').show();
 		$('#drop-area-result').hide();
 		$('#savemedia').addClass('disabled');

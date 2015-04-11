@@ -205,3 +205,41 @@ require_once BASEPATH.'core/CodeIgniter.php';
 
 /* End of file index.php */
 /* Location: ./index.php */
+
+
+
+// получаем ссылку на объект code igniter
+$ci = & get_instance();
+ 
+// открываем 2 файла на дозапись, в первом храним запросы, занявшие от 1 до 10 секунд,
+//во втором - всё что свыше 10 секунд.
+$handle = fopen('slow_query_1.log', "a+");
+$handle_slow = fopen('slow_query_10.log', "a+");
+ 
+foreach($ci->db->queries as $key =>$query)
+{
+	// получаем время выполнения запроса
+	$time = number_format($ci->db->query_times[$key], 4);
+ 
+	// если запрос занял менее 1 секунды - ничего не делаем
+	if ($time < 1)
+		continue;
+ 
+	// если запрос занял менее 10 секунд - записываем в первый файл
+	// если запрос занял более 10 секунд - записываем во второй файл
+	if ($time < 10)
+	{
+		fwrite($handle, date('j.m.Y G:i:s').' : '.$time."\r\n");
+		fwrite($handle, $query."\r\n\r\n-----------------------------\r\n");
+	}
+	else 
+	{
+		fwrite($handle_slow, date('j.m.Y G:i:s').' : '.$time."\r\n");
+		fwrite($handle_slow, $query."\r\n\r\n-----------------------------\r\n");
+	}
+ 
+}
+ 
+// закрываем оба файла.
+fclose($handle);
+fclose($handle_slow);

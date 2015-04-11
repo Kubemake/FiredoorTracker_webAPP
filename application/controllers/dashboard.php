@@ -15,18 +15,13 @@ class Dashboard extends CI_Controller {
 		// printdbg(array());
 		if ($postdata = $this->input->post())
 		{
-			
+			$this->load->library('History_library');
+
 			$adddata = array(
 				'Buildings_idBuildings'	=> @$postdata['location'],
 				'idAperture'			=> @$postdata['aperture'],
 				'UserId'				=> $this->session->userdata('user_parent'),
 			);
-
-			// if (!empty($postdata['start_date']))
-			// 	$adddata['StartDate'] = date('Y-m-d', strtotime($postdata['start_date']));
-
-			// if (!empty($postdata['completion_date']))
-			// 	$adddata['Completion'] = date('Y-m-d', strtotime($postdata['completion_date']));
 
 			if ($postdata['reviewer'] > 0)
 				$adddata['Inspector']= $postdata['reviewer'];
@@ -40,9 +35,14 @@ class Dashboard extends CI_Controller {
 						$adddata['revision'] = $avail['revision'] + 1;
 
 					$adddata['InspectionStatus'] = 'New';
-					$this->resources_model->add_inspection($adddata);
+					$iid = $this->resources_model->add_inspection($adddata);
+
+					$this->history_library->saveInspections(array('line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
 				break;
+
 				case 'edit_inspection':
+					$this->history_library->saveInspections(array('line_id' => $postdata['idInspections'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
+
 					$this->resources_model->update_inspection($postdata['idInspections'], $adddata);
 				break;
 			}

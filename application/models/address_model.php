@@ -32,6 +32,7 @@ class Address_model  extends CI_Model
         $this->db->query($insert_query); 
         $useraddress = $this->db->where($insdata)->get('Address')->row_array();
         return $useraddress['idAddress'];
+
 	}
 
 	function update_user_address($idaddress, $user_id)

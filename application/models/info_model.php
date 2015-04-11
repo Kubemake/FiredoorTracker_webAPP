@@ -70,7 +70,8 @@ class Info_model  extends CI_Model
 
 	function add_info($insdata)
 	{
-		return $this->db->insert('Info', $insdata);
+		$this->db->insert('Info', $insdata);
+		return $this->db->insert_id();
 	}
 	
 	function update_info($info_id, $insdata)
@@ -104,7 +105,8 @@ class Info_model  extends CI_Model
 
     function add_expert($insdata)
     {
-        return $this->db->insert('Experts', $insdata);
+        $this->db->insert('Experts', $insdata);
+		return $this->db->insert_id();
     }
 
     function update_expert($expert_id, $insdata)

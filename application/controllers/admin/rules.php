@@ -18,6 +18,10 @@ class Rules extends CI_Controller {
 
 		if ($postdata = $this->input->post())
 		{
+			$this->load->library('History_library');
+
+			$this->history_library->saveRR(array('line_id' => $this->session->userdata('user_parent'), 'new_val' => json_encode($postdata), 'type' => 'edit'));
+
 			foreach ($rules as $rule)
 			{
 				foreach ($roles as $role)
@@ -25,6 +29,8 @@ class Rules extends CI_Controller {
 					$this->rules_model->update_role_permission($rule['idRules'], $role['idRoles'], $this->session->userdata('user_parent'), @$postdata['rr'][$rule['idRules']][$role['idRoles']]);
 				}
 			}
+
+			$data['msg'] = '<div class="alert alert-success alert-dismissable">User rules successfully updated</div>';
 		}
 
 		$result		= $this->rules_model->get_all_rolesrules($this->session->userdata('user_parent'));

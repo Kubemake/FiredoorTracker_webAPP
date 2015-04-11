@@ -13,6 +13,7 @@ class Resources extends CI_Controller {
 	{
 		if ($postdata = $this->input->post())
 		{
+			$this->load->library('History_library');
 
 			$insdata = array(
 				'name' 			=> $postdata['name'],
@@ -25,11 +26,17 @@ class Resources extends CI_Controller {
 				case 'add_info':
 					$newins = $this->info_model->add_info($insdata);
 					
+					$this->history_library->saveInfo(array('line_id' => $newins, 'new_val' => json_encode($insdata), 'type' => 'add'));
+					
 					if ($newins)
 						$header['msg'] = msg('success', $postdata['type'] . ' added successfuly');
 				break;
+
 				case 'edit_info':
+					$this->history_library->saveInfo(array('line_id' => $postdata['info_id'], 'new_val' => json_encode($insdata), 'type' => 'edit'));
+
 					$this->info_model->update_info($postdata['info_id'], $insdata);
+
 					$header['msg'] = msg('success', $postdata['type'] . ' successfully updated');
 				break;
 			}

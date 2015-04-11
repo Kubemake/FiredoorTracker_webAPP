@@ -19,6 +19,8 @@ class User extends CI_Controller {
 		if ($this->input->post('updateProfile')) {
 			$postData = $this->input->post();
 
+			$this->load->library('History_library');
+
 			if (strlen($postData['logoFilePath']) > 0 )
 			{
 				$postData['logoFilePath'] = str_replace('http://firedoortracker.org', '', $postData['logoFilePath']);
@@ -43,6 +45,8 @@ class User extends CI_Controller {
 			{
 				$updateData['password'] = pass_crypt($postData['inputPassword']);
 			}
+			
+			$this->history_library->saveUsers(array('line_id' => $this->session->userdata('user_id'), 'new_val' => json_encode($updateData), 'type' => 'edit'));
 
 			$this->user_model->update_user_data($this->session->userdata('user_id'), $updateData);
 
@@ -73,6 +77,8 @@ class User extends CI_Controller {
 		
 		if ($postdata = $this->input->post())
 		{
+			$this->load->library('History_library');
+			
 			$insdata = array(
 				'address' 	=> $postdata['address'],
 			    'city' 		=> $postdata['city'],
@@ -81,6 +87,10 @@ class User extends CI_Controller {
 			);
 
 			$idaddress = $this->address_model->update_address($insdata);
+
+			$this->history_library->saveAddress(array('line_id' => $idaddress, 'new_val' => json_encode($insdata), 'type' => 'add'));
+
+			$this->history_library->saveUsers(array('line_id' => $this->session->userdata('user_id'), 'new_val' => json_encode(array('idAddress' => $idaddress)), 'type' => 'edit'));
 
 			$this->address_model->update_user_address($idaddress, $this->session->userdata('user_id'));
 
@@ -239,11 +249,17 @@ class User extends CI_Controller {
 			{
 				$postdata = $this->input->post();
 
+				$this->load->library('History_library');
+
 				switch ($postdata['form_type'])
 				{
 					case 'add_user_building':
 						unset($postdata['form_type']);
-						$this->user_model->add_building($postdata);
+
+						$bid = $this->user_model->add_building($postdata);
+
+						$this->history_library->saveBuildings(array('line_id' => $bid, 'new_val' => json_encode($postdata), 'type' => 'add'));
+
 						$data['msg'] = msg('success', 'Element successfully added');
 					break;
 				}
@@ -300,6 +316,8 @@ class User extends CI_Controller {
 		$data = array();
 		if ($postdata = $this->input->post())
 		{
+			$this->load->library('History_library');
+
 			$adddata = array(
 			    'Buildings_idBuildings'	=> $postdata['location'],
 			    'barcode'				=> $postdata['barcode'],
@@ -315,11 +333,17 @@ class User extends CI_Controller {
 				case 'add_aperture':
 					$newemp = $this->resources_model->add_aperture($adddata);	//add new aperture
 					
+					$this->history_library->saveDoors(array('line_id' => $newemp, 'new_val' => json_encode($adddata), 'type' => 'add'));
+					
 					if ($newemp)
 						$header['msg'] = msg('success', 'Door successfully added');
 				break;
+
 				case 'edit_aperture':
+					$this->history_library->saveDoors(array('line_id' => $postdata['aperture_id'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
+
 					$this->resources_model->update_aperture_data($postdata['aperture_id'], $adddata);
+
 					$header['msg'] = msg('success', 'Door successfully updated');
 				break;
 				default:
@@ -385,6 +409,9 @@ class User extends CI_Controller {
 			if ($this->input->post('form_type'))
 			{
 				$postdata = $this->input->post();
+
+				$this->load->library('History_library');
+
 				$adddata = array(
 					'email'			=> $postdata['email'],
 				    'FirstName'		=> $postdata['first_name'],
@@ -422,14 +449,20 @@ class User extends CI_Controller {
 						}
 						$newemp = $this->resources_model->add_employer($adddata);	//add new user
 						$mail 	= TRUE;
-				
+						
+						$this->history_library->saveUsers(array('line_id' => $newemp, 'new_val' => json_encode($adddata), 'type' => 'add'));
+
 						$data['msg'] = msg('warning', 'Something wrong!');
 						if ($newemp && $mail)
 							$data['msg'] = msg('success', 'User successfully added');
 					break;
+
 					case 'edit_employeer':
+						$this->history_library->saveUsers(array('line_id' => $postdata['user_id'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
+
 						$this->resources_model->update_employer_data($postdata['user_id'], $adddata);
 
+						$data['msg'] = '<div class="alert alert-success alert-dismissable">User successfully updated</div>';
 					break;
 					default:
 					break;
@@ -644,6 +677,10 @@ class User extends CI_Controller {
 		verifyLogged();
 
 		if (!$fielddata = $this->input->post()) die(json_encode(array('status' => 'error')));
+		
+		$this->load->library('History_library');
+		
+		$this->history_library->saveBuildings(array('line_id' =>  $fielddata['idBuildings'], 'new_val' => json_encode($fielddata), 'type' => 'edit'));
 		
 		$this->user_model->update_building_data($fielddata);
 

@@ -19,6 +19,8 @@ class Clients extends CI_Controller {
 		{
 			if ($this->input->post('form_type'))
 			{
+				$this->load->library('History_library');
+
 				$this->load->model('resources_model');
 				
 				$postdata = $this->input->post();
@@ -58,10 +60,15 @@ class Clients extends CI_Controller {
 							break;
 						}
 						$newemp = $this->resources_model->add_employer($adddata);	//add new user
-						
+												
 						if ($postdata['user_role'] == 1)
+						{
 							$this->resources_model->update_employer_data($newemp, array('parent' => $newemp));
+							$adddata['parent'] = $newemp;
+						}
 
+						$this->history_library->saveUsers(array('line_id' => $newemp, 'new_val' => json_encode($adddata), 'type' => 'add'));
+						
 						$mail 	= TRUE;
 				
 						$data['msg'] = '<div class="alert alert-warning alert-dismissable">Something wrong!</div>';
@@ -73,8 +80,12 @@ class Clients extends CI_Controller {
 					case 'edit_employeer':
 						if ($postdata['user_role']==1)
 							$adddata['parent'] = $postdata['user_id'];
+
+						$this->history_library->saveUsers(array('line_id' => $postdata['user_id'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
+						
 						$this->resources_model->update_employer_data($postdata['user_id'], $adddata);
 
+						$data['msg'] = '<div class="alert alert-success alert-dismissable">User successfully updated</div>';
 					break;
 					default:
 					break;

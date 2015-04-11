@@ -10,14 +10,9 @@ class History_library {
 		$this->CI =& get_instance();
 
 		$this->user 	= $this->CI->session->userdata('user_id');
-		$this->line_id 	= $params['line_id'];
-		$this->new_val 	= $params['new_val'];
-		$this->type 	= $params['type'];
 		$this->time 	= time();
 
 		$this->CI->load->model('history_model');
-		
-		$this->CI->${$params['entity']}();
 	}
 	
 	// 'address','buildings','cc','doors','dff','experts','files','ff','info','iff','inspections','rr','ub','users'
@@ -33,34 +28,81 @@ class History_library {
 		);
 	}
 
-	public function saveAddress()
+	public function saveAddress($params)
+	{
+		$this->entity 	= 'address';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+		
+		$this->saveHistory();
+	}
+
+	public function saveBuildings($params)
+	{
+		$this->entity 	= 'buildings';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+		
+		if ($this->type != 'add')
+			$this->current_data = json_encode($this->CI->history_model->get_location_by_location_id($this->line_id));
+
+		$this->saveHistory();
+	}
+
+	public function saveCC($params)
 	{
 
 	}
 
-	public function saveBuildings()
+	public function saveDoors($params)
 	{
+		$this->entity 	= 'doors';
+		$this->line_id 	= @$params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+		
+		if (isset($params['user_id']))
+			$this->user = $params['user_id'];
+	
+		if (isset($params['iid']))
+			$this->line_id 	= $this->CI->history_model->get_aperture_id_by_inspection_id($params['iid']);
 
+		if ($this->type != 'add')
+			$this->current_data = json_encode($this->CI->history_model->get_door_by_door_id($this->line_id));
+
+		$this->saveHistory();
 	}
 
-	public function saveCC()
+	public function saveDff($params)
 	{
+		$this->entity 	= 'doors';
+		$this->line_id 	= @$params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+		
+		if (isset($params['user_id']))
+			$this->user = $params['user_id'];
+	
+		if (isset($params['cur_val']))
+			$this->current_data	= $params['cur_val'];
 
+		$this->saveHistory();
 	}
 
-	public function saveDoors()
+	public function get_cur_dff($inspection, $field, $user)
 	{
-
+		return $this->db->where(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'Users_idUsers' => $user))->get('DoorsFormFields')->row_array();
 	}
 
-	public function saveDff()
-	{
 
-	}
-
-	public function saveExperts()
+	public function saveExperts($params)
 	{
-		$this->entity 		= 'experts';
+		$this->entity 	= 'experts';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
 		
 		if ($this->type != 'add')
 			$this->current_data = json_encode($this->CI->history_model->get_expert_by_expert_id($this->line_id));
@@ -68,9 +110,20 @@ class History_library {
 		$this->saveHistory();
 	}
 
-	public function saveFiles()
+	public function saveFiles($params)
 	{
+		$this->entity 	= 'files';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+		
+		if (isset($params['user_id']))
+			$this->user = $params['user_id'];
 
+		if ($this->type != 'add')
+			$this->current_data = json_encode($this->CI->history_model->get_file_by_file_id($this->line_id));
+
+		$this->saveHistory();
 	}
 
 	public function saveFF()
@@ -78,34 +131,79 @@ class History_library {
 
 	}
 
-	public function saveInfo()
+	public function saveInfo($params)
 	{
+		$this->entity 	= 'info';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+		
+		if ($this->type != 'add')
+			$this->current_data = json_encode($this->CI->history_model->get_info_by_info_id($this->line_id));
+
+		$this->saveHistory();
 
 	}
 
-	public function saveIff()
+	public function saveIff($params)
 	{
+		$this->entity 	= 'iff';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+			
+		if (isset($params['user_id']))
+			$this->user = $params['user_id'];
 
+		if ($this->type != 'add')
+			$this->current_data = json_encode($this->CI->history_model->get_iff_by_iff_id($this->line_id));
+
+		$this->saveHistory();
 	}
 
-	public function saveInspections()
+	public function saveInspections($params)
 	{
+		$this->entity 	= 'inspections';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+		
+		if (isset($params['user_id']))
+			$this->user = $params['user_id'];
 
+		if ($this->type != 'add')
+			$this->current_data = json_encode($this->CI->history_model->get_review_by_review_id($this->line_id));
+
+		$this->saveHistory();
 	}
 
-	public function saveRR()
+	public function saveRR($params)
 	{
+		$this->entity 	= 'rr';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+		
+		if ($this->type != 'add')
+			$this->current_data = json_encode($this->CI->history_model->get_rr_by_user_parent($this->line_id));
 
+		$this->saveHistory();
 	}
 
-	public function saveUb()
+	public function saveUsers($params)
 	{
+		$this->entity 	= 'users';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+	
+		if (isset($params['user_id']))
+			$this->user = $params['user_id'];
 
-	}
+		if ($this->type != 'add')
+			$this->current_data = json_encode($this->CI->history_model->get_user_by_user_id($this->line_id));
 
-	public function saveUsers()
-	{
-
+		$this->saveHistory();
 	}
 
 }

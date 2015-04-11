@@ -1,8 +1,5 @@
 <?php include 'user_head.php' ?>
 <?php if (has_permission('Allow view users tab')): ?>
-<div class="row">
-	<div class="container"><?=@$msg?></div>
-</div>
 
 <?php if (has_permission('Allow modify users tab')): ?>
 <div class="row">

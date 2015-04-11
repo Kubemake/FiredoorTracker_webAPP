@@ -1,8 +1,5 @@
 <?php include 'user_head.php' ?>
 <?php if (has_permission('Allow view clients tab')): ?>
-<div class="row">
-	<div class="container"><?=@$msg?></div>
-</div>
 
 <div class="row">
 	<div class="container">
