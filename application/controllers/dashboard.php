@@ -58,14 +58,7 @@ class Dashboard extends CI_Controller {
 			array('data' => 'Status'	, 'class' => 'not-mobile')
 		);
 
-		
-		// if (has_permission('Allow view all reviews'))
-			// $inspections = $this->resources_model->get_user_inspections();
-		// elseif (has_permission('Allow view users review'))
-			// $inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
-		// else
-			$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
-			// $inspections = $this->resources_model->get_user_inspections_by_user_id($this->session->userdata('user_id'));
+		$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
 
 		if (!empty($inspections))
 		{
@@ -82,7 +75,8 @@ class Dashboard extends CI_Controller {
 
 			foreach ($inspections as $inspection)
 			{
-				$this->table->add_row($inspection['id'], $inspection['location_name'], $inspection['barcode'], $inspection['StartDate'],$inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
+				$item = (in_array($inspection['InspectionStatus'], array('In Progress', 'Complete'))) ? '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>' : $inspection['barcode'];
+				$this->table->add_row($inspection['id'], $inspection['location_name'], $item, $inspection['StartDate'], $inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
 			}
 		}
 
@@ -171,16 +165,10 @@ class Dashboard extends CI_Controller {
 	{
 		if (!$graph_id = $this->input->post('graph_id')) return '';
 
-		$points = array('diamond', 'circle', 'square', 'x', 'plus', 'dash', 'filledDiamond', 'filledCircle', 'filledSquare');
-		$buildins_root = $this->resources_model->get_user_buildings_root();
+		$points 		= array('diamond', 'circle', 'square', 'x', 'plus', 'dash', 'filledDiamond', 'filledCircle', 'filledSquare');
+		$buildins_root 	= $this->resources_model->get_user_buildings_root();
 
-		if (has_permission('Allow view all reviews'))
-			$inspections = $this->resources_model->get_user_inspections();
-		// elseif (has_permission('Allow view users review'))
-		// 	$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
-		else
-			$inspections = $this->resources_model->get_user_inspections_by_user_role($this->session->userdata('user_role'), $this->session->userdata('user_parent'));
-			// $inspections = $this->resources_model->get_user_inspections_by_user_id($this->session->userdata('user_id'));
+		$inspections 	= $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
 
 		if (!empty($buildins_root) && !empty($inspections)) {
 			
@@ -195,6 +183,7 @@ class Dashboard extends CI_Controller {
 				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
 					$output[$inspection['aperture_id']] = $inspection;
 			}
+		
 			$inspections = $output;
 
 			$graphdata = array();
@@ -214,7 +203,7 @@ class Dashboard extends CI_Controller {
 						if ($max < strtotime($inspection['StartDate']))
 							$max = strtotime($inspection['StartDate']);
 
-						$graphdata[$inspection['building_id']][] = "'{$inspection['StartDate']}', '{$inspection['firstName']} {$inspection['lastName']}'";
+						 $graphdata[$inspection['building_id']][] = "'{$inspection['StartDate']}', '{$inspection['firstName']} {$inspection['lastName']}'";
 						$graphlabel[$inspection['building_id']] = $buildins_root[$inspection['building_id']]['name'];
 					}
 

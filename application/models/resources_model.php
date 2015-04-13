@@ -255,7 +255,7 @@ class Resources_model  extends CI_Model
 
 		$this->db->select('b.*');
 		$this->db->from('UserBuildings ub');
-		$this->db->join('Buildings b', 'b.idBuildings = ub.Buildings_idBuildings');
+		$this->db->join('Buildings b', 'b.idBuildings = ub.Buildings_idBuildings', 'left');
 		$this->db->where('ub.Users_idUsers', $parent);
 		$this->db->where('b.parent', 0);
 		$this->db->where('b.deleted', 0);
@@ -387,6 +387,21 @@ class Resources_model  extends CI_Model
 		$this->db->where('idAperture', $aperture_id);
 		$this->db->order_by('revision','desc');
 		return $this->db->get('Inspections')->result_array();
+	}
+
+	function get_aperture_issues_with_status_and_selected($aperture_id, $inspection_id)
+	{
+		$input_data = $this->db->where('idDoors', $aperture_id)->get('Doors')->row_array();
+
+		$this->db->select('ff.*, dff.value as selected'); 
+		$this->db->from('FormFields ff');
+		$this->db->join('DoorsFormFields dff', 'dff.FormFields_idFormFields = ff.idFormFields AND dff.Inspections_idInspections = ' . $inspection_id, 'left');
+		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $input_data['wall_Rating'] . ' AND cc.ratesTypes = ' . $input_data['smoke_Rating'] . ' AND cc.doorRating = ' . $input_data['rating'] . ' AND cc.doorMatherial = ' . $input_data['material'], 'left');
+		$this->db->where('ff.deleted', 0);
+		$this->db->where('cc.value >', 1);
+		$this->db->where('dff.value >', 0);
+		$result = $this->db->get()->result_array();
+		return $result;
 	}
 }
 

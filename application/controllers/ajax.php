@@ -71,6 +71,39 @@ class Ajax extends CI_Controller {
 				// }
 			break;
 
+			case 'show_inspection_modal':
+				if (!$aperture_id = $this->input->post('door_id')) return '';
+				if (!$inspection_id = $this->input->post('insp_id')) return '';
+				$issues = $this->resources_model->get_all_issues();
+
+				$broken_issues = $this->resources_model->get_aperture_issues_with_status_and_selected($aperture_id, $inspection_id);
+
+				$trouble_list = array();
+
+				$params['trouble_list'] = array();
+
+				if (!empty($broken_issues))
+				{
+					foreach ($broken_issues as $brok)
+					{
+						$item = $brok;
+						$section = '-';
+						for ($i=15; $i > 0 ; $i--)
+						{ 
+							if ($item['parent'] == 0)
+								break;
+
+							if ($item['level'] == 2)
+								$section = $item['label'];
+
+							$item = $issues[$item['parent']];
+						}
+						$trouble_list[$item['label']][$section][] = $brok;
+					}
+				}
+				$params['trouble_list'] = $trouble_list;
+			break;
+
 			case 'add_employeer_modal':
 				$params['user_roles'] 			= $this->resources_model->get_all_employeers_roles();
 			break;
