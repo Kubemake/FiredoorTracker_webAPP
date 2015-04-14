@@ -150,7 +150,7 @@ class User extends CI_Controller {
 				$this->input->set_cookie($cookie); 
 
 			}
-			if ($this->session->flashdata('refferer') && strpos($this->session->flashdata('refferer'), 'ajax') !== FALSE)
+			if ($this->session->flashdata('refferer') && strpos($this->session->flashdata('refferer'), 'ajax') === FALSE)
 				redirect($this->session->flashdata('refferer'));
 			redirect('user/profile/');
 		}
