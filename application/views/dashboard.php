@@ -30,10 +30,16 @@
 		</div>*/?>
 	</div>
 	<div class="row">
-		<div class="col-md-10 col-md-push-1" id="chartwrapper">
+		<div class="col-md-10" id="chartwrapper">
 			<div id="charttitle"></div>
 			<?/*<span id="chartmagnify" class="glyphicon glyphicon-zoom-out"></span>*/?>
 			<div id="chartacceptor"></div>
+		</div>
+		<div class="col-md-2">
+			<a href="/dashboard/getexport/csv" class="btn btn-default" id="xlsexport">Export in CSV</a>
+			<a href="javascript:;" class="btn btn-default" id="pdfexport">Export in PDF</a>
+			<a href="javascript:;" class="btn btn-default" id="htmlexport">Export in HTML</a>
+			<a href="javascript:;" class="btn btn-default" id="customizing">Customize</a>
 		</div>
 	</div>
 </div>
@@ -55,10 +61,53 @@
 	</div>
 </div>
 <?php endif; ?>
+
 <?=@$result_table?>
 
 
 
+
+<script type="text/javascript">
+	function confirmation_review(door_id, insp_id)
+	{
+		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'show_inspection_modal', door_id: door_id, insp_id: insp_id},function(){$('#ShowInspectionModal').modal({show: true})});
+	}
+
+	$('#pdfexport').on('click', function() {
+		picture = jqplotToImg($('#chartacceptor'));
+		$.ajax({
+			url: "/dashboard/ajax_export_to_pdf",
+			type: "POST",
+			data: {img: picture},
+			success: function(result) {
+				console.log(result);
+				if (result == 'done') {
+					window.location = "/dashboard/getexport/pdf";
+				};
+			}
+		})
+	});
+
+	$('#htmlexport').on('click', function() {
+		picture = jqplotToImg($('#chartacceptor'));
+		$.ajax({
+			url: "/dashboard/ajax_export_to_html",
+			type: "POST",
+			data: {img: picture},
+			success: function(result) {
+				console.log(result);
+				if (result == 'done') {
+					window.location = "/dashboard/getexport/html";
+				};
+			}
+		})
+	});
+
+	$('#customizing').on('click', function() {
+		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'customize_review_list_modal'},function(){$('#CustomizeReviewListModal').modal({show: true})});
+		
+	});
+</script>
 
 <?php if (has_permission('Allow modify review')): ?>
 <script type="text/javascript">
@@ -125,13 +174,6 @@
 <?php endif; ?>
 </script>
 <?php endif; ?>
-
-<script type="text/javascript">
-	function confirmation_review(door_id, insp_id)
-	{
-		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'show_inspection_modal', door_id: door_id, insp_id: insp_id},function(){$('#ShowInspectionModal').modal({show: true})});
-	}
-</script>
 
 
 <?/* CHARTS STARTER */?>

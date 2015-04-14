@@ -265,5 +265,45 @@ function get_image_by_height($full_img_path, $height, $action, $width=false) //i
 	return $url;
 }
 
+function file_force_download($file, $name) {
+    // сбрасываем буфер вывода PHP, чтобы избежать переполнения памяти выделенной под скрипт
+    // если этого не сделать файл будет читаться в память полностью!
+    if (ob_get_level()) {
+      ob_end_clean();
+    }
+    // заставляем браузер показать окно сохранения файла
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename=' . $name);
+    header('Content-Transfer-Encoding: binary');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . filesize($file));
+    // читаем файл и отправляем его пользователю
+    readfile($file);
+	exit();
+}
+
+function data_force_download($data, $name) {
+    // сбрасываем буфер вывода PHP, чтобы избежать переполнения памяти выделенной под скрипт
+    // если этого не сделать файл будет читаться в память полностью!
+    if (ob_get_level()) {
+      ob_end_clean();
+    }
+    // заставляем браузер показать окно сохранения файла
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header('Content-Disposition: attachment; filename=' . $name);
+    header('Content-Transfer-Encoding: binary');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . strlen($data));
+    // читаем файл и отправляем его пользователю
+    print($data);
+	exit();
+}
+
 /* End of file common_helper.php */
 /* Location: ./system/helpers/common_helper.php */

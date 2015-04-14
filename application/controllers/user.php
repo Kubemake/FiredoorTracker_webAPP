@@ -33,8 +33,8 @@ class User extends CI_Controller {
 				$postData['logoFilePath'] = '/images/head-logo.png';
 
 			$updateData = array(
-				'firstName'		=> $postData['firstName'],
-				'lastName'		=> $postData['lastName'],
+				'firstName'		=> str_replace(array("'", '"'), '', $postData['firstName']),
+				'lastName'		=> str_replace(array("'", '"'), '', $postData['lastName']),
 				'officePhone'	=> $postData['officePhone'],
 				'mobilePhone'	=> $postData['mobilePhone'],
 				'logoFilePath' 	=> $postData['logoFilePath'],

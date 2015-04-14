@@ -115,6 +115,7 @@ class Dashboard extends CI_Controller {
 		$footer['scripts'] .= '<script type="text/javascript" src="/js/jqplot/plugins/jqplot.logAxisRenderer.min.js"></script>';
 		$footer['scripts'] .= '<script type="text/javascript" src="/js/jqplot/plugins/jqplot.ohlcRenderer.min.js"></script>';
 		$footer['scripts'] .= '<script type="text/javascript" src="/js/jqplot/plugins/jqplot.pieRenderer.min.js"></script>';
+		$footer['scripts'] .= '<script type="text/javascript" src="/js/jquery.jqplot.toImage.js"></script>';
 
 		$this->load->view('header', $header);
 		$this->load->view('dashboard', $data);
@@ -204,48 +205,48 @@ class Dashboard extends CI_Controller {
 							$max = strtotime($inspection['StartDate']);
 
 						 $graphdata[$inspection['building_id']][] = "'{$inspection['StartDate']}', '{$inspection['firstName']} {$inspection['lastName']}'";
-						$graphlabel[$inspection['building_id']] = $buildins_root[$inspection['building_id']]['name'];
+						$graphlabel[$inspection['building_id']] = isset($buildins_root[$inspection['building_id']]) ? $buildins_root[$inspection['building_id']]['name'] : 'Missing building';
 					}
 
 					$size = 3;
 					foreach ($graphlabel as $key => $building_name) {
 						$tempdata[]   = '[[' . implode('], [', $graphdata[$key]) . ']]';
 						$tempseries[] = "{
-					    	showLine:false,
-					    	label: '{$building_name}',
-					    	size: {$size},
-					    	markerOptions:{style:'{$points[rand(1,count($points)-1)]}'}
-				    	}";
-				    	$size++;
+							showLine:false,
+							label: '{$building_name}',
+							size: {$size},
+							markerOptions:{style:'{$points[rand(1,count($points)-1)]}'}
+						}";
+						$size++;
 					}
 					$title = "";
 					$output = "[" . implode(', ', $tempdata) . "], {
 					  	animate: !$.jqplot.use_excanvas,
-					    axes:{
-					        xaxis:{
-					            renderer:$.jqplot.DateAxisRenderer,
-					            syncTicks: true,
-					            min: '" . date('Y-m-d', $min-60*60*24*3) . "',
-					            max: '" . date('Y-m-d', $max+60*60*24*3) . "'
-					        },
-					        yaxis:{
-					            renderer:$.jqplot.CategoryAxisRenderer
-					        }
-					    },
-					    series:[" . implode(',', $tempseries) . "],
-					    legend: {
-					    	show: true,
+						axes:{
+							xaxis:{
+								renderer:$.jqplot.DateAxisRenderer,
+								syncTicks: true,
+								min: '" . date('Y-m-d', $min-60*60*24*3) . "',
+								max: '" . date('Y-m-d', $max+60*60*24*3) . "'
+							},
+							yaxis:{
+								renderer:$.jqplot.CategoryAxisRenderer
+							}
+						},
+						series:[" . implode(',', $tempseries) . "],
+						legend: {
+							show: true,
 							location: 's',
 							showLabels: true,
 							showSwatches: true,
 							placement: 'outsideGrid',
 							renderer: $.jqplot.TableLegendRenderer,
 							preDraw: true
-					    },
-					    cursor:{
-				            show: true, 
-				            zoom: true
-				        } 
+						},
+						cursor:{
+							show: true, 
+							zoom: true
+						} 
 					}";
 				break;
 
@@ -272,41 +273,41 @@ class Dashboard extends CI_Controller {
 					foreach ($graphlabel as $key => $building_name) {
 						$tempdata[]   = '[[' . implode('], [', $graphdata[$key]) . ']]';
 						$tempseries[] = "{
-					    	showLine:false,
-					    	label: '{$building_name}',
-					    	size: {$size},
-					    	markerOptions:{style:'{$points[rand(1,count($points)-1)]}'}
-				    	}";
-				    	$size++;
+							showLine:false,
+							label: '{$building_name}',
+							size: {$size},
+							markerOptions:{style:'{$points[rand(1,count($points)-1)]}'}
+						}";
+						$size++;
 					}
 					$title = "";
 					$output = "[" . implode(', ', $tempdata) . "], {
 					  	animate: !$.jqplot.use_excanvas,
-					    axes:{
-					        xaxis:{
-					            renderer:$.jqplot.DateAxisRenderer,
-					            syncTicks: true,
-					            min: '" . date('Y-m-d', $min-60*60*24*3) . "',
-					            max: '" . date('Y-m-d', $max+60*60*24*3) . "'
-					        },
-					        yaxis:{
-					            renderer:$.jqplot.CategoryAxisRenderer
-					        }
-					    },
-					    series:[" . implode(',', $tempseries) . "],
-					    legend: {
-					    	show: true,
+						axes:{
+							xaxis:{
+								renderer:$.jqplot.DateAxisRenderer,
+								syncTicks: true,
+								min: '" . date('Y-m-d', $min-60*60*24*3) . "',
+								max: '" . date('Y-m-d', $max+60*60*24*3) . "'
+							},
+							yaxis:{
+								renderer:$.jqplot.CategoryAxisRenderer
+							}
+						},
+						series:[" . implode(',', $tempseries) . "],
+						legend: {
+							show: true,
 							location: 's',
 							showLabels: true,
 							showSwatches: true,
 							placement: 'outsideGrid',
 							renderer: $.jqplot.TableLegendRenderer,
 							preDraw: true
-					    },
-					    cursor:{
-				            show: true, 
-				            zoom: true
-				        } 
+						},
+						cursor:{
+							show: true, 
+							zoom: true
+						} 
 					}";
 				break;
 
@@ -319,14 +320,14 @@ class Dashboard extends CI_Controller {
 
 					$output = "[[" . implode(', ', $tempdata) . "]], {
 						seriesDefaults: {
-					        // Make this a pie chart.
-					        renderer: jQuery.jqplot.PieRenderer, 
-					        rendererOptions: {
+							// Make this a pie chart.
+							renderer: jQuery.jqplot.PieRenderer, 
+							rendererOptions: {
 							  sliceMargin: 10,
-					          showDataLabels: true
-					        }
-					      }, 
-					      legend: { show:true, location: 'e' }
+							  showDataLabels: true
+							}
+						  }, 
+						  legend: { show:true, location: 'e' }
 						}";
 				break;
 
@@ -339,14 +340,14 @@ class Dashboard extends CI_Controller {
 
 					$output = "[[" . implode(', ', $tempdata) . "]], {
 						seriesDefaults: {
-					        // Make this a pie chart.
-					        renderer: jQuery.jqplot.PieRenderer, 
-					        rendererOptions: {
+							// Make this a pie chart.
+							renderer: jQuery.jqplot.PieRenderer, 
+							rendererOptions: {
 							  sliceMargin: 10,
-					          showDataLabels: true
-					        }
-					      }, 
-					      legend: { show:true, location: 'e' }
+							  showDataLabels: true
+							}
+						  }, 
+						  legend: { show:true, location: 'e' }
 						}";
 				break;
 
@@ -379,41 +380,41 @@ class Dashboard extends CI_Controller {
 						$tempdata[] = '[' . implode(', ', $temp) . ']';
 						
 						$tempseries[] = "{label: '{$status}'}";
-				    	$size++;
+						$size++;
 					}
 
 					$output = "[" . implode(', ', $tempdata) . "], {
 					  	animate: !$.jqplot.use_excanvas,
 					  	seriesDefaults:{
-				            renderer:$.jqplot.BarRenderer,
-				            rendererOptions: {fillToZero: true}
-				        },
-					    axes:{
-					        xaxis:{
-					            renderer:$.jqplot.DateAxisRenderer,
-					            syncTicks: true,
-					            min: '" . date('Y-m-d', $min-60*60*24*3) . "',
-					            max: '" . date('Y-m-d', $max+60*60*24*3) . "'
-					        },
-					        yaxis:{
-					            renderer:$.jqplot.CategoryAxisRenderer,
-					            pad: 1.05
-					        }
-					    },
-					    series:[" . implode(',', $tempseries) . "],
-					    legend: {
-					    	show: true,
+							renderer:$.jqplot.BarRenderer,
+							rendererOptions: {fillToZero: true}
+						},
+						axes:{
+							xaxis:{
+								renderer:$.jqplot.DateAxisRenderer,
+								syncTicks: true,
+								min: '" . date('Y-m-d', $min-60*60*24*3) . "',
+								max: '" . date('Y-m-d', $max+60*60*24*3) . "'
+							},
+							yaxis:{
+								renderer:$.jqplot.CategoryAxisRenderer,
+								pad: 1.05
+							}
+						},
+						series:[" . implode(',', $tempseries) . "],
+						legend: {
+							show: true,
 							location: 's',
 							showLabels: true,
 							showSwatches: true,
 							placement: 'outsideGrid',
 							renderer: $.jqplot.TableLegendRenderer,
 							preDraw: true
-					    },
-					    cursor:{
-				            show: true, 
-				            zoom: true
-				        }
+						},
+						cursor:{
+							show: true, 
+							zoom: true
+						}
 					}";
 				break;
 
@@ -424,6 +425,248 @@ class Dashboard extends CI_Controller {
 		}
 		
 	echo $output;
+	}
+
+	function getexport($type = '')
+	{
+		switch ($type) {
+			case 'pdf':
+				file_force_download(FCPATH . 'upload/' . $this->session->userdata('user_id') . '/pdf_export.pdf', 'pdf_export.pdf');
+			break;
+			
+			case 'csv':
+				$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+
+				if (!empty($inspections))
+				{
+					$output = array();
+					foreach ($inspections as $inspection)
+					{
+						if (!isset($output[$inspection['aperture_id']]))
+							$output[$inspection['aperture_id']] = $inspection;
+						elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
+							$output[$inspection['aperture_id']] = $inspection;
+					}
+				
+					$inspections = $output;
+
+					$tbl = '"Id", "Location", "Door Id", "Start date", "Completion", "Reviewer", "Status"' . "\r\n";
+
+					foreach ($inspections as $inspection)
+					{
+						$tbl .= '"' . @$inspection['id'] . '",';
+						$tbl .= '"' . @$inspection['location_name'] . '",';
+						$tbl .= '"' . @$inspection['barcode'] . '",';
+						$tbl .= '"' . @$inspection['StartDate'] . '",';
+						$tbl .= '"' . @$inspection['Completion'] . '",';
+						$tbl .= '"' . @$inspection['firstName'].' ' . @$inspection['lastName'] . '",';
+						$tbl .= '"' . @$inspection['InspectionStatus'] . '"';
+						$tbl .= "\r\n";
+					}
+				}
+
+				data_force_download($tbl, 'csv_export.csv');
+			break;
+
+			case 'html':
+				file_force_download(FCPATH . 'upload/' . $this->session->userdata('user_id') . '/html_export.html', 'html_export.html');
+			break;
+			
+			default:
+			break;
+		}
+		if ($this->session->flashdata('refferer') && strpos($this->session->flashdata('refferer'), 'ajax') !== FALSE)
+			redirect($this->session->flashdata('refferer'));
+		redirect('user/profile/');
+	}
+
+	function ajax_export_to_pdf()
+	{
+		$data_image = @$this->input->post('img');
+		$data_image = str_replace('data:image/png;base64,', '', $data_image);
+
+		// $file = FCPATH . 'upload';
+		$file = FCPATH . 'upload/' . $this->session->userdata('user_id');
+		
+		if (!is_dir($file)) 
+			mkdir($file);
+
+		$file .= '/pdf_export.pdf';
+
+		if (file_exists($file))
+			unlink($file);
+
+		require_once(APPPATH . 'third_party/tcpdf/tcpdf.php');
+
+		// create new PDF document
+		$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+		// set document information
+		$pdf->SetCreator(PDF_CREATOR);
+		$pdf->SetAuthor('FDT');
+		$pdf->SetTitle('List of Reviews');
+
+		// remove default header/footer
+		$pdf->setPrintHeader(false);
+		$pdf->setPrintFooter(false);
+
+		// set default monospaced font
+		$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+		// set margins
+		$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+
+		// set auto page breaks
+		$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+		// set image scale factor
+		$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+		// set font
+		// $pdf->SetFont('times', 'BI', 20);
+
+		// add a page
+		$pdf->AddPage();
+
+		//*******************TABLE AND GRAPH
+		// Image method signature:
+		// Image($file, $x='', $y='', $w=0, $h=0, $type='', $link='', $align='', $resize=false, $dpi=300, $palign='', $ismask=false, $imgmask=false, $border=0, $fitbox=false, $hidden=false, $fitonpage=false)
+
+		// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+		// Example of Image from data stream ('PHP rules')
+		if (!empty($data_image))
+		{
+			$imgdata = base64_decode($data_image);
+
+			// The '@' character is used to indicate that follows an image data stream and not an image file name
+			$pdf->Image('@'.$imgdata, '', '', 0, 0, 'PNG', '', 'B', FALSE, 300, 'L', FALSE, FALSE, 0, FALSE, FALSE, TRUE);
+		}
+
+		$pdf->Ln();
+
+		$tbl = '<h2>Reviews</h2><br>
+		<table cellspacing="0" cellpadding="1" border="1">
+				<thead>
+					<tr>
+						<th>Id</th>
+						<th>Location</th>
+						<th>Door Id</th>
+						<th>Start date</th>
+						<th>Completion</th>
+						<th>Reviewer</th>
+						<th>Status</th>
+					</tr>
+				</thead>';
+
+		$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+
+		if (!empty($inspections))
+		{
+			$output = array();
+			foreach ($inspections as $inspection)
+			{
+				if (!isset($output[$inspection['aperture_id']]))
+					$output[$inspection['aperture_id']] = $inspection;
+				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
+					$output[$inspection['aperture_id']] = $inspection;
+			}
+		
+			$inspections = $output;
+
+			foreach ($inspections as $inspection)
+			{
+				$tbl .= '<tr>';
+				$tbl .= '<td>' . @$inspection['id'] . '</td>';
+				$tbl .= '<td>' . @$inspection['location_name'] . '</td>';
+				$tbl .= '<td>' . @$inspection['barcode'] . '</td>';
+				$tbl .= '<td>' . @$inspection['StartDate'] . '</td>';
+				$tbl .= '<td>' . @$inspection['Completion'] . '</td>';
+				$tbl .= '<td>' . @$inspection['firstName'].' ' . @$inspection['lastName'] . '</td>';
+				$tbl .= '<td>' . @$inspection['InspectionStatus'] . '</td>';
+				$tbl .= '</tr>';
+			}
+		}
+
+		$tbl .= '</table>';
+
+		$pdf->writeHTML($tbl, true, false, true, false, '');
+
+		$pdf->lastPage();
+
+		$pdf->Output($file, 'F');
+
+		echo 'done';
+		exit;
+	}
+
+	function ajax_export_to_html()
+	{
+		$data_image = @$this->input->post('img');
+
+		// $file = FCPATH . 'upload';
+		$file = FCPATH . 'upload/' . $this->session->userdata('user_id');
+		
+		if (!is_dir($file)) 
+			mkdir($file);
+
+		$file .= '/html_export.html';
+
+		if (file_exists($file))
+			unlink($file);
+
+		$tbl = '<center><img src="' . $data_image . '"><br></center>';
+
+		$tbl .= '<h2>Reviews</h2><br>
+		<table cellspacing="0" cellpadding="1" border="1">
+				<thead>
+					<tr>
+						<th>Id</th>
+						<th>Location</th>
+						<th>Door Id</th>
+						<th>Start date</th>
+						<th>Completion</th>
+						<th>Reviewer</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>';
+
+		$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+
+		if (!empty($inspections))
+		{
+			$output = array();
+			foreach ($inspections as $inspection)
+			{
+				if (!isset($output[$inspection['aperture_id']]))
+					$output[$inspection['aperture_id']] = $inspection;
+				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
+					$output[$inspection['aperture_id']] = $inspection;
+			}
+		
+			$inspections = $output;
+
+			foreach ($inspections as $inspection)
+			{
+				$tbl .= '<tr>';
+				$tbl .= '<td>' . @$inspection['id'] . '</td>';
+				$tbl .= '<td>' . @$inspection['location_name'] . '</td>';
+				$tbl .= '<td>' . @$inspection['barcode'] . '</td>';
+				$tbl .= '<td>' . @$inspection['StartDate'] . '</td>';
+				$tbl .= '<td>' . @$inspection['Completion'] . '</td>';
+				$tbl .= '<td>' . @$inspection['firstName'].' ' . @$inspection['lastName'] . '</td>';
+				$tbl .= '<td>' . @$inspection['InspectionStatus'] . '</td>';
+				$tbl .= '</tr>';
+			}
+		}
+
+		$tbl .= '</tbody></table>';
+
+		file_put_contents($file, $tbl);
+
+		echo 'done';
+		exit;
 	}
 }
 
