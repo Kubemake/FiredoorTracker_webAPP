@@ -576,3 +576,7 @@ li.glossary-item {
     top: 6px;
     font-size: 35px;
 }
+h4.panel-title a {
+	display: block;
+	width: 100%;
+}

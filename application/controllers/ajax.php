@@ -165,8 +165,21 @@ class Ajax extends CI_Controller {
 				$params['doorratingid'] 		= $doorratingid;
 				$params['door_states'] 			= $this->config->item('door_state');
 				$params['thisvalue'] 			= @$this->input->post('thisvalue');
-
 			break;
+
+			case 'customize_review_list_modal':
+				$this->load->model('user_model');
+				$this->load->model('resources_model');
+				$params['users'] 		= $this->user_model->get_users_by_role_and_user_parent($this->session->userdata('user_role'), $this->session->userdata('user_parent'));
+				$params['buildings']	= $this->resources_model->get_user_buildings_root();
+				$params['criteria'] 	= array(
+					'Wall Rating' 	=> $this->config->item('wall_rates'),
+					'Smoke Rating' 	=> $this->config->item('rates_types'),
+					'Material' 		=> $this->config->item('door_matherial'),
+					'Rating' 		=> $this->config->item('door_rating'),
+				);
+			break;
+
 			default:
 				# code...
 			break;

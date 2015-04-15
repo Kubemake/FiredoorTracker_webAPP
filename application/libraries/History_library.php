@@ -80,7 +80,6 @@ class History_library {
 		$this->entity 	= 'doors';
 		$this->line_id 	= @$params['line_id'];
 		$this->new_val 	= $params['new_val'];
-		$this->type 	= $params['type'];
 		
 		if (isset($params['user_id']))
 			$this->user = $params['user_id'];
@@ -93,7 +92,7 @@ class History_library {
 
 	public function get_cur_dff($inspection, $field, $user)
 	{
-		return $this->db->where(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'Users_idUsers' => $user))->get('DoorsFormFields')->row_array();
+		return $this->CI->db->where(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'Users_idUsers' => $user))->get('DoorsFormFields')->row_array();
 	}
 
 

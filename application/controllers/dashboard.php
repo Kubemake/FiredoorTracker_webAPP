@@ -13,6 +13,8 @@ class Dashboard extends CI_Controller {
 	function index()
 	{
 		// printdbg(array());
+		$this->session->unset_userdata('filters_array');
+
 		if ($postdata = $this->input->post())
 		{
 			$this->load->library('History_library');
@@ -23,7 +25,7 @@ class Dashboard extends CI_Controller {
 				'UserId'				=> $this->session->userdata('user_parent'),
 			);
 
-			if ($postdata['reviewer'] > 0)
+			if (isset($postdata['reviewer']) && $postdata['reviewer'] > 0)
 				$adddata['Inspector']= $postdata['reviewer'];
 			
 			switch ($postdata['form_type'])
@@ -45,6 +47,25 @@ class Dashboard extends CI_Controller {
 
 					$this->resources_model->update_inspection($postdata['idInspections'], $adddata);
 				break;
+
+				case 'customize_review':
+					//filter reviews by Customize button
+					$filters = array();
+
+					if(isset($postdata['start_date']) && !empty($postdata['start_date']))
+						$filters['start_date'] = $postdata['start_date'];
+
+					if(isset($postdata['end_date']) && !empty($postdata['end_date']))
+						$filters['end_date'] = $postdata['end_date'];
+
+					if(isset($postdata['users']) && !empty($postdata['users']) && !in_array('all', $postdata['users']))
+						$filters['users'] = $postdata['users'];
+
+					if(isset($postdata['buildings']) && !empty($postdata['buildings']) && !in_array('all', $postdata['buildings']))
+						$filters['buildings'] = $postdata['buildings'];
+
+					$this->session->set_userdata('filters_array', $filters);
+				break;
 			}
 		}
 
@@ -58,21 +79,10 @@ class Dashboard extends CI_Controller {
 			array('data' => 'Status'	, 'class' => 'not-mobile')
 		);
 
-		$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+		$inspections = $this->_build_reviews_list();
 
 		if (!empty($inspections))
 		{
-			$output = array();
-			foreach ($inspections as $inspection)
-			{
-				if (!isset($output[$inspection['aperture_id']]))
-					$output[$inspection['aperture_id']] = $inspection;
-				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
-					$output[$inspection['aperture_id']] = $inspection;
-			}
-		
-			$inspections = $output;
-
 			foreach ($inspections as $inspection)
 			{
 				$item = (in_array($inspection['InspectionStatus'], array('In Progress', 'Complete'))) ? '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>' : $inspection['barcode'];
@@ -166,33 +176,21 @@ class Dashboard extends CI_Controller {
 	{
 		if (!$graph_id = $this->input->post('graph_id')) return '';
 
-		$points 		= array('diamond', 'circle', 'square', 'x', 'plus', 'dash', 'filledDiamond', 'filledCircle', 'filledSquare');
-		$buildins_root 	= $this->resources_model->get_user_buildings_root();
+		$points = array('diamond', 'circle', 'square', 'x', 'plus', 'dash', 'filledDiamond', 'filledCircle', 'filledSquare');
+		$output = '';
 
-		$inspections 	= $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+		$graphdata = array();
+		switch ($graph_id)
+		{
+			case 'startdate':
+				$min = time()+60*60*24*30;
+				$max = 0;
+				
+				$buildins_root 	= $this->resources_model->get_user_buildings_root();
+				$inspections 	= $this->_build_reviews_list();
 
-		if (!empty($buildins_root) && !empty($inspections)) {
-			
-			$output = array(); //make working array
-			
-			$revisions = $inspections;
-
-			foreach ($inspections as $inspection)
-			{
-				if (!isset($output[$inspection['aperture_id']]))
-					$output[$inspection['aperture_id']] = $inspection;
-				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
-					$output[$inspection['aperture_id']] = $inspection;
-			}
-		
-			$inspections = $output;
-
-			$graphdata = array();
-			switch ($graph_id) {
-				case 'startdate':
-					$min = time()+60*60*24*30;
-					$max = 0;
-
+				if (!empty($buildins_root) && !empty($inspections))
+				{
 					foreach ($inspections as $inspection)
 					{
 						if (empty($inspection['StartDate']) or empty($inspection['firstName']) or empty($inspection['lastName']) )
@@ -248,12 +246,18 @@ class Dashboard extends CI_Controller {
 							zoom: true
 						} 
 					}";
-				break;
+				}
+			break;
 
-				case 'completiondate':
-					$min = time()+60*60*24*30;
-					$max = 0;
+			case 'completiondate':
+				$min = time()+60*60*24*30;
+				$max = 0;
 
+				$buildins_root 	= $this->resources_model->get_user_buildings_root();
+				$inspections 	= $this->_build_reviews_list();
+
+				if (!empty($buildins_root) && !empty($inspections))
+				{
 					foreach ($inspections as $inspection)
 					{
 						if (empty($inspection['Completion']) or empty($inspection['firstName']) or empty($inspection['lastName']) )
@@ -309,9 +313,13 @@ class Dashboard extends CI_Controller {
 							zoom: true
 						} 
 					}";
-				break;
+				}
+			break;
 
-				case 'statuschart':
+			case 'statuschart':
+				$inspections 	= $this->_build_reviews_list();
+				if (!empty($inspections))
+				{
 					foreach ($inspections as $inspection)
 						$graphdata[$inspection['InspectionStatus']] = isset($graphdata[$inspection['InspectionStatus']]) ? ++$graphdata[$inspection['InspectionStatus']] : 1;
 
@@ -329,9 +337,13 @@ class Dashboard extends CI_Controller {
 						  }, 
 						  legend: { show:true, location: 'e' }
 						}";
-				break;
+				}
+			break;
 
-				case 'companyreview':
+			case 'companyreview':
+				$inspections 	= $this->_build_reviews_list();
+				if (!empty($inspections))
+				{
 					foreach ($inspections as $inspection)
 						$graphdata[$inspection['location_name']] = isset($graphdata[$inspection['location_name']]) ? ++$graphdata[$inspection['location_name']] : 1;
 
@@ -349,12 +361,17 @@ class Dashboard extends CI_Controller {
 						  }, 
 						  legend: { show:true, location: 'e' }
 						}";
-				break;
+				}
+			break;
 
-				case 'totalinmonth':
-					$min = time()+60*60*24*30;
-					$max = 0;
-					foreach ($revisions as $inspection)
+			case 'totalinmonth':
+				$min = time()+60*60*24*30;
+				$max = 0;
+
+				$inspections 	= $this->_build_reviews_list();
+				if (!empty($inspections))
+				{
+					foreach ($inspections as $inspection)
 					{
 						if (empty($inspection['StartDate']) or empty($inspection['firstName']) or empty($inspection['lastName']) )
 							continue;
@@ -416,15 +433,15 @@ class Dashboard extends CI_Controller {
 							zoom: true
 						}
 					}";
-				break;
+				}
+			break;
 
-				default:
-				die('default');
-				break;
-			}
+			default:
+			die('default');
+			break;
 		}
 		
-	echo $output;
+		echo $output;
 	}
 
 	function getexport($type = '')
@@ -435,21 +452,10 @@ class Dashboard extends CI_Controller {
 			break;
 			
 			case 'csv':
-				$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+				$inspections = $this->_build_reviews_list();
 
 				if (!empty($inspections))
 				{
-					$output = array();
-					foreach ($inspections as $inspection)
-					{
-						if (!isset($output[$inspection['aperture_id']]))
-							$output[$inspection['aperture_id']] = $inspection;
-						elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
-							$output[$inspection['aperture_id']] = $inspection;
-					}
-				
-					$inspections = $output;
-
 					$tbl = '"Id", "Location", "Door Id", "Start date", "Completion", "Reviewer", "Status"' . "\r\n";
 
 					foreach ($inspections as $inspection)
@@ -559,21 +565,10 @@ class Dashboard extends CI_Controller {
 					</tr>
 				</thead>';
 
-		$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+		$inspections = $this->_build_reviews_list();
 
 		if (!empty($inspections))
 		{
-			$output = array();
-			foreach ($inspections as $inspection)
-			{
-				if (!isset($output[$inspection['aperture_id']]))
-					$output[$inspection['aperture_id']] = $inspection;
-				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
-					$output[$inspection['aperture_id']] = $inspection;
-			}
-		
-			$inspections = $output;
-
 			foreach ($inspections as $inspection)
 			{
 				$tbl .= '<tr>';
@@ -632,21 +627,10 @@ class Dashboard extends CI_Controller {
 				</thead>
 				<tbody>';
 
-		$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+		$inspections = $this->_build_reviews_list();
 
 		if (!empty($inspections))
 		{
-			$output = array();
-			foreach ($inspections as $inspection)
-			{
-				if (!isset($output[$inspection['aperture_id']]))
-					$output[$inspection['aperture_id']] = $inspection;
-				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
-					$output[$inspection['aperture_id']] = $inspection;
-			}
-		
-			$inspections = $output;
-
 			foreach ($inspections as $inspection)
 			{
 				$tbl .= '<tr>';
@@ -667,6 +651,49 @@ class Dashboard extends CI_Controller {
 
 		echo 'done';
 		exit;
+	}
+
+	function _build_reviews_list($revision_no_filter = FALSE)
+	{
+		$output = array();
+		
+		$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+
+		$filter_data = $this->session->userdata('filters_array');
+
+		foreach ($inspections as $inspection)
+		{
+			//filter reviews by Customize button
+			if(isset($filter_data['start_date']) && !empty($filter_data['start_date']))
+				if (!empty($inspection['StartDate']) && strtotime($inspection['StartDate']) < strtotime($filter_data['start_date']))
+					continue;
+
+			if(isset($filter_data['end_date']) && !empty($filter_data['end_date']))
+				if (!empty($inspection['Completion']) && strtotime($inspection['Completion']) < strtotime($filter_data['end_date']))
+					continue;
+
+			if(isset($filter_data['users']) && !empty($filter_data['users']) && !in_array('all', $filter_data['users']))
+				if (!empty($inspection['Inspector']) && !in_array($inspection['Inspector'], $filter_data['users']))
+					continue;
+
+			if(isset($filter_data['buildings']) && !empty($filter_data['buildings']) && !in_array('all', $filter_data['buildings']))
+				if (!empty($inspection['building_id']) && !in_array($inspection['building_id'], $filter_data['buildings']))
+					continue;
+
+			//end filter
+
+			if (!$revision_no_filter)
+				$output[$inspection['aperture_id']] = $inspection;
+			else
+			{
+				if (!isset($output[$inspection['aperture_id']]))
+					$output[$inspection['aperture_id']] = $inspection;
+				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
+					$output[$inspection['aperture_id']] = $inspection;
+			}
+		}
+	
+		return $output;
 	}
 }
 

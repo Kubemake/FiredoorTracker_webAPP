@@ -709,6 +709,8 @@ class Service extends CI_Controller {
 		$material 		= array_flip($this->config->item('door_matherial'));
 		$rating 		= array_flip($this->config->item('door_rating'));
 
+		$user_id = $data['tokendata']['user_id'];
+		
 		$data['wall_Rating']  = $wall_rating[$data['wall_Rating']];
 		$data['smoke_Rating'] = $smoke_rating[$data['smoke_Rating']];
 		$data['rating'] 	  = $rating[$data['rating']];
@@ -817,7 +819,7 @@ class Service extends CI_Controller {
 			}
 			$dffid = $this->service_model->add_inspection_data($inspection, $field, $user, $value);
 
-			$this->history_library->saveDff(array('user_id' => $user, 'line_id' => $dffid, 'new_val' => json_encode(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'Users_idUsers' => $user, 'value' => $value)), 'cur_val' => $cur_dff));
+			$this->history_library->saveDff(array('user_id' => $user, 'line_id' => $dffid, 'new_val' => json_encode(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'Users_idUsers' => $user, 'value' => $value)), 'cur_val' => json_encode($cur_dff)));
 
 			if ($dffid)
 				$this->resources_model->update_inspection($data['inspection_id'], array('InspectionStatus' => 'In Progress'));

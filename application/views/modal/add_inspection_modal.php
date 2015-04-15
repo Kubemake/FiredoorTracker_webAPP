@@ -39,8 +39,6 @@
 										<?php foreach ($users_reviewer as $reviewer): ?>
 											<option value="<?=$reviewer['idUsers']?>"><?=$reviewer['firstName'] . ' ' . $reviewer['lastName']?></option>
 										<?php endforeach; ?>
-										
-										
 									</select>
 								</div>
 							</div>

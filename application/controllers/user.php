@@ -152,7 +152,7 @@ class User extends CI_Controller {
 			}
 			if ($this->session->flashdata('refferer') && strpos($this->session->flashdata('refferer'), 'ajax') === FALSE)
 				redirect($this->session->flashdata('refferer'));
-			redirect('user/profile/');
+			redirect('/');
 		}
 	}
 
@@ -179,10 +179,6 @@ class User extends CI_Controller {
 			'lastName'		=> $valid_login['lastName'],
 			'lastlogin'		=> $valid_login['lastLogin'],
 			'logoFilePath'	=> $valid_login['logoFilePath'],
-/*			'email' 		=> $valid_login['email'],
-			// 'password'	=> $password,
-			'officePhone'	=> $valid_login['officePhone'],
-			'mobilePhone'	=> $valid_login['mobilePhone'],*/
 		);
 		
 		$this->session->set_userdata($sessiondata);
