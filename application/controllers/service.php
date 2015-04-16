@@ -411,11 +411,14 @@ class Service extends CI_Controller {
 		$user_id = $data['tokendata']['user_id'];
 
 		$this->load->model('resources_model');
+		$this->load->model('user_model');
 
 		$keyword = (isset($data['keyword']) && !empty($data['keyword'])) ? $data['keyword'] : '';
 		$keyword = strtolower($keyword);
+		
+		$user = $this->user_model->get_user_info_by_user_id($user_id);
 
-		$userData['inspections'] = $this->resources_model->get_user_inspections_by_user_id($user_id, $keyword);
+		$userData['inspections'] = $this->resources_model->get_user_inspections_by_parent($user['parent']);//($user_id);
 
 		if (!empty($userData['inspections']))
 		{
@@ -796,7 +799,7 @@ class Service extends CI_Controller {
 		$this->service_model->delete_inspection_data($inspection, $field, $user); //del current answ record
 
 
-		if (!empty($data['selected'])) //if not unselect action
+		if (!empty($data['selected']) && $data['selected'] != 'NO') //if not unselect action
 		{
 			$ansvers = $this->service_model->get_question_answers_by_answer_id_and_inspection_id($field, $inspection); //get all answers from this answer question 
 
@@ -905,7 +908,6 @@ class Service extends CI_Controller {
 	 *
 	 * Output data:
 	 * status 		=> ok
-	 * apertures	=> apertures array
 	 */
 	function _exec_function_add_inspection($data)
 	{
@@ -916,12 +918,12 @@ class Service extends CI_Controller {
 			$this->_show_output($userData);
 		}
 		
-		if (!isset($data['StartDate']) or empty($data['StartDate']))
+/*		if (!isset($data['StartDate']) or empty($data['StartDate']))
 		{
 			$userData['status'] = 'error';
 			$userData['error'] = 'not isset or empty input parameter StartDate';
 			$this->_show_output($userData);
-		}
+		}*/
 
 		if (!isset($data['location_id']) or empty($data['location_id']))
 		{
@@ -951,7 +953,7 @@ class Service extends CI_Controller {
 			);
 			$aperture_id = $this->resources_model->add_aperture($adddata);
 					
-			$this->history_library->saveDoors(array('user_id' => $tokendata['user_id'], 'line_id' => $aperture_id, 'new_val' => json_encode($adddata), 'type' => 'add'));
+			$this->history_library->saveDoors(array('user_id' => $user_id, 'line_id' => $aperture_id, 'new_val' => json_encode($adddata), 'type' => 'add'));
 		}
 		else
 		{
@@ -968,7 +970,7 @@ class Service extends CI_Controller {
 
 		$adddata = array(
 			'idAperture' 				=> $aperture_id,
-			'StartDate' 				=> $data['StartDate'],
+/*			'StartDate' 				=> $data['StartDate'],*/
 			'Buildings_idBuildings' 	=> $data['location_id'],
 			'InspectionStatus' 			=> 'New',
 			'Inspector' 				=> $user_id,
@@ -978,7 +980,7 @@ class Service extends CI_Controller {
 
 		$iid = $this->resources_model->add_inspection($adddata);
 		
-		$this->history_library->saveInspections(array('user_id' => $tokendata['user_id'], 'line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
+		$this->history_library->saveInspections(array('user_id' => $user_id, 'line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
 
 		$userData['status'] 	= 'ok';
 

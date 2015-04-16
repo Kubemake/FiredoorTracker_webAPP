@@ -1,0 +1,29 @@
+###<ul class="dropdown-menu noclose"><li><input 
+	    				type="checkbox" 
+	    				id="idLessthan14Inch" 
+	    				name="Lessthan14Inch" 
+	    				value="127" 
+	    				
+	    			>
+	    			<label for="idLessthan14Inch">Less than 1/4 Inch</label></li><li><input 
+	    				type="checkbox" 
+	    				id="idBetween14and12" 
+	    				name="Between14and12" 
+	    				value="128" 
+	    				
+	    			>
+	    			<label for="idBetween14and12">Between 1/4'' and 1/2''</label></li><li><input 
+	    				type="checkbox" 
+	    				id="idBetween12and1" 
+	    				name="Between12and1" 
+	    				value="129" 
+	    				
+	    			>
+	    			<label for="idBetween12and1">Between 1/2" and 1"</label></li><li><input 
+	    				type="checkbox" 
+	    				id="idLargerthan1" 
+	    				name="Largerthan1" 
+	    				value="130" 
+	    				
+	    			>
+	    			<label for="idLargerthan1">Larger than 1"</label></li></ul>

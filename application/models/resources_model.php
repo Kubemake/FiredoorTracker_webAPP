@@ -279,6 +279,20 @@ class Resources_model  extends CI_Model
 		return $this->db->get('Doors')->result_array();
 	}
 
+	function get_user_apertures_without_review($location_id = FALSE)
+	{
+		$this->db->select('d.*');
+		$this->db->from('Doors d');
+		$this->db->join('Inspections i', 'i.idAperture = d.idDoors', 'left');
+		$this->db->where('d.UserId', $this->session->userdata('user_parent'));
+		$this->db->where('i.idInspections IS NULL', '', FALSE);
+		if ($location_id)
+			$this->db->where('d.Buildings_idBuildings', $location_id);
+		
+		$result = $this->db->get()->result_array();
+		return $result;
+	}
+
 	function add_inspection($adddata)
 	{
 		$this->db->insert('Inspections', $adddata);
@@ -399,7 +413,7 @@ class Resources_model  extends CI_Model
 		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $input_data['wall_Rating'] . ' AND cc.ratesTypes = ' . $input_data['smoke_Rating'] . ' AND cc.doorRating = ' . $input_data['rating'] . ' AND cc.doorMatherial = ' . $input_data['material'], 'left');
 		$this->db->where('ff.deleted', 0);
 		$this->db->where('cc.value >', 1);
-		$this->db->where('dff.value >', 0);
+		$this->db->where('dff.value !=', 'NO');
 		$result = $this->db->get()->result_array();
 		return $result;
 	}

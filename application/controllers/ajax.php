@@ -40,7 +40,7 @@ class Ajax extends CI_Controller {
 			case 'add_inspection_modal':
 				$this->load->model('user_model');
 				$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
-				$params['user_apertures'] 		= $this->resources_model->get_user_apertures();
+				$params['user_apertures'] 		= $this->resources_model->get_user_apertures_without_review();
 				// $params['inspection_statuses'] 	= $this->resources_model->get_all_inspection_statuses();
 				
 				$params['users_reviewer'] = $this->session->userdata('user_id');
@@ -74,6 +74,20 @@ class Ajax extends CI_Controller {
 			case 'show_inspection_modal':
 				if (!$aperture_id = $this->input->post('door_id')) return '';
 				if (!$inspection_id = $this->input->post('insp_id')) return '';
+				
+				$this->load->model('service_model');
+
+				$door_settings = $this->resources_model->get_aperture_info_by_aperture_id($aperture_id);
+				$door_settings['inspection_id'] = $inspection_id;
+				$issues = $this->service_model->get_aperture_issues_and_selected($door_settings);
+
+				$params['issues'] = $issues;
+
+			break;
+
+			/*case 'show_inspection_modal':
+				if (!$aperture_id = $this->input->post('door_id')) return '';
+				if (!$inspection_id = $this->input->post('insp_id')) return '';
 				$issues = $this->resources_model->get_all_issues();
 
 				$broken_issues = $this->resources_model->get_aperture_issues_with_status_and_selected($aperture_id, $inspection_id);
@@ -102,7 +116,7 @@ class Ajax extends CI_Controller {
 					}
 				}
 				$params['trouble_list'] = $trouble_list;
-			break;
+			break;*/
 
 			case 'add_employeer_modal':
 				$params['user_roles'] 			= $this->resources_model->get_all_employeers_roles();

@@ -122,6 +122,36 @@ function make_buildings_dropdown($buildingsdata)
 	return $output;
 }
 
+function make_children_answers($root_question, $question_id, $issues)
+{
+	$output = '';
+	if (isset($issues['issues'][$question_id]['answers']))
+	{
+		$output = '<ul class="dropdown-menu noclose pull-middle pull-right" data-label-placement="false"  data-placeholder="false">';
+		foreach ($issues['issues'][$question_id]['answers'] as $answer)
+		{
+			$output .= '<li' . (($answer['nextQuestionId'] != $root_question) ? ' class="dropdown-submenu"' : '') . '>';
+			$output .= '<input 
+		    				type="checkbox" 
+		    				id="id' . $answer['name'] . '" 
+		    				name="' . $answer['name'] . '" 
+		    				value="' . $answer['idFormFields'] . '" 
+		    				' . ((!empty($answer['selected'])) ? ' checked="checked"' : '') . '
+		    			>
+		    			<label for="id' . $answer['name'] . '">' . (($answer['nextQuestionId'] != $root_question) ? '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>': $answer['label']) . '</label>';
+		    
+		    if ($answer['nextQuestionId'] != $root_question)
+		    	$output .= make_children_answers($root_question, $answer['nextQuestionId'], $issues);
+
+		    $output .= '</li>';
+		}
+		$output .= '</ul>';
+	}
+	
+	// file_put_contents($_SERVER['DOCUMENT_ROOT'].'/out', '###'.$output);die;
+	return $output;
+}
+
 function _make_buildings_dropdown_childs($parent_id)
 {
 	$CI = & get_instance();

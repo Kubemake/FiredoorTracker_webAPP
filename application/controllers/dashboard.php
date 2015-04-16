@@ -136,7 +136,7 @@ class Dashboard extends CI_Controller {
 	{
 		if (!$building_id = $this->input->post('locid')) return '';
 		
-		$user_apertures = $this->resources_model->get_user_apertures($building_id);
+		$user_apertures = $this->resources_model->get_user_apertures_without_review($building_id);
 		
 		$output = '<select name="aperture" class="selectpicker fullwidth" data-live-search="true">';
 		$output .= '<option value="0">Choose door</option>';
