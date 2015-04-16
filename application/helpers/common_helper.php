@@ -138,7 +138,14 @@ function make_children_answers($root_question, $question_id, $issues)
 		    				value="' . $answer['idFormFields'] . '" 
 		    				' . ((!empty($answer['selected'])) ? ' checked="checked"' : '') . '
 		    			>
-		    			<label for="id' . $answer['name'] . '">' . (($answer['nextQuestionId'] != $root_question) ? '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>': $answer['label']) . '</label>';
+		    			<label for="id' . $answer['name'] . '">' . (($answer['nextQuestionId'] != $root_question) ? '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>': $answer['label']);
+
+			if ($answer['label'] == 'Other' && $answer['nextQuestionId'] == $root_question)
+			{
+				$output .= ' <input class="form-control" text" type="text" style="display: inline;width: auto;" value="' .@$answer['selected'] . '" onkeyup="$(\'#' . $answer['name'] .'tex\').val($(this).val())">';
+			}
+
+			$output .= '</label>';
 		    
 		    if ($answer['nextQuestionId'] != $root_question)
 		    	$output .= make_children_answers($root_question, $answer['nextQuestionId'], $issues);

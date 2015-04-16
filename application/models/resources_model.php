@@ -417,6 +417,16 @@ class Resources_model  extends CI_Model
 		$result = $this->db->get()->result_array();
 		return $result;
 	}
+
+	function get_inspection_data($inspection_id)
+	{
+		return $this->db->where('Inspections_idInspections', $inspection_id)->get('DoorsFormFields')->result_array();
+	}
+
+	function delete_inspectiod_data($inspection_id)
+	{
+		return $this->db->where('Inspections_idInspections', $inspection_id)->delete('DoorsFormFields');
+	}
 }
 
 /* End of file resources_model.php */

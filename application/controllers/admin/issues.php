@@ -112,7 +112,7 @@ class Issues extends CI_Controller {
 		foreach (json_decode($postdata['issues']) as $issue)
 		{
 			$issdata = $all_elem_list[$issue->id];
-
+ 
 			$issdata['parent'] = 0;
 			$issdata['level'] = 0;
 
@@ -122,8 +122,10 @@ class Issues extends CI_Controller {
 				$order[$issdata['parent']]++;
 
 			$issdata['questionId'] = 0;
-			// $issdata['nextQuestionId'] = isset($issue->children[0]->id) ? $issue->children[0]->id : 0;
+
 			$issdata['questionOrder'] = $order[$issdata['parent']];
+
+			$issdata['name'] = trim($issdata['name']);
 
 			$this->resources_model->update_issue_data($issdata);
 
@@ -149,13 +151,10 @@ class Issues extends CI_Controller {
 
 			$issdata['questionId'] = ($issdata['type'] == 'answer') ? $parent_id: 0;
 
-			// $issdata['nextQuestionId'] = 0;
-			
-			// if ($issdata['type'] == 'answer')
-			// 	$issdata['nextQuestionId'] = isset($issue->children[0]->id) ? $issue->children[0]->id : $root_question;
-
 			$issdata['questionOrder'] = $order[$issdata['parent']];
 			
+			$issdata['name'] = trim($issdata['name']);
+
 			$this->resources_model->update_issue_data($issdata);
 
 			if (isset($issue->children)) {

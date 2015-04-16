@@ -66,6 +66,40 @@ class Dashboard extends CI_Controller {
 
 					$this->session->set_userdata('filters_array', $filters);
 				break;
+
+				case 'show_inspection':
+					$this->load->model('service_model');
+
+					$Puser = $this->session->userdata('user_id');
+
+					$Pinspection_id = $postdata['inspection_id'];
+					$Paperture_id = $postdata['aperture_id'];
+
+					unset($postdata['form_type'], $postdata['inspection_id'], $postdata['aperture_id']);
+
+					$cur_dff = $this->resources_model->get_inspection_data($Pinspection_id);
+
+					$this->resources_model->delete_inspectiod_data($Pinspection_id);
+
+					foreach ($postdata as $key => $value)
+					{
+						if (strpos($key, 'Other') !== FALSE && strpos($key, 'tex') !== FALSE) //skip text field cause it save to 'Other' field
+							continue;
+
+						$val = 'YES';
+						if (strpos($key, 'Other') !== FALSE && strpos($key, 'tex') === FALSE && isset($postdata[$key.'tex']) && strlen($postdata[$key.'tex']) > 0)
+						{
+							$val = $postdata[$key.'tex'];
+						}
+
+						$this->service_model->add_inspection_data($Pinspection_id, $value, $Puser, $val);
+					}
+					$new_dff = $this->resources_model->get_inspection_data($Pinspection_id);
+
+					$this->history_library->saveDff(array('user_id' => $Puser, 'line_id' => '-', 'new_val' => json_encode($new_dff), 'cur_val' => json_encode($cur_dff)));
+
+					$header['msg'] = msg('success', 'Inspection data updated successfuly');
+				break;
 			}
 		}
 

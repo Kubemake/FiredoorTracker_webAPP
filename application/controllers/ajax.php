@@ -81,7 +81,18 @@ class Ajax extends CI_Controller {
 				$door_settings['inspection_id'] = $inspection_id;
 				$issues = $this->service_model->get_aperture_issues_and_selected($door_settings);
 
+				$params['aperture_id'] 		= $aperture_id;
+				$params['inspection_id'] 	= $inspection_id;
+
 				$params['issues'] = $issues;
+
+				$params['oth'] = array();
+				foreach ($issues['issues'] as $issue)
+					if (!empty($issue['answers']))
+						foreach ($issue['answers'] as $answer)
+							if (strpos($answer['name'], 'Other') !== FALSE)
+								$params['oth'][] = $answer;
+
 
 			break;
 

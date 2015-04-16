@@ -77,7 +77,7 @@ class History_library {
 
 	public function saveDff($params)
 	{
-		$this->entity 	= 'doors';
+		$this->entity 	= 'dff';
 		$this->line_id 	= @$params['line_id'];
 		$this->new_val 	= $params['new_val'];
 		
