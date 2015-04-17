@@ -269,15 +269,25 @@ div.dataTables_filter {
 #drop-area-div {
 	background-image: url(/images/upload-bg.jpg);
 	background-repeat: no-repeat;
-	background-position: left top;
-	width: 550px;
-	height: 296px;
-	padding-top: 120px;
+	background-position: center top;
+	background-size: contain;
+	width: 100%;
+	height: auto;
+	min-height: 200px;
+	/*padding-top: 6em;*/
 	margin-bottom: 15px;
+}
+@media all and (max-width:485px) {
+	#drop-area-div {padding-top: 4em;}
+	#drop-area-div .line-1 {font-size: 22px;}
+}
+@media all and (min-width:485px) {
+	#drop-area-div {padding-top: 6em;}
+	#drop-area-div .line-1 {font-size: 30px;}
 }
 #drop-area-div .line-1 {
 	font-family: Impact;
-	font-size: 30px;
+	/*font-size: 30px;*/
 	color: #859ccc;
 }
 #drop-area-div .line-2, 
@@ -312,8 +322,8 @@ div.dataTables_filter {
 }
 #drop-area-div-result {
 	display: none;
-	width: 550px;
-	height: 296px;
+/*	width: 550px;
+	height: 296px;*/
     position: relative;
     margin-bottom: 15px;
 }
@@ -356,10 +366,6 @@ div.dataTables_filter {
 }
 #adduploadedfile label span {
     padding: 0 10px;
-}
-.v-file-link,
-.file-link {
-	padding-left: 20px;
 }
 .fileactions {
 	display: none;
@@ -579,4 +585,14 @@ li.glossary-item {
 h4.panel-title a {
 	display: block;
 	width: 100%;
+}
+#footer {
+    position: static;
+    bottom: 0px;
+    width: 100%;
+    height: 30px;
+    background-color: #FFF;
+    border-style: solid;
+	border-color: #757575;
+	border-width: 1px 1px 0px;
 }

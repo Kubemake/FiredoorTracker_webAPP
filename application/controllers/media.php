@@ -19,40 +19,59 @@ class Media extends CI_Controller {
 			$this->load->library('History_library');
 			
 			if ($postdata['form_type'] == 'edit_file') {
-				$upddata = array(
-					'name' 			=> $postdata['file_name'],
-					'description' 	=> $postdata['file_descr']
-				);
-				$this->history_library->saveFiles(array('line_id' => $postdata['idfiles'], 'new_val' => json_encode($upddata), 'type' => 'edit'));
-
-				$this->media_model->update_aperture_file($postdata['idfiles'], $upddata);
 				
-				$fileid = $postdata['idfiles'];
+				$upddata['Files_idFiles'] = $postdata['idfiles'];
+				
+				$aperture_id = FALSE;
+				if (isset($postdata['aperture']) && !empty($postdata['aperture']))
+				{
+					$upddata['Doors_idDoors'] = $postdata['aperture'];
+					$aperture_id = $postdata['aperture'];
+				}
+				
+				$field_id = FALSE;
+				if (isset($postdata['fffile']) && !empty($postdata['fffile']))
+				{
+					$field_id = $postdata['fffile'];
+					$upddata['FormFields_idFormFields'] = $postdata['fffile'];
+				}
+
+				$this->history_library->saveIff(array('line_id' => $postdata['idfiles'], 'new_val' => json_encode($upddata), 'type' => 'edit'));
+
+				$this->media_model->update_aperture_file($postdata['idfiles'], $aperture_id, $field_id);
+				
 			}
 			else
 			{
 				$adddata = array(
 					'Users_idUsers'  => $this->session->userdata('user_id'),
 					'path' 			 => $postdata['file_path'],
-					'name'			 => $postdata['file_name'],
-					'description' 	 => $postdata['file_descr'],
 					'type' 			 => $postdata['file_type'],
 					'FileUploadDate' => date('Y-m-d H:i:s', $postdata['file_time'])
 				);
 				$fileid = $this->media_model->add_uploaded_file($adddata);
 
 				$this->history_library->saveFiles(array('line_id' => $fileid, 'new_val' => json_encode($adddata), 'type' => 'add'));
+
+				if ($postdata['aperture'] > 0)
+				{
+					$iffid = $this->media_model->add_aperture_file($fileid, $postdata['aperture']);
+					
+					$upddata = array(
+						'Files_idFiles' => $fileid,
+						'Doors_idDoors' => $postdata['aperture']
+					);
+					$this->history_library->saveIff(array('line_id' => $iffid, 'new_val' => json_encode($upddata), 'type' => 'add'));
+				}
 			}
 
-			if ($postdata['aperture'] > 0)
-				$this->media_model->add_aperture_file($fileid, $postdata['aperture']);
 		}
 
 		$data['user_apertures'] 	= $user_apertures = $this->resources_model->get_user_apertures();
 		
 		$data['user_buildings'] 	= $this->resources_model->get_user_buildings();
 		
-		$data['image_files'] 		= $this->media_model->get_user_files('image');
+		$data['files'] 				= $this->media_model->get_user_files();
 
 		$data['video_files'] 		= $this->media_model->get_user_files('video');
 

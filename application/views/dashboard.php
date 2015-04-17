@@ -36,10 +36,11 @@
 			<div id="chartacceptor"></div>
 		</div>
 		<div class="col-md-2">
-			<a href="/dashboard/getexport/csv" class="btn btn-default" id="xlsexport">Export in CSV</a>
-			<a href="javascript:;" class="btn btn-default" id="pdfexport">Export in PDF</a>
-			<a href="javascript:;" class="btn btn-default" id="htmlexport">Export in HTML</a>
-			<a href="javascript:;" class="btn btn-default" id="customizing">Customize</a>
+		<a class="thumbnail" href="javascript:;" id="emailing"><img alt="Send e-mail" title="Send e-mail" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/email.png"></img></a>
+			<a class="thumbnail" href="/dashboard/getexport/csv" id="xlsexport"><img alt="Export in CSV" title="Export in CSV" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/csv.png"></img></a>
+			<a class="thumbnail" href="javascript:;" id="pdfexport"><img alt="Export in PDF" title="Export in PDF" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/pdf.png"></img></a>
+			<a class="thumbnail" href="javascript:;" id="htmlexport"><img alt="Export in HTML" title="Export in HTML" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/html.png"></img></a>
+			<a class="thumbnail" href="javascript:;" id="customizing"><img alt="Customize" title="Customize" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/customize.png"></img></a>
 		</div>
 	</div>
 </div>

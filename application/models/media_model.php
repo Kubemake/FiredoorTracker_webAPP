@@ -17,20 +17,23 @@ class Media_model  extends CI_Model
 			return FALSE;
 	}
 
-	function get_user_files($type)
+	function get_user_files($type = FALSE)
 	{
-		$this->db->select('f.idFiles, f.path, f.name, d.name as aperture, f.FileUploadDate');
+		$this->db->select('f.*, d.barcode as aperture');
 		$this->db->from('Files f');
 		$this->db->join('InspectionFieldFiles iff', 'iff.Files_idFiles = f.idFiles', 'left');
 		$this->db->join('Doors d', 'd.idDoors = iff.Doors_idDoors', 'left');
-		$this->db->where('f.type', $type);
+		
+		if ($type)
+			$this->db->where('f.type', $type);
+
 		$this->db->where('f.deleted', 0);
 		return $this->db->get()->result_array();
 	}
 
 	function get_file_data_by_id($file_id)
 	{
-		$this->db->select('f.idFiles, f.path, f.name, f.type, f.description, d.idDoors as aperture_id, d.name as aperture, f.FileUploadDate, d.Buildings_idBuildings, b.name as location_name');
+		$this->db->select('f.*, d.idDoors as aperture_id, d.name as aperture, d.Buildings_idBuildings, b.name as location_name, iff.FormFields_idFormFields');
 		$this->db->from('Files f');
 		$this->db->join('InspectionFieldFiles iff', 'iff.Files_idFiles = f.idFiles AND iff.deleted = 0', 'left');
 		$this->db->join('Doors d', 'd.idDoors = iff.Doors_idDoors', 'left');
@@ -60,10 +63,18 @@ class Media_model  extends CI_Model
 
 	}
 
-	function update_aperture_file($file_id, $upddata)
+	function update_aperture_file($file_id, $door_id=FALSE, $field_id=FALSE)
 	{
-		$this->db->where('idFiles', $file_id);
-		return $this->db->update('Files', $upddata);
+		$upddata['Doors_idDoors'] = 'NULL';
+		if ($door_id)
+			$upddata['Doors_idDoors'] = $door_id;
+		
+		$upddata['FormFields_idFormFields'] = 'NULL';
+		if ($field_id)
+			$upddata['FormFields_idFormFields'] = $field_id;
+
+		return $this->db->where('Files_idFiles', $file_id)->update('InspectionFieldFiles', $upddata);
+		
 	}
 
 	function delete_user_file($file_id)

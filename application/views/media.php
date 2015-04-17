@@ -1,6 +1,6 @@
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-push-2 col-md-8 overviz">
+		<div class="col-md-push-3 col-md-6 overviz">
 			<div class="col-md-6">
 				<div id="drop-area-div" class="text-center"><?//container for d&d upload?>
 					<div class="line-1">Upload your media files here</div>
@@ -16,100 +16,53 @@
 			<div class="col-md-6">
 				<form method="POST" name="add_uploaded_file" id="adduploadedfile" class="form-horizontal">
 					<div class="form-group">
-						<label for="first_name" class="control-label col-xs-4">Select door location</label>
-						<div class="col-xs-8">
-							<div class="dropdown locationselect">
-								<button type="button" role="button" data-toggle="dropdown" class="btn btn-primary fullwidth" data-target="#">Select location <span class="caret"></span></button>
-								<?php echo make_buildings_dropdown($user_buildings); ?>
-								<input name="location" type="hidden" />
-							</div>
-						</div>
-					</div>
-					<div class="form-group">
 						<label for="aperture" class="control-label col-xs-4"><span>Door</span></label>
 						<div class="col-xs-8 apertureselect">
 							<select name="aperture" id="aperture" class="selectpicker fullwidth" data-live-search="true">
 								<option value="0">Choose door</option>
 								<?php foreach ($user_apertures as $aperture): ?>
-									<option value="<?=$aperture['idDoors']?>"><?=$aperture['name']?></option>
+									<option value="<?=$aperture['idDoors']?>"><?=$aperture['barcode']?></option>
 								<?php endforeach; ?>
 							</select>
 						</div>
 					</div>
-					<div class="form-group">
-						<label for="file_name" class="control-label col-xs-4"><span>File name</span></label>
-						<div class="col-xs-8">
-							<input name="file_name" id="file_name" class="form-control" value="" required="required" />
-							<input type="hidden" name="file_path" id="file_path" class="form-control" value="" required="required" />
-							<input type="hidden" name="file_time" id="file_time" class="form-control" value="" required="required" />
-							<input type="hidden" name="file_type" id="file_type" class="form-control" value="" required="required" />
-						</div>
-					</div>
-					<div class="form-group descrfield">
-						<label for="file_descr" class="control-label col-xs-4"><span>Description</span></label>
-						<div class="col-xs-8">
-							<textarea name="file_descr" id="file_descr" class="form-control" ></textarea>
-						</div>
-					</div>
 					<div class="form-group col-md-6 col-md-push-6 uploadaddsubmit">
 						<input type="hidden" name="form_type" value="add_file" />
+						<input type="hidden" name="file_path" id="file_path" class="form-control" value="" required="required" />
+						<input type="hidden" name="file_time" id="file_time" class="form-control" value="" required="required" />
+						<input type="hidden" name="file_type" id="file_type" class="form-control" value="" required="required" />
 						<button type="submit" id="savemedia" class="btn btn-block btn-primary disabled">Save</button>
 					</div>
 				</form>
 			</div>
 		</div>
-		<div class="col-md-5"></div>
 	</div>
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-6 col-md-push-3">
 			<table class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">
 				<thead>
 					<tr>
-						<th>Photos</th>
-						<th>Door</th>
+						<th>Door Id</th>
+						<th>Preview</th>
 						<th>Upload date</th>
 					</tr>
 				</thead>
 				<tbody>
-					<?php foreach ($image_files as $image): ?>
+					<?php foreach ($files as $file): ?>
 						<tr>
 							<td>
-								<span class="file-icon glyphicon glyphicon-picture"></span>
 								<span class="fileactions">
-									<a href="javascript:;" onclick="edit_image_action(this);return false;" data-id="<?=$image['idFiles']?>"><span class="glyphicon glyphicon-pencil"></span></a>
-									<a href="javascript:;" onclick="delete_image_action(this);return false;" data-id="<?=$image['idFiles']?>"><span class="glyphicon glyphicon-trash"></span></a>
+									<?/*<a href="javascript:;" onclick="edit_image_action(this);return false;" data-id="<?=$file['idFiles']?>"><span class="glyphicon glyphicon-pencil"></span></a>*/?>
+									<a href="javascript:;" onclick="delete_image_action(this);return false;" data-id="<?=$file['idFiles']?>"><span class="glyphicon glyphicon-trash"></span></a>
 								</span>
-								<a href="javascript:;" class="file-link" data-remote="<?=$image['path']?>" data-title="<?=$image['name']?>"><?=$image['name']?></a>
+								<?=$file['aperture']?>
 							</td> 
-							<td><?=$image['aperture']?></td>
-							<td><?=$image['FileUploadDate']?></td>
-						</tr>
-					<?php endforeach; ?>
-				</tbody>
-			</table>
-		</div>
-		<div class="col-md-6">
-			<table class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">
-				<thead>
-					<tr>
-						<th>Videos</th>
-						<th>Door</th>
-						<th>Upload date</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach ($video_files as $video): ?>
-						<tr>
-							<td>
-								<span class="file-icon glyphicon glyphicon-film"></span>
-								<span class="fileactions">
-									<a href="javascript:;" onclick="edit_image_action(this);return false;" data-id="<?=$video['idFiles']?>"><span class="glyphicon glyphicon-pencil"></span></a>
-									<a href="javascript:;" onclick="delete_image_action(this);return false;" data-id="<?=$video['idFiles']?>"><span class="glyphicon glyphicon-trash"></span></a>
-								</span>
-								<a href="javascript:;" class="v-file-link" data-remote="<?=$video['path']?>" data-title="<?=$video['name']?>"><?=$video['name']?></a>
+							<td style="text-align:center;">
+								<a href="javascript:;" class="<?php echo ($file['type']=='image') ? 'file-link' : 'v-file-link'; ?>" data-remote="<?=$file['path']?>" data-title="<?=$file['aperture']?>">
+									<span class="file-icon glyphicon glyphicon-<?php echo ($file['type']=='image') ? 'picture' : 'film'; ?>"></span>
+								</a>
 							</td>
-							<td><?=$video['aperture']?></td>
-							<td><?=$video['FileUploadDate']?></td>
+							<td><?=$file['FileUploadDate']?></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
@@ -149,7 +102,7 @@
 		$('tr').on('click', function(){
 			unselectall();
 
-			$(this).find('.file-icon').hide();
+			// $(this).find('.file-icon').hide();
 			$(this).find('.fileactions').show();
 
 		});
@@ -163,11 +116,11 @@
 		$('#progress-files').prop('file-counter', '0').html('');
 	})
 
-	function edit_image_action(e)
+	<?/*function edit_image_action(e)
 	{
 		seldata = $(e).data('id');
 		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'edit_file_modal', id: seldata},function(){unselectall();$('#EditFileModal').modal({show: true})});
-	}
+	}*/?>
 
 	function delete_image_action(e)
 	{
@@ -196,22 +149,6 @@
 			$(this).hide();
 		})
 	}
-
-	$('.locationselect ul li a').on('click', function(){
-		$('.locationselect button').html($(this).html());
-		$('.locationselect input').val($(this).data('id'));
-		$.ajax({
-			url: '/dashboard/ajax_get_apertures',
-			type: 'POST',
-			data: {locid: $(this).data('id')},
-			success: function(result) {
-				$('.apertureselect .dropdown-menu').remove();
-				$('.apertureselect').html(result);
-				$('.selectpicker').selectpicker();
-			}
-
-		});
-	});
 
 	$('.v-file-link').on('click', function() {
 		$('#modalacceptor').empty().load("/media/ajax_load_video",{title: $(this).data('title'), url: $(this).data('remote')},function(){unselectall();$('#v-file-link').modal({show: true})});
