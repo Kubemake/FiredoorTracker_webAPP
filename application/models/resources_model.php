@@ -427,6 +427,29 @@ class Resources_model  extends CI_Model
 	{
 		return $this->db->where('Inspections_idInspections', $inspection_id)->delete('DoorsFormFields');
 	}
+
+	function get_inspections_statuses($user_parent, $inspections = FALSE)
+	{
+		$this->db->select('i.idInspections as inspection_id, cc.value as status');
+		$this->db->from('Inspections i');
+		$this->db->join('DoorsFormFields dff', 'dff.Inspections_idInspections = i.idInspections', 'left');
+		$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
+		$this->db->join('ConditionalChoices cc', 'cc.idField = dff.FormFields_idFormFields AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material', 'left');
+		
+		if ($inspections)
+		{
+			if (!is_array($inspections))
+				$inspections = array(1 => $inspections);
+
+			$this->db->where_in('i.idInspections', $inspections);
+		} 
+		else
+			$this->db->where('i.UserId', $user_parent);
+
+		$result = $this->db->get()->result_array();
+		
+		return $result;
+	}
 }
 
 /* End of file resources_model.php */

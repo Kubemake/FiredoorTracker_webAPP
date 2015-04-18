@@ -100,6 +100,20 @@ class Dashboard extends CI_Controller {
 
 					$header['msg'] = msg('success', 'Inspection data updated successfuly');
 				break;
+
+				case 'graph_click_data':
+					$filters = $this->session->userdata('filters_array');
+					
+					if ($postdata['graphpid'] == 'compliance')
+					{
+						$filters['graph'] = array(
+							'graphpid' 		=> $postdata['graphpid'],
+							'graphpdata'	=> $postdata['graphpdata']
+						);
+					}
+					
+					$this->session->set_userdata('filters_array', $filters);
+				break;
 			}
 		}
 
@@ -216,142 +230,71 @@ class Dashboard extends CI_Controller {
 		$graphdata = array();
 		switch ($graph_id)
 		{
-			case 'startdate':
-				$min = time()+60*60*24*30;
-				$max = 0;
-				
-				$buildins_root 	= $this->resources_model->get_user_buildings_root();
-				$inspections 	= $this->_build_reviews_list();
-
-				if (!empty($buildins_root) && !empty($inspections))
+			case 'compliance':
+				$inspections 	= $this->_build_reviews_list(FALSE, TRUE);
+				$insp = array();
+				foreach ($inspections as $inspection)
 				{
-					foreach ($inspections as $inspection)
-					{
-						if (empty($inspection['StartDate']) or empty($inspection['firstName']) or empty($inspection['lastName']) )
-							continue;
-
-						if ($min > strtotime($inspection['StartDate']))
-							$min = strtotime($inspection['StartDate']);
-						
-						if ($max < strtotime($inspection['StartDate']))
-							$max = strtotime($inspection['StartDate']);
-
-						 $graphdata[$inspection['building_id']][] = "'{$inspection['StartDate']}', '{$inspection['firstName']} {$inspection['lastName']}'";
-						$graphlabel[$inspection['building_id']] = isset($buildins_root[$inspection['building_id']]) ? $buildins_root[$inspection['building_id']]['name'] : 'Missing building';
-					}
-
-					$size = 3;
-					foreach ($graphlabel as $key => $building_name) {
-						$tempdata[]   = '[[' . implode('], [', $graphdata[$key]) . ']]';
-						$tempseries[] = "{
-							showLine:false,
-							label: '{$building_name}',
-							size: {$size},
-							markerOptions:{style:'{$points[rand(1,count($points)-1)]}'}
-						}";
-						$size++;
-					}
-					$title = "";
-					$output = "[" . implode(', ', $tempdata) . "], {
-					  	animate: !$.jqplot.use_excanvas,
-						axes:{
-							xaxis:{
-								renderer:$.jqplot.DateAxisRenderer,
-								syncTicks: true,
-								min: '" . date('Y-m-d', $min-60*60*24*3) . "',
-								max: '" . date('Y-m-d', $max+60*60*24*3) . "'
-							},
-							yaxis:{
-								renderer:$.jqplot.CategoryAxisRenderer
-							}
-						},
-						series:[" . implode(',', $tempseries) . "],
-						legend: {
-							show: true,
-							location: 's',
-							showLabels: true,
-							showSwatches: true,
-							placement: 'outsideGrid',
-							renderer: $.jqplot.TableLegendRenderer,
-							preDraw: true
-						},
-						cursor:{
-							show: true, 
-							zoom: true
-						} 
-					}";
+					$insp[] = $inspection['id'];
 				}
-			break;
 
-			case 'completiondate':
-				$min = time()+60*60*24*30;
-				$max = 0;
+				$inspections = $this->resources_model->get_inspections_statuses($this->session->userdata('user_parent'), $insp);
 
-				$buildins_root 	= $this->resources_model->get_user_buildings_root();
-				$inspections 	= $this->_build_reviews_list();
-
-				if (!empty($buildins_root) && !empty($inspections))
+				if (!empty($inspections))
 				{
 					foreach ($inspections as $inspection)
 					{
-						if (empty($inspection['Completion']) or empty($inspection['firstName']) or empty($inspection['lastName']) )
+						if ($inspection['status']<1)
 							continue;
 
-						if ($min > strtotime($inspection['Completion']))
-							$min = strtotime($inspection['Completion']);
-						
-						if ($max < strtotime($inspection['Completion']))
-							$max = strtotime($inspection['Completion']);
-
-						$graphdata[$inspection['building_id']][] = "'{$inspection['Completion']}', '{$inspection['firstName']} {$inspection['lastName']}'";
-						$graphlabel[$inspection['building_id']] = $buildins_root[$inspection['building_id']]['name'];
+						$graphdata[$inspection['status']][$inspection['inspection_id']] = 1;
+						$inspstats[$inspection['inspection_id']][$inspection['status']] = 1;
 					}
 
-					$size = 3;
-					foreach ($graphlabel as $key => $building_name) {
-						$tempdata[]   = '[[' . implode('], [', $graphdata[$key]) . ']]';
-						$tempseries[] = "{
-							showLine:false,
-							label: '{$building_name}',
-							size: {$size},
-							markerOptions:{style:'{$points[rand(1,count($points)-1)]}'}
-						}";
-						$size++;
+					foreach ($inspstats as $insp_id => $insp)
+					{
+						if (count($insp) > 1)
+						{
+							if (isset($insp[1]))
+								unset($graphdata[1][$insp_id]);
+						}
 					}
-					$title = "";
-					$output = "[" . implode(', ', $tempdata) . "], {
-					  	animate: !$.jqplot.use_excanvas,
-						axes:{
-							xaxis:{
-								renderer:$.jqplot.DateAxisRenderer,
-								syncTicks: true,
-								min: '" . date('Y-m-d', $min-60*60*24*3) . "',
-								max: '" . date('Y-m-d', $max+60*60*24*3) . "'
-							},
-							yaxis:{
-								renderer:$.jqplot.CategoryAxisRenderer
+
+					$statuss = $this->config->item('door_state');
+
+					$total = 0;
+					foreach ($graphdata as $key => $val)
+						$total += count($val);
+
+					$tempdata = array();
+					$datalabels = array();
+					foreach ($graphdata as $key => $val)
+					{
+						if (empty($val))
+							continue;
+
+						$tempdata[]   = '[\'' . $statuss[$key] . '\', ' . count($val) . ']';
+						$datalabels[] = "'" . round(count($val)/$total*100) . '% (' . count($val) . ")'";
+					}
+
+					$output = "[[" . implode(', ', $tempdata) . "]], {
+						seriesDefaults: {
+							// Make this a pie chart.
+							renderer: jQuery.jqplot.PieRenderer, 
+							rendererOptions: {
+							  sliceMargin: 10,
+							  showDataLabels: true,
+							  dataLabels: [" . implode(', ', $datalabels) . "]
 							}
-						},
-						series:[" . implode(',', $tempseries) . "],
-						legend: {
-							show: true,
-							location: 's',
-							showLabels: true,
-							showSwatches: true,
-							placement: 'outsideGrid',
-							renderer: $.jqplot.TableLegendRenderer,
-							preDraw: true
-						},
-						cursor:{
-							show: true, 
-							zoom: true
-						} 
-					}";
+						  }, 
+						  legend: { show:true, location: 'e' }
+						}";
 				}
 			break;
 
 			case 'statuschart':
 				$inspections 	= $this->_build_reviews_list();
+
 				if (!empty($inspections))
 				{
 					foreach ($inspections as $inspection)
@@ -687,7 +630,7 @@ class Dashboard extends CI_Controller {
 		exit;
 	}
 
-	function _build_reviews_list($revision_no_filter = FALSE)
+	function _build_reviews_list($revision_no_filter = FALSE, $skip_graph = FALSE)
 	{
 		$output = array();
 		
@@ -714,6 +657,35 @@ class Dashboard extends CI_Controller {
 				if (!empty($inspection['building_id']) && !in_array($inspection['building_id'], $filter_data['buildings']))
 					continue;
 
+			if (!$skip_graph && isset($filter_data['graph']))
+			{
+				$ins = $this->resources_model->get_inspections_statuses($this->session->userdata('user_parent'), $inspection['id']);
+
+				$statuss = $this->config->item('door_state');
+				$statuss = array_flip($statuss);
+
+				if (empty($ins))
+					continue;
+
+				$inspstats = array();
+
+				foreach ($ins as $in)
+				{
+					if ($in['status']<1)
+						continue;
+
+					$inspstats[$in['status']] = 1;
+				}
+
+				if (empty($inspstats))
+					continue;
+
+				if (count($inspstats) > 1 && isset($inspstats[1]))
+					unset($inspstats[1]);
+				
+				if (!isset($inspstats[$statuss[$filter_data['graph']['graphpdata']]]))
+					continue;
+			}
 			//end filter
 
 			if (!$revision_no_filter)

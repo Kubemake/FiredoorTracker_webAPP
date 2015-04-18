@@ -1,0 +1,54 @@
+17.04.2015 15:49:52 : 1.2977
+SHOW COLUMNS FROM FormFields LIKE 'type'
+
+-----------------------------
+17.04.2015 15:49:52 : 1.3236
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '2', `name` = 'FrameReview', `label` = 'Frame Review', `questionId` = 0, `parent` = 0, `questionOrder` = 0, `level` = 0, `deleted` = '0' WHERE `idFormFields` =  '1'
+
+-----------------------------
+17.04.2015 17:13:23 : 2.2152
+SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
+FROM (`Inspections` i)
+LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
+LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
+LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
+WHERE `i`.`idInspections` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '19', '12', '13', '14', '15', '16', '17', '18') 
+
+-----------------------------
+17.04.2015 18:30:58 : 1.1892
+SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
+FROM (`Inspections` i)
+LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
+LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
+LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
+WHERE `i`.`idInspections` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '19', '12', '13', '14', '15', '16', '17', '18') 
+
+-----------------------------
+18.04.2015 9:13:42 : 1.7127
+SELECT `i`.`revision`, `i`.`idInspections` as id, `i`.`Buildings_idBuildings` as location_id, `b`.`name` as location_name, `i`.`idAperture` as aperture_id, `d`.`name` as aperture_name, `i`.`StartDate`, `i`.`Completion`, `i`.`InspectionStatus`, `i`.`Inspector`, `u`.`firstName`, `u`.`lastName`, `b`.`root` as building_id, `d`.`barcode`
+FROM (`Inspections` i)
+LEFT JOIN `Buildings` b ON `b`.`idBuildings` = `i`.`Buildings_idBuildings`
+LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
+LEFT JOIN `Users` u ON `u`.`idUsers` = `i`.`Inspector`
+WHERE `i`.`deleted` =  0
+AND `i`.`UserId` =  '2'
+
+-----------------------------
+18.04.2015 9:13:42 : 2.8776
+SELECT `rr`.`value`
+FROM (`Rules` r)
+JOIN `RolesRules` rr ON `rr`.`idRules` = `r`.`idRules`
+WHERE `rr`.`idRoles` =  '2'
+AND `rr`.`UserId` =  '2'
+AND `r`.`name` =  'Allow modify review'
+
+-----------------------------
+18.04.2015 9:13:52 : 8.7985
+SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
+FROM (`Inspections` i)
+LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
+LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
+LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
+WHERE `i`.`idInspections` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '19', '12', '13', '14', '15', '16', '17', '18') 
+
+-----------------------------

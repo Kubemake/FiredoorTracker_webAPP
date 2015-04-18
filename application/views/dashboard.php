@@ -1,38 +1,21 @@
 <div class="container">
 	<div class="row">
-		<div class="col-md-3 graphacceptor" id="startdate">
-			<?/*<span class="glyphicon glyphicon-zoom-in"></span>*/?>
+		<div class="col-md-3 graphacceptor" id="compliance">
 			<img width="95%" src="/images/startdatechart.jpg" />
 		</div>
-		<?/*<div class="col-md-4 graphacceptor" id="completiondate">
-			<span class="glyphicon glyphicon-zoom-in"></span>
-			<img src="/images/completiondatechart.jpg" />
-		</div>*/?>
 		<div class="col-md-3 graphacceptor" id="statuschart">
-			<?/*<span class="glyphicon glyphicon-zoom-in"></span>*/?>
 			<img width="95%" src="/images/statuschart.jpg" />
 		</div>
 		<div class="col-md-3 graphacceptor" id="companyreview">
-			<?/*<span class="glyphicon glyphicon-zoom-in"></span>*/?>
 			<img width="95%" src="/images/companyreviewchart.jpg" />
 		</div>
 		<div class="col-md-3 graphacceptor" id="totalinmonth">
-			<?/*<span class="glyphicon glyphicon-zoom-in"></span>*/?>
 			<img width="95%" src="/images/totalinmonthchart.jpg" />
 		</div>
-		<?/*<div class="col-md-4 graphacceptor" id="reviewer">
-			<span class="glyphicon glyphicon-zoom-in"></span>
-			<img src="/images/reviewerchart.jpg" />
-		</div>
-		<div class="col-md-4 graphacceptor" id="totalnumberofreviewers">
-			<span class="glyphicon glyphicon-zoom-in"></span>
-			<img src="/images/totalnumberofreviewerschart.jpg" />
-		</div>*/?>
 	</div>
 	<div class="row">
 		<div class="col-md-10" id="chartwrapper">
 			<div id="charttitle"></div>
-			<?/*<span id="chartmagnify" class="glyphicon glyphicon-zoom-out"></span>*/?>
 			<div id="chartacceptor"></div>
 		</div>
 		<div class="col-md-2">
@@ -62,7 +45,11 @@
 
 <?=@$result_table?>
 
-
+<form method="POST" id="graphform">
+	<input type="hidden" id="graphpdata" name="graphpdata" value="">
+	<input type="hidden" id="graphpid" name="graphpid" value="">
+	<input type="hidden" name="form_type" value="graph_click_data">
+</form>
 
 
 <script type="text/javascript">
@@ -177,11 +164,10 @@
 <?/* CHARTS STARTER */?>
 <script type="text/javascript">
 	$(function(){
-		$('#startdate').click();
+		$('#compliance').click();
 	});
 	$('#chartmagnify').on('click', function(){
 		$('#charttitle').html('');
-		// $('.graphacceptor').show();
 		$('#chartwrapper').hide();
 	});
 
@@ -190,8 +176,8 @@
 		
 		switch (id)
 		{
-			case 'startdate':
-				title = 'Start Date';
+			case 'compliance':
+				title = 'Compliance Report';
 			break;
 			case 'completiondate':
 				title = 'Completion Date';
@@ -210,21 +196,28 @@
 		$('#charttitle').html(title);
 		showgraph(id);
 		$('.graphacceptor').show();
-		// $(this).hide();
 	});
 
 	function showgraph(graph_id)
 	{
+		$('#graphpid').val(graph_id);
 		$.ajax({
 			url: '/dashboard/ajax_make_graph',
 			type: 'POST',
 			data: {graph_id: graph_id},
 			success: function(result) {
-				// console.log(result);
+				console.log(result);
 				$('#chartacceptor').empty();
 				$('#chartwrapper').show();
 				eval("$.jqplot('chartacceptor'," + result + ")");
+
 			}
 		})
 	}
+
+	$('#chartacceptor').bind('jqplotDataClick', function (ev, seriesIndex, pointIndex, data) {
+   		$('#graphpdata').val(data[0]);
+		$('#graphform').submit();
+	});
+
 </script>
