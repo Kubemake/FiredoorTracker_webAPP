@@ -37,22 +37,14 @@
 	<div class="nav-wrapper">
 		<div class="container">
 			<div class="row">
-				<div class="navbar-header">
-			    	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-			        	<span class="sr-only">Toggle navigation</span>
-			        	<span class="icon-bar"></span>
-			        	<span class="icon-bar"></span>
-			        	<span class="icon-bar"></span>
-			    	</button>
-			    </div>
-				<div class="navbar-collapse collapse">
+				<div class="navbar-collapse">
 					<ul class="nav navbar-nav">
 						<li class="menu-item menu-item-1 first"><a href="/"><span class="fa fa-5x"></span><br />CLIENT<br/>DASHBOARD</a></li>
-						<li class="menu-item menu-item-2"><a href="/resources"><span class="fa fa-5x"></span><br />RESOURCES</a></li>
-						<li class="menu-item menu-item-3"><a href="/media"><span class="fa fa-5x"></span><br />MEDIA</a></li>
+						<li class="menu-item menu-item-2"><a href="/resources"><span class="fa fa-5x"></span><br />RESOURCES<br/><br/></a></li>
+						<li class="menu-item menu-item-3"><a href="/media"><span class="fa fa-5x"></span><br />MEDIA<br/><br/></a></li>
 						<li class="menu-item menu-item-4"><a href="/contactanexpert"><span class="fa fa-5x"></span><br />CONTACT<br/>AN EXPERT</a></li>
-						<li class="menu-item menu-item-5"><a href="/user/profile"><span class="fa fa-5x"></span><br />USER SETTINGS</a></li>
-						<li class="menu-item menu-item-6 last"><a href="/user/leave"><span class="fa fa-5x"></span><br />LOG OUT</a></li>
+						<li class="menu-item menu-item-5"><a href="/user/profile"><span class="fa fa-5x"></span><br />USER<br/>SETTINGS</a></li>
+						<li class="menu-item menu-item-6 last"><a href="/user/leave"><span class="fa fa-5x"></span><br />LOG OUT<br/><br/></a></li>
 					</ul>
 				</div>
 			</div>

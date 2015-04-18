@@ -1,6 +1,6 @@
 <!-- <div class="container-fluid"> -->
 	<div class="row">
-		<div class="col-md-7">
+		<div class="col-lg-7 col-md-12">
 			<div class="row glossary"><h2>GLOSSARY</h2><?php if (has_permission('Allow modify resources')): ?><a href="javascript:;" onclick="button_add_action('glossary');return false;" class="btn btn-default button-add">Add</a><?php endif; ?></div>
 			<div class="row">
 				<div id="letters">
@@ -26,7 +26,7 @@
 				</ul>
 			</div>
 		</div>
-		<div class="col-md-5">
+		<div class="col-lg-5 col-md-12">
 			<div class="row faq"><h2>FREQUENTLY ASKED QUESTIONS (FAQ)</h2><?php if (has_permission('Allow modify resources')): ?><a href="javascript:;" onclick="button_add_action('faq');return false;" class="btn btn-default button-add">Add</a><?php endif; ?></div>
 			<div class="row">
 				<ul class="faq-items">

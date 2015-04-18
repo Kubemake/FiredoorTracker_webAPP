@@ -1,6 +1,6 @@
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-push-3 col-md-6 overviz">
+		<div class="col-lg-push-3 col-lg-6 overviz col-md-12">
 			<div class="col-md-6">
 				<div id="drop-area-div" class="text-center"><?//container for d&d upload?>
 					<div class="line-1">Upload your media files here</div>
@@ -38,7 +38,7 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-6 col-md-push-3">
+		<div class="col-lg-push-3 col-lg-6 col-md-12">
 			<table class="table table-striped table-hover table-bordered table-responsive table-condensed" width="100%">
 				<thead>
 					<tr>

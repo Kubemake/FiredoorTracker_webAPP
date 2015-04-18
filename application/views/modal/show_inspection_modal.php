@@ -26,6 +26,10 @@
 													<div class="col-md-6"><?=$section['label']?></div>
 													<div class="col-md-6">
 														<div class="btn-group">
+														<?php if ($section['label'] == 'Other' && $section['nextQuestionId'] == $tab['nextQuestionId']): ?>
+															<input id="id<?=$section['name']?>" name="<?=$section['name']?>" value="<?=$section['idFormFields']?>" type="checkbox" class="otherinput" <?php echo (!empty($section['selected'])) ? ' checked="checked"' : ''; ?>>
+															<input class="form-control" type="text" style="display: inline;width: auto;" value="<?=@$section['selected']?>" onkeyup="$('#<?=$section['name']?>tex').val($(this).val());if(this.value.length > 0){$('#id<?=$section['name']?>').prop('checked','checked');}else{$('#id<?=$section['name']?>').prop('checked','');};">
+														<?php else: ?>
 															<button data-toggle="dropdown" class="btn btn-default dropdown-toggle" data-placeholder="false">Manage<span class="caret"></span></button>
 															<ul class="dropdown-menu noclose">
 														    	<?php foreach ($issues['issues'][$section['nextQuestionId']]['answers'] as $answer): ?>
@@ -50,6 +54,7 @@
 														    		</li>
 														    	<?php endforeach; ?>
 															</ul>
+														<?php endif; ?>
 														</div>
 													</div>
 												</div>

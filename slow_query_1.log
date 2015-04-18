@@ -52,3 +52,21 @@ LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFi
 WHERE `i`.`idInspections` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '19', '12', '13', '14', '15', '16', '17', '18') 
 
 -----------------------------
+18.04.2015 9:20:23 : 7.4959
+SELECT `d`.*, `b`.`name` as location_name
+FROM (`Doors` d)
+JOIN `Buildings` b ON `b`.`idBuildings` = `d`.`Buildings_idBuildings`
+WHERE `d`.`idDoors` =  '6'
+AND `d`.`deleted` =  0
+
+-----------------------------
+18.04.2015 9:20:23 : 8.2306
+SELECT `ff`.*, `cc`.`value` as status, `dff`.`value` as selected, `f`.`path`
+FROM (`FormFields` ff)
+LEFT JOIN `DoorsFormFields` dff ON `dff`.`FormFields_idFormFields` = `ff`.`idFormFields` AND dff.Inspections_idInspections = 5
+LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `ff`.`idFormFields` AND cc.wallRates = 3 AND cc.ratesTypes = 1 AND cc.doorRating = 3 AND cc.doorMatherial = 3
+LEFT JOIN `InspectionFieldFiles` iff ON `iff`.`FormFields_idFormFields` = `ff`.`idFormFields` AND iff.deleted = 0 AND iff.Doors_idDoors = 6
+LEFT JOIN `Files` f ON `f`.`idFiles` = `iff`.`Files_idFiles`
+WHERE `ff`.`deleted` =  0
+
+-----------------------------
