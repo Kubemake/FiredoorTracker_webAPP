@@ -30,22 +30,31 @@ class Dashboard extends CI_Controller {
 			
 			switch ($postdata['form_type'])
 			{
+				case 'send_email':
+					send_mail($postdata['to'], $postdata['subject'], $postdata['body'], $postdata['from']);
+					$header['msg'] = msg('success', 'Mail successfuly sent');
+				break;
+
 				case 'add_inspection':
 					$avail = $this->resources_model->get_inspection_by_aperture_id($postdata['aperture']);
 
 					if (!empty($avail))
 						$adddata['revision'] = $avail['revision'] + 1;
 
+					$adddata['Creator'] = $this->session->userdata('user_id');
 					$adddata['InspectionStatus'] = 'New';
+					$adddata['CreateDate'] = date('Y-m-d');
 					$iid = $this->resources_model->add_inspection($adddata);
 
 					$this->history_library->saveInspections(array('line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
+					$header['msg'] = msg('success', 'New review successfuly added');
 				break;
 
 				case 'edit_inspection':
 					$this->history_library->saveInspections(array('line_id' => $postdata['idInspections'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
 
 					$this->resources_model->update_inspection($postdata['idInspections'], $adddata);
+					$header['msg'] = msg('success', 'Review successfuly updated');
 				break;
 
 				case 'customize_review':
@@ -98,6 +107,10 @@ class Dashboard extends CI_Controller {
 
 					$this->history_library->saveDff(array('user_id' => $Puser, 'line_id' => '-', 'new_val' => json_encode($new_dff), 'cur_val' => json_encode($cur_dff)));
 
+					$this->history_library->saveInspections(array('line_id' => $Pinspection_id, 'new_val' => json_encode(array('Inspector' => $this->session->userdata('user_id'))), 'type' => 'edit'));
+
+					$this->resources_model->update_inspection($Pinspection_id, array('Inspector' => $this->session->userdata('user_id')));
+
 					$header['msg'] = msg('success', 'Inspection data updated successfuly');
 				break;
 
@@ -118,13 +131,15 @@ class Dashboard extends CI_Controller {
 		}
 
 		$this->table->set_heading(
-			'Id',
-			'Location',
+			array('data' => ''   , 'style' => 'display: none !important;'),
 			'Door Id',
-			array('data' => 'Start date', 'class' => 'not-mobile'),
-			array('data' => 'Completion', 'class' => 'not-mobile'),
-			array('data' => 'Reviewer'	, 'class' => 'not-mobile'),
-			array('data' => 'Status'	, 'class' => 'not-mobile')
+			'Location',
+			array('data' => 'Create by'   , 'class' => 'not-mobile'),
+			array('data' => 'Create date' , 'class' => 'not-mobile'),
+			array('data' => 'Start date'  , 'class' => 'not-mobile'),
+			array('data' => 'Completion' , 'class' => 'not-mobile'),
+			array('data' => 'Reviewer'	 , 'class' => 'not-mobile'),
+			array('data' => 'Status'	 , 'class' => 'not-mobile')
 		);
 
 		$inspections = $this->_build_reviews_list();
@@ -134,7 +149,8 @@ class Dashboard extends CI_Controller {
 			foreach ($inspections as $inspection)
 			{
 				$item = (in_array($inspection['InspectionStatus'], array('In Progress', 'Complete'))) ? '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>' : $inspection['barcode'];
-				$this->table->add_row($inspection['id'], $inspection['location_name'], $item, $inspection['StartDate'], $inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
+				$cell = array('data' => $inspection['id'], 'style' => 'display: none !important;');
+				$this->table->add_row($cell, $item, $inspection['location_name'], $inspection['CreatorfirstName'].' '.$inspection['CreatorlastName'], $inspection['CreateDate'], $inspection['StartDate'], $inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
 			}
 		}
 
@@ -206,6 +222,8 @@ class Dashboard extends CI_Controller {
 			$adddata = $this->resources_model->get_inspection_info_by_inspection_id($inspection_id);
 			unset($adddata['idInspections'], $adddata['name']);
 			$adddata['InspectionStatus'] = $inspection_state;
+			$adddata['Creator'] 		 = $this->session->userdata('user_id');
+			$adddata['CreateDate'] 		 = data('Y-m-d');
 			$adddata['revision']++;
 			return $this->resources_model->add_inspection($adddata);
 		}
@@ -433,13 +451,14 @@ class Dashboard extends CI_Controller {
 
 				if (!empty($inspections))
 				{
-					$tbl = '"Id", "Location", "Door Id", "Start date", "Completion", "Reviewer", "Status"' . "\r\n";
+					$tbl = '"Door Id", "Location", "Create by", "Create date", "Start date", "Completion", "Reviewer", "Status"' . "\r\n";
 
 					foreach ($inspections as $inspection)
 					{
-						$tbl .= '"' . @$inspection['id'] . '",';
-						$tbl .= '"' . @$inspection['location_name'] . '",';
 						$tbl .= '"' . @$inspection['barcode'] . '",';
+						$tbl .= '"' . @$inspection['location_name'] . '",';
+						$tbl .= '"' . @$inspection['CreatorfirstName'] . ' ' . @$inspection['CreatorlastName'] . '",';
+						$tbl .= '"' . @$inspection['CreateDate'] . '",';
 						$tbl .= '"' . @$inspection['StartDate'] . '",';
 						$tbl .= '"' . @$inspection['Completion'] . '",';
 						$tbl .= '"' . @$inspection['firstName'].' ' . @$inspection['lastName'] . '",';
@@ -532,9 +551,10 @@ class Dashboard extends CI_Controller {
 		<table cellspacing="0" cellpadding="1" border="1">
 				<thead>
 					<tr>
-						<th>Id</th>
-						<th>Location</th>
 						<th>Door Id</th>
+						<th>Location</th>
+						<th>Create by</th>
+						<th>Create date</th>
 						<th>Start date</th>
 						<th>Completion</th>
 						<th>Reviewer</th>
@@ -548,10 +568,12 @@ class Dashboard extends CI_Controller {
 		{
 			foreach ($inspections as $inspection)
 			{
+				
 				$tbl .= '<tr>';
-				$tbl .= '<td>' . @$inspection['id'] . '</td>';
-				$tbl .= '<td>' . @$inspection['location_name'] . '</td>';
 				$tbl .= '<td>' . @$inspection['barcode'] . '</td>';
+				$tbl .= '<td>' . @$inspection['location_name'] . '</td>';
+				$tbl .= '<td>' . @$inspection['CreatorfirstName'] . ' ' . @$inspection['CreatorlastName'] . '</td>';
+				$tbl .= '<td>' . @$inspection['CreateDate'] . '</td>';
 				$tbl .= '<td>' . @$inspection['StartDate'] . '</td>';
 				$tbl .= '<td>' . @$inspection['Completion'] . '</td>';
 				$tbl .= '<td>' . @$inspection['firstName'].' ' . @$inspection['lastName'] . '</td>';
@@ -593,9 +615,10 @@ class Dashboard extends CI_Controller {
 		<table cellspacing="0" cellpadding="1" border="1">
 				<thead>
 					<tr>
-						<th>Id</th>
-						<th>Location</th>
 						<th>Door Id</th>
+						<th>Location</th>
+						<th>Create by</th>
+						<th>Create date</th>
 						<th>Start date</th>
 						<th>Completion</th>
 						<th>Reviewer</th>
@@ -611,9 +634,10 @@ class Dashboard extends CI_Controller {
 			foreach ($inspections as $inspection)
 			{
 				$tbl .= '<tr>';
-				$tbl .= '<td>' . @$inspection['id'] . '</td>';
-				$tbl .= '<td>' . @$inspection['location_name'] . '</td>';
 				$tbl .= '<td>' . @$inspection['barcode'] . '</td>';
+				$tbl .= '<td>' . @$inspection['location_name'] . '</td>';
+				$tbl .= '<td>' . @$inspection['CreatorfirstName'] . ' ' . @$inspection['CreatorlastName'] . '</td>';
+				$tbl .= '<td>' . @$inspection['CreateDate'] . '</td>';
 				$tbl .= '<td>' . @$inspection['StartDate'] . '</td>';
 				$tbl .= '<td>' . @$inspection['Completion'] . '</td>';
 				$tbl .= '<td>' . @$inspection['firstName'].' ' . @$inspection['lastName'] . '</td>';

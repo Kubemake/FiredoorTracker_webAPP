@@ -58,9 +58,13 @@ function addDataTable($type='css')
 	}
 }
 
-function send_mail($to, $subj='', $body='')
+function send_mail($to, $subj='', $body='', $from='')
 {
-	return mail($to, $subj, $body, "From: " . $_SERVER['HTTP_HOST'] . "\r\n" . "Content-type: text/html; charset=UTF-8" . "\r\n");
+	 $from = empty($from) ? $_SERVER['HTTP_HOST'] :  $from;
+	 if (is_array($to))
+	 	$to = implode(',', $to);
+
+	return mail($to, $subj, $body, "From: Mailing system <" . $from . ">" . "\r\n" . "Content-type: text/html; charset=UTF-8" . "\r\n");
 }
 
 function msg($type, $text)

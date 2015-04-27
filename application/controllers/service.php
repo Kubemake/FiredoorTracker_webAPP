@@ -431,6 +431,9 @@ class Service extends CI_Controller {
 					strpos(strtolower($inspection['location_name']), $keyword) === FALSE &&
 					strpos(strtolower($inspection['firstName']), $keyword) === FALSE &&
 					strpos(strtolower($inspection['lastName']), $keyword) === FALSE &&
+					strpos(strtolower($inspection['CreatorfirstName']), $keyword) === FALSE &&
+					strpos(strtolower($inspection['CreatorlastName']), $keyword) === FALSE &&
+					strpos($inspection['CreateDate'], $keyword) === FALSE &&
 					strpos($inspection['StartDate'], $keyword) === FALSE &&
 					strpos($inspection['Completion'], $keyword) === FALSE &&
 					strpos(strtolower($inspection['InspectionStatus']), $keyword) === FALSE &&
@@ -726,9 +729,15 @@ class Service extends CI_Controller {
 		
 		$this->history_library->saveDoors(array('user_id' => $user_id, 'iid' => $data['inspection_id'], 'new_val' => json_encode($upddata), 'type' => 'edit'));
 
-		$result = $this->service_model->update_aperture_overview_info($data['inspection_id'], $upddata);
+		$result = $this->service_model->update_aperture_overview_info($data['inspection_id'], $upddata, $user_id);
 
 		$result = $this->service_model->get_aperture_issues_and_selected($data);
+
+		ksort($result['tabs']);
+		$out = array();
+		foreach ($result['tabs'] as $tab)
+			$out[] = $tab;
+		$result['tabs'] = $out;
 
 		$userData['status'] = 'ok';
 		$userData['issues'] = $result['issues'];
@@ -825,7 +834,7 @@ class Service extends CI_Controller {
 			$this->history_library->saveDff(array('user_id' => $user, 'line_id' => $dffid, 'new_val' => json_encode(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'Users_idUsers' => $user, 'value' => $value)), 'cur_val' => json_encode($cur_dff)));
 
 			if ($dffid)
-				$this->resources_model->update_inspection($data['inspection_id'], array('InspectionStatus' => 'In Progress'));
+				$this->resources_model->update_inspection($data['inspection_id'], array('InspectionStatus' => 'In Progress', 'Inspector' => $user));
 
 		}
 
@@ -970,10 +979,11 @@ class Service extends CI_Controller {
 
 		$adddata = array(
 			'idAperture' 				=> $aperture_id,
-/*			'StartDate' 				=> $data['StartDate'],*/
 			'Buildings_idBuildings' 	=> $data['location_id'],
 			'InspectionStatus' 			=> 'New',
 			'Inspector' 				=> $user_id,
+			'Creator'	 				=> $user_id,
+			'CreateDate' 				=> date('Y-m-d'),
 			'UserId' 					=> $user['parent'],
 			'summary' 					=> @$data['summary']
 		);
@@ -983,6 +993,10 @@ class Service extends CI_Controller {
 		$this->history_library->saveInspections(array('user_id' => $user_id, 'line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
 
 		$userData['status'] 	= 'ok';
+		
+		$adddata['id'] = $iid;
+
+		$userData['CreatedInspection'] 	= $adddata;
 
 		$this->_show_output($userData);
 	}
@@ -1015,28 +1029,39 @@ class Service extends CI_Controller {
 		$aperture = $this->resources_model->get_aperture_info_by_barcode($data['barcode']);
 
 		$user = $this->user_model->get_user_info_by_user_id($user_id);
+		
+		$userData['location'] 	= $this->resources_model->get_user_buildings($user['parent']);;
+
+		$buildings = array();
+		foreach ($userData['location'] as $loc)
+			$buildings[$loc['idBuildings']] = $loc;
+		$userData['location'] = $buildings;
+		
 		if (empty($aperture))
 		{
 			$userData['status'] 	= 'ok';
 			$userData['case'] 		= 'new unique id';
-			$userData['location'] 	= $this->resources_model->get_user_buildings($user['parent']);;
-
+			
 			$this->_show_output($userData);
 		}
+
+		$buildings = array();
+		$buildings[0] = $userData['location'][$aperture['Buildings_idBuildings']];
+		$buildings[1] = $userData['location'][$buildings[0]['root']];
+		$userData['location'] = $buildings;
 
 		$inspection = $this->resources_model->get_inspection_by_aperture_id($aperture['idDoors']);
 		if (!empty($inspection))
 		{
 			$userData['status'] = 'ok';
 			$userData['case'] 	= 'inspection allready exists';
-
+			
 			$this->_show_output($userData);
 		}
 		
 
 		$userData['status'] 		= 'ok';
 		$userData['case'] 			= 'door UID is present';
-		$userData['location'][0]	= $this->user_model->get_building_data($aperture['Buildings_idBuildings']);
 
 		$this->_show_output($userData);
 

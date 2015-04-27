@@ -87,9 +87,12 @@ class Service_model  extends CI_Model
 		return $fields;
 	}
 
-	function update_aperture_overview_info($inspection_id, $updateData)
+	function update_aperture_overview_info($inspection_id, $updateData, $user_id)
 	{
-		$app_id = $this->db->select('idAperture')->where('idInspections', $inspection_id)->get('Inspections')->row_array();
+		$app_id = $this->db->where('idInspections', $inspection_id)->get('Inspections')->row_array();
+		
+		if ($app_id['Inspector'] != $user_id) //update reviewer if changed
+			$this->db->where('idInspections', $inspection_id)->update('Inspections', array('Inspector' => $user_id));
 
 		$this->db->where('idDoors', $app_id['idAperture']);
 		$this->db->update('Doors', $updateData);
@@ -260,6 +263,9 @@ class Service_model  extends CI_Model
 
 	function get_images_by_aperture_id_and_field_id($aperture_id, $field_id = FALSE)
 	{
+		if (empty($aperture_id))
+			return array();
+		
 		if (!is_array($aperture_id))
 			$aperture_id = array($aperture_id);
 
@@ -278,8 +284,8 @@ class Service_model  extends CI_Model
 
 			$this->db->where_in('iff.FormFields_idFormFields', $field_id);
 		}
-		else
-			$this->db->where('iff.FormFields_idFormFields IS ', 'NULL', FALSE);
+		// else
+		// 	$this->db->where('iff.FormFields_idFormFields IS ', 'NULL', FALSE);
 
 		$this->db->select('iff.Files_idFiles as file_id, f.path, iff.Doors_idDoors as aperture_id');
 		$this->db->from('InspectionFieldFiles iff');

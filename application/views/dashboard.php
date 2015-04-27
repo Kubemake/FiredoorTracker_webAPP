@@ -1,25 +1,25 @@
 <div class="container">
-	<div class="row">
-		<div class="col-md-3 graphacceptor" id="compliance">
-			<img width="95%" src="/images/startdatechart.jpg" />
+	<div class="row mb-10">
+		<div class="col-xs-3 graphacceptor" id="compliance">
+			<img width="95%" src="/images/compliance.jpg" />
 		</div>
-		<div class="col-md-3 graphacceptor" id="statuschart">
+		<div class="col-xs-3 graphacceptor" id="statuschart">
 			<img width="95%" src="/images/statuschart.jpg" />
 		</div>
-		<div class="col-md-3 graphacceptor" id="companyreview">
+		<div class="col-xs-3 graphacceptor" id="companyreview">
 			<img width="95%" src="/images/companyreviewchart.jpg" />
 		</div>
-		<div class="col-md-3 graphacceptor" id="totalinmonth">
+		<div class="col-xs-3 graphacceptor" id="totalinmonth">
 			<img width="95%" src="/images/totalinmonthchart.jpg" />
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-md-10" id="chartwrapper">
+		<div class="col-xs-9 col-md-10" id="chartwrapper">
 			<div id="charttitle"></div>
 			<div id="chartacceptor"></div>
 		</div>
-		<div class="col-md-2">
-		<a class="thumbnail" href="javascript:;" id="emailing"><img alt="Send e-mail" title="Send e-mail" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/email.png"></img></a>
+		<div class="col-xs-2">
+			<a class="thumbnail" href="javascript:;" id="emailing"><img alt="Send e-mail" title="Send e-mail" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/email.png"></img></a>
 			<a class="thumbnail" href="/dashboard/getexport/csv" id="xlsexport"><img alt="Export in CSV" title="Export in CSV" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/csv.png"></img></a>
 			<a class="thumbnail" href="javascript:;" id="pdfexport"><img alt="Export in PDF" title="Export in PDF" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/pdf.png"></img></a>
 			<a class="thumbnail" href="javascript:;" id="htmlexport"><img alt="Export in HTML" title="Export in HTML" data-src="holder.js/60x60" style="height: 60px; width: 60px; display: block;" src="/images/html.png"></img></a>
@@ -58,6 +58,20 @@
 		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'show_inspection_modal', door_id: door_id, insp_id: insp_id},function(){$('#ShowInspectionModal').modal({show: true})});
 	}
 
+	$('#emailing').on('click', function() {
+		picture = jqplotToImg($('#chartacceptor'));
+		$.ajax({
+			url: "/dashboard/ajax_export_to_pdf",
+			type: "POST",
+			data: {img: picture},
+			success: function(result) {
+				if (result == 'done') {
+					$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'send_email_modal'},function(){$('#SendEmailModal').modal({show: true})});
+				};
+			}
+		})
+	});
+
 	$('#pdfexport').on('click', function() {
 		picture = jqplotToImg($('#chartacceptor'));
 		$.ajax({
@@ -65,7 +79,7 @@
 			type: "POST",
 			data: {img: picture},
 			success: function(result) {
-				console.log(result);
+				// console.log(result);
 				if (result == 'done') {
 					window.location = "/dashboard/getexport/pdf";
 				};
@@ -80,7 +94,7 @@
 			type: "POST",
 			data: {img: picture},
 			success: function(result) {
-				console.log(result);
+				// console.log(result);
 				if (result == 'done') {
 					window.location = "/dashboard/getexport/html";
 				};
@@ -206,7 +220,7 @@
 			type: 'POST',
 			data: {graph_id: graph_id},
 			success: function(result) {
-				console.log(result);
+				// console.log(result);
 				$('#chartacceptor').empty();
 				$('#chartwrapper').show();
 				eval("$.jqplot('chartacceptor'," + result + ")");

@@ -86,6 +86,10 @@ div.dataTables_filter {
 .pad15 {
 	padding: 15px;
 }
+.mb-10 {
+	margin-bottom: 10px;
+	text-align: right;
+}
 
 /*login form*/
 .site-wrapper {
@@ -621,4 +625,13 @@ h4.panel-title a {
 }
 .expert-img img {
 	width: 100%;
+}
+#charttitle {
+    margin: 0px 9px;
+    background-color: rgb(207, 214, 230);
+    border: solid #999999;
+    border-width: 2px 2px 0 2px;
+    font-size: 24px;
+    padding: 10px 0 10px 10px;
+    margin-bottom: -9px;
 }

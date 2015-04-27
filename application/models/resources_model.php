@@ -313,11 +313,15 @@ class Resources_model  extends CI_Model
 
 	function get_user_inspections_by_parent($parent_id)
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
+		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name, i.CreateDate, i.StartDate, i.Completion, i.InspectionStatus, i.Creator, u2.firstName as CreatorfirstName, u2.lastName as CreatorlastName, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
+	   	
 	   	$this->db->from('Inspections i');
+	   	
 	   	$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings', 'left');
 	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
 	   	$this->db->join('Users u', 'u.idUsers = i.Inspector', 'left');
+	   	$this->db->join('Users u2', 'u2.idUsers = i.Creator', 'left');
+
 	   	$this->db->where('i.deleted', 0);
 	   	$this->db->where('i.UserId', $parent_id);
 
