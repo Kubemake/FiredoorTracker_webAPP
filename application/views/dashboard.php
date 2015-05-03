@@ -220,7 +220,10 @@
 			type: 'POST',
 			data: {graph_id: graph_id},
 			success: function(result) {
-				// console.log(result);
+				if (result == '<scr' + 'ipt type="text/javascript">window.location = "/user/login"</scr' + 'ipt>')
+				{
+					window.location = "/user/login";
+				}
 				$('#chartacceptor').empty();
 				$('#chartwrapper').show();
 				eval("$.jqplot('chartacceptor'," + result + ")");

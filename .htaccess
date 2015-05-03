@@ -1,5 +1,7 @@
 AddDefaultCharset UTF-8
 
+SetEnv TZ America/New_York
+
 <IfModule mod_rewrite.c>
   RewriteEngine on
   RewriteBase /
