@@ -418,12 +418,40 @@ class Service extends CI_Controller {
 		
 		$user = $this->user_model->get_user_info_by_user_id($user_id);
 
+		$userlocation 	= $this->resources_model->get_user_buildings($user['parent']);
+		$buildings = array();
+		foreach ($userlocation as $loc)
+			$buildings[$loc['idBuildings']] = $loc;
+		$userlocation = $buildings;
+
 		$userData['inspections'] = $this->resources_model->get_user_inspections_by_parent($user['parent']);//($user_id);
 
 		if (!empty($userData['inspections']))
 		{
 			$output = array();
 
+			//make building and location names 
+			foreach ($userData['inspections'] as &$inspection)
+			{
+				$inspection['building_name'] = $userlocation[$inspection['Building']]['name'];
+				
+				$inspection['location_name'] = array();
+				if ($inspection['Floor'] > 0 && isset($userlocation[$inspection['Floor']]['name']))
+					$inspection['location_name'][] = $userlocation[$inspection['Floor']]['name'];
+				if ($inspection['Wing'] > 0 && isset($userlocation[$inspection['Wing']]['name']))
+					$inspection['location_name'][] = $userlocation[$inspection['Wing']]['name'];
+				if ($inspection['Area'] > 0 && isset($userlocation[$inspection['Area']]['name']))
+					$inspection['location_name'][] = $userlocation[$inspection['Area']]['name'];
+				if ($inspection['Level'] > 0 && isset($userlocation[$inspection['Level']]['name']))
+					$inspection['location_name'][] = $userlocation[$inspection['Level']]['name'];
+				
+				if (!empty($inspection['location_name']))
+					$inspection['location_name'] = implode(' ', $inspection['location_name']);
+				else
+					$inspection['location_name'] = '';
+			}
+
+			//filter inspection if keyword
 			foreach ($userData['inspections'] as $inspection)
 			{
 				if (!empty($keyword) && //for search
@@ -442,6 +470,7 @@ class Service extends CI_Controller {
 					continue;
 				}
 
+				//show only last revision
 				if (!isset($output[$inspection['aperture_id']]))
 					$output[$inspection['aperture_id']] = $inspection;
 				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
@@ -451,23 +480,19 @@ class Service extends CI_Controller {
 			$userData['inspections'] = $output;
 
 			
+			//add images to inspection
 			$inspections_images = array();
 			$allimgs = $this->service_model->get_images_by_aperture_id_and_field_id(array_keys($userData['inspections']));
 			if (!empty($allimgs))
 			{
 				foreach ($allimgs as $image)
-				{
 					$inspections_images[$image['aperture_id']][] = $image['path'];
-					// $inspections_images[$image['aperture_id']][] = array('file_id'	=> $image['file_id'],'url'		=> $image['path']);
-				}
-			
 			}			
 			
 
-			foreach ($userData['inspections'] as &$inspection) {
-
-				$building = $this->resources_model->get_building_name_by_building_id($inspection['building_id']);
-
+			//make answers list
+			foreach ($userData['inspections'] as &$inspection)
+			{
 				$anwers = $this->service_model->get_inspection_answers($inspection['id'], $inspection['aperture_id'], $user_id);
 				
 				$color = array();
@@ -482,12 +507,14 @@ class Service extends CI_Controller {
 					$colorresult[] = $key;
 				
 				$inspection['colorcode'] = $colorresult;
-				$inspection['building_name'] = @$building['building_name'];
 				$inspection['images'] = isset($inspections_images[$inspection['aperture_id']]) ? $inspections_images[$inspection['aperture_id']] : array();
 			}
 		}
 
 		$userData['status'] = 'ok';
+		
+		// echo '<pre>';
+		// print_r($userData);die();
 
 		$this->_show_output($userData);
 	}
@@ -912,7 +939,7 @@ class Service extends CI_Controller {
 	 * token    		=> auth id from login
 	 * barcode 			=> QR or barcode of door
 	 * StartDate 		=> StartDate in table
-	 * location_id 		=> Buildings_idBuildings in table
+	 * location_id 		=> Buildings_idBuildings in table DEPRECATED!!
 	 * summary			=> review description
 	 *
 	 * Output data:
@@ -934,35 +961,54 @@ class Service extends CI_Controller {
 			$this->_show_output($userData);
 		}*/
 
-		if (!isset($data['location_id']) or empty($data['location_id']))
-		{
-			$userData['status'] = 'error';
-			$userData['error'] = 'not isset or empty input parameter location_id';
-			$this->_show_output($userData);
-		}
-
 		$this->load->model('user_model');
 		$this->load->model('resources_model');
 		
 		$user_id = $data['tokendata']['user_id'];
 
 		$user = $this->user_model->get_user_info_by_user_id($user_id);
-		
+
+		//for compatability with old version
+		if (isset($data['location_id']) or !empty($data['location_id']))
+		{
+			$lvls = array(
+				0 => 'Building',
+				1 => 'Floor',
+				2 => 'Wing',
+				3 => 'Area',
+				4 => 'Level'
+			);
+
+			$userlocation 	= $this->resources_model->get_user_buildings($user['parent']);;
+			$buildings = array();
+			foreach ($userlocation as $loc)
+				$buildings[$loc['idBuildings']] = $loc;
+			$userlocation = $buildings;
+
+			$lv = $userlocation[$data['location_id']]['level'];
+			$apert_adddata[$lvls[$lv]] = $data['location_id'];
+			$nextid = $userlocation[$data['location_id']]['parent'];
+			
+			for ($i=$lv-1; $i >=0 ; $i--)
+			{ 
+				$apert_adddata[$lvls[$i]] = $nextid;
+				$nextid = $userlocation[$data['location_id']]['parent'];
+			}
+		}
+
 		$aperture = $this->resources_model->get_aperture_info_by_barcode($data['barcode']);
 
 		$this->load->library('History_library');
 
 		if (empty($aperture))
 		{
-			$adddata = array(
-				'barcode' 					=> $data['barcode'],
-				'Buildings_idBuildings' 	=> $data['location_id'],
-				'UserId' 					=> $user['parent'],
-				'name'						=> $data['barcode']
-			);
-			$aperture_id = $this->resources_model->add_aperture($adddata);
+			$apert_adddata['barcode'] = $data['barcode'];
+			$apert_adddata['UserId'] 	= $user['parent'];
+			$apert_adddata['name']	= $data['barcode'];
+
+			$aperture_id = $this->resources_model->add_aperture($apert_adddata);
 					
-			$this->history_library->saveDoors(array('user_id' => $user_id, 'line_id' => $aperture_id, 'new_val' => json_encode($adddata), 'type' => 'add'));
+			$this->history_library->saveDoors(array('user_id' => $user_id, 'line_id' => $aperture_id, 'new_val' => json_encode($apert_adddata), 'type' => 'add'));
 		}
 		else
 		{
@@ -977,16 +1023,14 @@ class Service extends CI_Controller {
 			}
 		}
 
-		$adddata = array(
-			'idAperture' 				=> $aperture_id,
-			'Buildings_idBuildings' 	=> $data['location_id'],
-			'InspectionStatus' 			=> 'New',
-			'Inspector' 				=> $user_id,
-			'Creator'	 				=> $user_id,
-			'CreateDate' 				=> date('Y-m-d'),
-			'UserId' 					=> $user['parent'],
-			'summary' 					=> @$data['summary']
-		);
+		
+		$adddata['idAperture'] 		 = $aperture_id;
+		$adddata['InspectionStatus'] = 'New';
+		$adddata['Inspector'] 		 = $user_id;
+		$adddata['Creator']	 		 = $user_id;
+		$adddata['CreateDate'] 		 = date('Y-m-d');
+		$adddata['UserId'] 			 = $user['parent'];
+		$adddata['summary'] 		 = @$data['summary'];
 
 		$iid = $this->resources_model->add_inspection($adddata);
 		
@@ -1037,6 +1081,9 @@ class Service extends CI_Controller {
 			$buildings[$loc['idBuildings']] = $loc;
 		$userData['location'] = $buildings;
 		
+		// echo '<pre>';
+		// print_r($userData['location']);die();
+
 		if (empty($aperture))
 		{
 			$userData['status'] 	= 'ok';
@@ -1046,7 +1093,7 @@ class Service extends CI_Controller {
 		}
 
 		$buildings = array();
-		$buildings[0] = $userData['location'][$aperture['Buildings_idBuildings']];
+		$buildings[0] = $userData['location'][$aperture['Building']];
 		$buildings[1] = $userData['location'][$buildings[0]['root']];
 		$userData['location'] = $buildings;
 

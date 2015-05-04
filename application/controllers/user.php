@@ -270,6 +270,7 @@ class User extends CI_Controller {
 
 			$data['buildings'] = '';
 
+
 			$result = '<ol class="dd-list">' . "\n";
 			if (!empty($user_buildings))
 			{
@@ -315,14 +316,23 @@ class User extends CI_Controller {
 			$this->load->library('History_library');
 
 			$adddata = array(
-			    'Buildings_idBuildings'	=> $postdata['location'],
-			    'barcode'				=> $postdata['barcode'],
-			    'wall_Rating'			=> $postdata['wallRating'],
-			    'smoke_Rating'			=> $postdata['smokeRating'],
-			    'material'				=> $postdata['material'],
-			    'rating'				=> $postdata['rating'],
-			    'UserId'				=> $this->session->userdata('user_parent'),
+			    'Building'		=> $postdata['building'],
+			    'barcode'		=> $postdata['barcode'],
+			    'wall_Rating'	=> $postdata['wallRating'],
+			    'smoke_Rating' 	=> $postdata['smokeRating'],
+			    'material'		=> $postdata['material'],
+			    'rating'		=> $postdata['rating'],
+			    'UserId'		=> $this->session->userdata('user_parent'),
 			);
+			
+			if ($postdata['floor'] && $postdata['floor'] > 0)
+				$adddata['Floor'] = $postdata['floor'];
+			if ($postdata['wing'] && $postdata['wing'] > 0)
+				$adddata['Wing'] = $postdata['wing'];
+			if ($postdata['area'] && $postdata['area'] > 0)
+				$adddata['Area'] = $postdata['area'];
+			if ($postdata['level'] && $postdata['level'] > 0)
+				$adddata['Level'] = $postdata['level'];
 
 			switch ($postdata['form_type'])
 			{
@@ -352,7 +362,11 @@ class User extends CI_Controller {
 			$this->table->set_heading(
 				array('data' => ''   , 'style' => 'display: none !important;'),
 				'Door Id',
-				'Location',
+				'Building',
+				array('data' => 'Floor'  		, 'class' => 'not-mobile'),
+				array('data' => 'Wing'  		, 'class' => 'not-mobile'),
+				array('data' => 'Area'   		, 'class' => 'not-mobile'),
+				array('data' => 'Level'  	 	, 'class' => 'not-mobile'),
 				array('data' => 'Wall Rating'   , 'class' => 'not-mobile'),
 				array('data' => 'Smoke Rating'	, 'class' => 'not-mobile'),
 				array('data' => 'Material'		, 'class' => 'not-mobile'),
@@ -371,7 +385,7 @@ class User extends CI_Controller {
 				foreach ($apertures as $aperture)
 				{
 					$cell = array('data' => $aperture['idDoors'], 'style' => 'display: none !important;');
-					$this->table->add_row($cell, $aperture['barcode'], @$aperture['location_name'], @$data['wall_Rating'][$aperture['wall_Rating']], @$data['smoke_Rating'][$aperture['smoke_Rating']], @$data['material'][$aperture['material']], @$data['rating'][$aperture['rating']]);
+					$this->table->add_row($cell, $aperture['barcode'], @$aperture['Building'], @$aperture['Floor'], @$aperture['Wing'], @$aperture['Area'], @$aperture['Level'], @$data['wall_Rating'][$aperture['wall_Rating']], @$data['smoke_Rating'][$aperture['smoke_Rating']], @$data['material'][$aperture['material']], @$data['rating'][$aperture['rating']]);
 				}
 			}
 			
@@ -578,6 +592,7 @@ class User extends CI_Controller {
 
 			$issdata = $all_elem_list[$building->id];
 			$issdata['parent'] = 0;
+			$issdata['level'] = 0;
 			$issdata['root'] = $building->id;
 
 			if (!isset($order[$issdata['parent']]))
@@ -597,18 +612,19 @@ class User extends CI_Controller {
 			// }
 
 			if (isset($building->children)) {
-				$order = $this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $building->id);
+				$order = $this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $building->id, 1);
 			}
 		}
 
 	}
 	
-	function _submit_reorder($elemtree, $all_elem_list, $order, $parent_id, $root)
+	function _submit_reorder($elemtree, $all_elem_list, $order, $parent_id, $root, $level)
 	{
 		foreach ($elemtree as $building) {
 			
 			$issdata = $all_elem_list[$building->id];
 			$issdata['parent'] = $parent_id;
+			$issdata['level'] = $level;
 			$issdata['root'] = $root;
 
 			if (!isset($order[$issdata['parent']]))
@@ -623,7 +639,7 @@ class User extends CI_Controller {
 			// }
 
 			if (isset($building->children)) {
-				$order = $this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $root);
+				$order = $this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $root, $level+1);
 			}
 		}
 		return $order;
@@ -703,6 +719,20 @@ class User extends CI_Controller {
 		}
 		
 		echo json_encode($result);die;
+	}
+
+	function ajax_get_building_childs($parent_id, $selected)
+	{
+		$this->load->model('resources_model');
+		$builds = $this->resources_model->get_user_buildings_by_building_parent($parent_id);
+		
+		$out = '';
+		foreach ($builds as $key => $value)
+		{
+			$sel = ($key == $selected) ? ' selected="selected"' : '';
+			$out .= '<option' . $sel . ' value="' . $key . '">' . $value['name'] . '</option>';
+		}
+		echo $out;
 	}
 }
 

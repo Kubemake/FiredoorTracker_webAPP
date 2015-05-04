@@ -20,7 +20,7 @@ class Dashboard extends CI_Controller {
 			$this->load->library('History_library');
 
 			$adddata = array(
-				'Buildings_idBuildings'	=> @$postdata['location'],
+				// 'Buildings_idBuildings'	=> @$postdata['location'],
 				'idAperture'			=> @$postdata['aperture'],
 				'UserId'				=> $this->session->userdata('user_parent'),
 			);
@@ -144,13 +144,37 @@ class Dashboard extends CI_Controller {
 
 		$inspections = $this->_build_reviews_list();
 
+		$userlocation 	= $this->resources_model->get_user_buildings($this->session->userdata['user_parent']);;
+		$buildings = array();
+		foreach ($userlocation as $loc)
+			$buildings[$loc['idBuildings']] = $loc;
+		$userlocation = $buildings;
+
 		if (!empty($inspections))
 		{
 			foreach ($inspections as $inspection)
 			{
+				$loca = array();
+
+				$loca[] = $userlocation[$inspection['Building']]['name'];
+				
+				if ($inspection['Floor'] > 0 && isset($userlocation[$inspection['Floor']]['name']))
+					$loca[] = $userlocation[$inspection['Floor']]['name'];
+				if ($inspection['Wing'] > 0 && isset($userlocation[$inspection['Wing']]['name']))
+					$loca[] = $userlocation[$inspection['Wing']]['name'];
+				if ($inspection['Area'] > 0 && isset($userlocation[$inspection['Area']]['name']))
+					$loca[] = $userlocation[$inspection['Area']]['name'];
+				if ($inspection['Level'] > 0 && isset($userlocation[$inspection['Level']]['name']))
+					$loca[] = $userlocation[$inspection['Level']]['name'];
+				
+				if (!empty($loca))
+					$loca =  implode(' ', $loca);
+				else
+					$loca = '';
+
 				$item = (in_array($inspection['InspectionStatus'], array('In Progress', 'Complete'))) ? '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>' : $inspection['barcode'];
 				$cell = array('data' => $inspection['id'], 'style' => 'display: none !important;');
-				$this->table->add_row($cell, $item, $inspection['location_name'], $inspection['CreatorfirstName'].' '.$inspection['CreatorlastName'], $inspection['CreateDate'], $inspection['StartDate'], $inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
+				$this->table->add_row($cell, $item, $loca, $inspection['CreatorfirstName'].' '.$inspection['CreatorlastName'], $inspection['CreateDate'], $inspection['StartDate'], $inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
 			}
 		}
 

@@ -141,9 +141,13 @@ class Ajax extends CI_Controller {
 			case 'add_aperture_modal':
 				$this->load->model('user_model');
 
-				$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
+				// $params['user_buildings'] 		= $this->resources_model->get_user_buildings();
+				$builds = $this->resources_model->get_user_buildings_root();
 
-				if (empty($params['user_buildings']))
+				foreach ($builds as $key => $value)
+					$params['building'][$key] = $value['name'];
+
+				if (empty($params['building']))
 					echo ('<script type="text/javascript">alert(\'You need fill at least one building in Building tab, before adding door.\' + "\n" + \'You well be redirected to Building tab after press OK\');window.location = "/user/buildings";</script>');
 
 				$params['wall_rating'] 			= $this->config->item('wall_rates');
@@ -158,7 +162,13 @@ class Ajax extends CI_Controller {
 				$params['smoke_rating'] 		= $this->config->item('rates_types');
 				$params['material'] 			= $this->config->item('door_matherial');
 				$params['rating'] 				= $this->config->item('door_rating');
-				$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
+				// $params['user_buildings'] 		= $this->resources_model->get_user_buildings();
+				
+				$builds = $this->resources_model->get_user_buildings_root();
+
+				foreach ($builds as $key => $value)
+					$params['building'][$key] = $value['name'];
+
 				if (!$aperture_id = $this->input->post('id')) return '';
 				$params['aperture'] 			= $this->resources_model->get_aperture_info_by_aperture_id($aperture_id);
 			break;

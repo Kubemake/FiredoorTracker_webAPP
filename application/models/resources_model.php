@@ -77,12 +77,28 @@ class Resources_model  extends CI_Model
 
 	function get_all_user_apertures()
 	{
-		$this->db->select('d.*, b.name as location_name');
-		$this->db->from('Doors d');
-		$this->db->join('Buildings b', 'b.idBuildings = d.Buildings_idBuildings');
-		$this->db->where('d.UserId', $this->session->userdata('user_parent'));
-        $this->db->where('d.deleted', 0);
-        return $this->db->get()->result_array();
+		$this->db->where('UserId', $this->session->userdata('user_parent'));
+        $this->db->where('deleted', 0);
+        $doors = $this->db->get('Doors')->result_array();
+
+        $builds = $this->get_user_buildings();
+        foreach ($builds as $building)
+        	$buildings[$building['idBuildings']] = $building['name'];
+
+        foreach ($doors as &$door)
+        {
+        	// echo '<pre>';
+        	// print_r($door);
+        	// echo '<pre>';
+        	// print_r($buildings[$door['Floor']]);die();
+        	$door['Building'] 	= ($door['Building']==0) ? '' : @$buildings[$door['Building']];
+        	$door['Floor'] 		= ($door['Floor']==0) ? '' : @$buildings[$door['Floor']];
+        	$door['Wing'] 		= ($door['Wing']==0) ? '' : @$buildings[$door['Wing']];
+        	$door['Area'] 		= ($door['Area']==0) ? '' : @$buildings[$door['Area']];
+        	$door['Level'] 		= ($door['Level']==0) ? '' : @$buildings[$door['Level']];
+        }
+
+        return $doors;
 	}
 
 	function add_aperture($adddata)
@@ -95,7 +111,7 @@ class Resources_model  extends CI_Model
 	{
 		$this->db->select('d.*, b.name as location_name');
 		$this->db->from('Doors d');
-		$this->db->join('Buildings b', 'b.idBuildings = d.Buildings_idBuildings');
+		$this->db->join('Buildings b', 'b.idBuildings = d.Building');
 		$this->db->where('d.idDoors', $aperture_id);
 		$this->db->where('d.deleted', 0);
 		return $this->db->get()->row_array();
@@ -103,13 +119,9 @@ class Resources_model  extends CI_Model
 
 	function get_aperture_info_by_barcode($barcode)
 	{
-		
-		$this->db->select('d.*, b.name as location_name');
-		$this->db->from('Doors d');
-		$this->db->join('Buildings b', 'b.idBuildings = d.Buildings_idBuildings');
 		$this->db->where('barcode', $barcode);
-		$this->db->where('d.deleted', 0);
-		return $this->db->get()->row_array();
+		$this->db->where('deleted', 0);
+		return $this->db->get('Doors')->row_array();
 	}
 
 	function update_aperture_data($aperture_id, $upddata)
@@ -287,7 +299,7 @@ class Resources_model  extends CI_Model
 		$this->db->where('d.UserId', $this->session->userdata('user_parent'));
 		$this->db->where('i.idInspections IS NULL', '', FALSE);
 		if ($location_id)
-			$this->db->where('d.Buildings_idBuildings', $location_id);
+			$this->db->where('d.Building', $location_id);
 		
 		$result = $this->db->get()->result_array();
 		return $result;
@@ -301,9 +313,9 @@ class Resources_model  extends CI_Model
 
 	function get_user_inspections()
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
+		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, d.barcode');
 		$this->db->from('Inspections i');
-		$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings', 'left');
+
 		$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
 		$this->db->join('Users u', 'u.idUsers = i.Inspector', 'left');
 		$this->db->where('i.deleted', 0);
@@ -313,11 +325,9 @@ class Resources_model  extends CI_Model
 
 	function get_user_inspections_by_parent($parent_id)
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name, i.CreateDate, i.StartDate, i.Completion, i.InspectionStatus, i.Creator, u2.firstName as CreatorfirstName, u2.lastName as CreatorlastName, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
-	   	
+		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, d.name as aperture_name, i.CreateDate, i.StartDate, i.Completion, i.InspectionStatus, i.Creator, u2.firstName as CreatorfirstName, u2.lastName as CreatorlastName, i.Inspector, u.firstName, u.lastName, d.barcode, d.Building, d.Floor, d.Wing, d.Area, d.Level');
 	   	$this->db->from('Inspections i');
-	   	
-	   	$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings', 'left');
+
 	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
 	   	$this->db->join('Users u', 'u.idUsers = i.Inspector', 'left');
 	   	$this->db->join('Users u2', 'u2.idUsers = i.Creator', 'left');
@@ -330,9 +340,9 @@ class Resources_model  extends CI_Model
 
 	function get_user_inspections_by_user_id($user_id)
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
+		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, d.barcode');
 	   	$this->db->from('Inspections i');
-	   	$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings', 'left');
+
 	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
 	   	$this->db->join('Users u', 'u.idUsers = i.Inspector', 'left');
 	   	$this->db->where('i.deleted', 0);
@@ -346,9 +356,9 @@ class Resources_model  extends CI_Model
 		$curent_role = $this->db->where('idRoles', $user_role)->get('Roles')->row_array();
 		$roleOrder = $curent_role['rolesOrder'];
 
-		$this->db->select('i.revision, i.idInspections as id, i.Buildings_idBuildings as location_id, b.name as location_name, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, b.root as building_id, d.barcode');
+		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, d.barcode');//i.Buildings_idBuildings as location_id,, b.root as building_id, b.name as location_name
 	   	$this->db->from('Inspections i');
-	   	$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings', 'left');
+
 	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
 	   	$this->db->join('Users u', 'u.idUsers = i.Inspector', 'left');
 	   	$this->db->join('Roles r', 'r.idRoles = u.role', 'left');
@@ -453,6 +463,25 @@ class Resources_model  extends CI_Model
 		$result = $this->db->get()->result_array();
 		
 		return $result;
+	}
+
+	function get_user_buildings_by_building_parent($parent_id, $user_parent=FALSE)
+	{
+		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
+
+		$this->db->select('b.*');
+		$this->db->from('UserBuildings ub');
+		$this->db->join('Buildings b', 'b.idBuildings = ub.Buildings_idBuildings', 'left');
+		$this->db->where('ub.Users_idUsers', $parent);
+		$this->db->where('b.parent', $parent_id);
+		$this->db->where('b.deleted', 0);
+		$this->db->order_by('b.buildingOrder', 'asc');
+		
+		$output = array();
+		foreach ($this->db->get()->result_array() as $bld)
+			$output[$bld['idBuildings']] = $bld;
+
+		return $output;
 	}
 }
 

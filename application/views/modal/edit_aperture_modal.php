@@ -16,13 +16,47 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="first_name" class="control-label col-xs-4">Select door location</label>
+							<label for="building" class="control-label col-xs-4">Select Building</label>
 							<div class="col-xs-8">
-								<div class="dropdown locationselect">
-									<button type="button" role="button" data-toggle="dropdown" class="btn btn-primary fullwidth" data-target="#"><?php echo empty($aperture['location_name']) ? 'Select location' : $aperture['location_name']; ?> <span class="caret"></span></button>
-									<?php echo make_buildings_dropdown($user_buildings); ?>
-									<input name="location" type="hidden" value="<?=$aperture['Buildings_idBuildings']?>" />
-								</div>
+								<select name="building" id="building" class="form-control fullwidth" data-live-search="true">
+									<option value="0">Choose Building</option>
+									<?php foreach ($building as $key => $val): ?>
+										<?php $select = ($key == $aperture['Building']) ? ' selected="selected"' : '';?>
+										<option<?=$select?> value="<?=$key?>"><?=$val?></option>
+									<?php endforeach; ?>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="floor" class="control-label col-xs-4">Select Floor</label>
+							<div class="col-xs-8">
+								<select name="floor" id="floor" class="form-control fullwidth" data-live-search="true">
+									<option value="0">Choose Floor</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="wing" class="control-label col-xs-4">Select Wing</label>
+							<div class="col-xs-8">
+								<select name="wing" id="wing" class="form-control fullwidth" data-live-search="true">
+									<option value="0">Choose Wing</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="area" class="control-label col-xs-4">Select Area</label>
+							<div class="col-xs-8">
+								<select name="area" id="area" class="form-control fullwidth" data-live-search="true">
+									<option value="0">Choose Area</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="level" class="control-label col-xs-4">Select Level</label>
+							<div class="col-xs-8">
+								<select name="level" id="level" class="form-control fullwidth" data-live-search="true">
+									<option value="0">Choose Level</option>
+								</select>
 							</div>
 						</div>
 						<div class="form-group">
@@ -82,11 +116,112 @@
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel changes</button>
 				</div>
 				<script type="text/javascript">
-					$(function () {
-						$('.locationselect ul li a').on('click', function(){
-							$('.locationselect button').html($(this).html());
-							$('.locationselect input').val($(this).data('id'));
-						});
+					$(document).ready(function(){
+						floor = $('#floor').html();
+						wing  = $('#wing').html();
+						area  = $('#area').html();
+						level = $('#level').html();
+						
+						<?php if ($aperture['Floor']): ?>
+							$.ajax({
+								url: '/user/ajax_get_building_childs/<?=$aperture['Building']?>/<?=$aperture['Floor']?>',
+								success: function(result)
+								{
+									$('#floor').html(floor+result);
+									
+									<?php if ($aperture['Wing']): ?>
+										$.ajax({
+											url: '/user/ajax_get_building_childs/<?=$aperture['Floor']?>/<?=$aperture['Wing']?>',
+											success: function(resul)
+											{
+												$('#wing').html(wing+resul);
+
+												<?php if ($aperture['Area']): ?>
+													$.ajax({
+														url: '/user/ajax_get_building_childs/<?=$aperture['Wing']?>/<?=$aperture['Area']?>',
+														success: function(result)
+														{
+															$('#area').html(area+result);
+
+															<?php if ($aperture['Level']): ?>
+																$.ajax({
+																	url: '/user/ajax_get_building_childs/' + $(this).val(),
+																	success: function(result){
+																		$('#level').html(level+result);
+																	}
+																})
+															<?php endif; ?>
+														}
+													})
+												<?php endif; ?>
+											}
+										})
+									<?php endif; ?>
+								}
+							})
+						<?php endif; ?>
+					});
+
+					$('#building').on('change', function(){
+						if($(this).val() != 0)
+						{
+							$('#wing').html(wing);
+							$('#area').html(area);
+							$('#level').html(level);
+							$.ajax({
+								url: '/user/ajax_get_building_childs/' + $(this).val(),
+								success: function(result){
+									console.log(result);
+									$('#floor').html(floor+result);
+								}
+							})
+
+						}
+					});
+
+					$('#floor').on('change', function(){
+						if($(this).val() != 0)
+						{
+							$('#area').html(area);
+							$('#level').html(level);
+							$.ajax({
+								url: '/user/ajax_get_building_childs/' + $(this).val(),
+								success: function(result){
+									console.log(result);
+									$('#wing').html(wing+result);
+								}
+							})
+
+						}
+					});
+
+					$('#wing').on('change', function(){
+						if($(this).val() != 0)
+						{
+							$('#level').html(level);
+							$.ajax({
+								url: '/user/ajax_get_building_childs/' + $(this).val(),
+								success: function(result){
+									console.log(result);
+									$('#area').html(area+result);
+								}
+							})
+
+						}
+					});
+
+					$('#area').on('change', function(){
+						if($(this).val() != 0)
+						{
+							$.ajax({
+								url: '/user/ajax_get_building_childs/' + $(this).val(),
+								success: function(result){
+									console.log(result);
+									$('#level').html(level+result);
+								}
+							})
+
+						}
 					});
 				</script>
 			</form>
