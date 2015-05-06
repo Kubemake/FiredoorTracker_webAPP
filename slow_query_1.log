@@ -114,3 +114,106 @@ FROM (`ConditionalChoices`)
 WHERE `wallRates` =  1
 
 -----------------------------
+5.05.2015 14:43:42 : 5.2911
+SELECT *
+FROM (`FormFields`)
+WHERE `parent` =  '38'
+AND `deleted` =  0
+ORDER BY `questionOrder` asc
+
+-----------------------------
+5.05.2015 14:45:35 : 5.7664
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '15', `name` = 'MissingSilencers', `label` = 'Missing Silencers', `questionId` = 10, `parent` = 10, `questionOrder` = 3, `level` = 4, `deleted` = '0' WHERE `idFormFields` =  '14'
+
+-----------------------------
+5.05.2015 14:45:35 : 1.5265
+UPDATE `FormFields` SET `type` = 'question', `nextQuestionId` = '0', `name` = 'SelecttheCurrentOpeningClosingCondition', `label` = 'Select the Current Opening / Closing Condition', `questionId` = 0, `parent` = 282, `questionOrder` = 0, `level` = 3, `deleted` = '0' WHERE `idFormFields` =  '283'
+
+-----------------------------
+5.05.2015 14:46:04 : 1.9901
+SHOW COLUMNS FROM FormFields LIKE 'type'
+
+-----------------------------
+5.05.2015 14:46:24 : 1.0300
+INSERT INTO `FormFields` (`name`, `label`, `parent`, `type`) VALUES ('Sign8', 'Sign 8', '78', 'answer')
+
+-----------------------------
+5.05.2015 14:46:24 : 1.0815
+SELECT *
+FROM (`FormFields`)
+WHERE `parent` =  0
+AND `deleted` =  0
+ORDER BY `questionOrder` asc
+
+-----------------------------
+5.05.2015 14:48:07 : 2.2638
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '96', `name` = 'NoIssue-240', `label` = 'No Issue', `questionId` = 241, `parent` = 241, `questionOrder` = 0, `level` = 4, `deleted` = '0' WHERE `idFormFields` =  '242'
+
+-----------------------------
+5.05.2015 14:48:07 : 2.9825
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '96', `name` = 'BoltMissing', `label` = 'Bolt Missing', `questionId` = 241, `parent` = 241, `questionOrder` = 1, `level` = 4, `deleted` = '0' WHERE `idFormFields` =  '243'
+
+-----------------------------
+5.05.2015 14:48:35 : 2.0798
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '73', `name` = 'Signage', `label` = 'Signage', `questionId` = 33, `parent` = 33, `questionOrder` = 4, `level` = 2, `deleted` = '0' WHERE `idFormFields` =  '72'
+
+-----------------------------
+5.05.2015 14:48:35 : 3.7770
+UPDATE `FormFields` SET `type` = 'question', `nextQuestionId` = '0', `name` = 'EnterinDimensionsofSigns', `label` = 'Enter in Dimensions of Signs', `questionId` = 0, `parent` = 77, `questionOrder` = 0, `level` = 5, `deleted` = '0' WHERE `idFormFields` =  '78'
+
+-----------------------------
+5.05.2015 14:48:35 : 6.1367
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '33', `name` = 'Sign1', `label` = 'Sign 1', `questionId` = 78, `parent` = 78, `questionOrder` = 0, `level` = 6, `deleted` = '0' WHERE `idFormFields` =  '79'
+
+-----------------------------
+5.05.2015 14:48:35 : 1.1373
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '96', `name` = 'BrassBronze', `label` = 'Brass / Bronze', `questionId` = 110, `parent` = 110, `questionOrder` = 2, `level` = 8, `deleted` = '0' WHERE `idFormFields` =  '113'
+
+-----------------------------
+5.05.2015 14:48:35 : 2.5933
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '96', `name` = 'NotFire-Rated-161', `label` = 'Not Fire-Rated', `questionId` = 162, `parent` = 162, `questionOrder` = 4, `level` = 4, `deleted` = '0' WHERE `idFormFields` =  '168'
+
+-----------------------------
+5.05.2015 18:08:50 : 1.2198
+SELECT *
+FROM (`ConditionalChoices`)
+WHERE `wallRates` =  1
+
+-----------------------------
+5.05.2015 20:08:16 : 2.3633
+SELECT `i`.`revision`, `i`.`idInspections` as id, `i`.`idAperture` as aperture_id, `d`.`name` as aperture_name, `i`.`CreateDate`, `i`.`StartDate`, `i`.`Completion`, `i`.`InspectionStatus`, `i`.`Creator`, `u2`.`firstName` as CreatorfirstName, `u2`.`lastName` as CreatorlastName, `i`.`Inspector`, `u`.`firstName`, `u`.`lastName`, `d`.`barcode`, `d`.`Building`, `d`.`Floor`, `d`.`Wing`, `d`.`Area`, `d`.`Level`
+FROM (`Inspections` i)
+LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
+LEFT JOIN `Users` u ON `u`.`idUsers` = `i`.`Inspector`
+LEFT JOIN `Users` u2 ON `u2`.`idUsers` = `i`.`Creator`
+WHERE `i`.`deleted` =  0
+AND `i`.`UserId` =  '2'
+
+-----------------------------
+5.05.2015 20:08:16 : 4.7967
+SELECT `b`.*
+FROM (`UserBuildings` ub)
+JOIN `Buildings` b ON `b`.`idBuildings` = `ub`.`Buildings_idBuildings`
+WHERE `ub`.`Users_idUsers` =  '2'
+AND `b`.`deleted` =  0
+ORDER BY `b`.`buildingOrder` asc
+
+-----------------------------
+5.05.2015 20:08:16 : 3.5307
+SELECT `rr`.`value`
+FROM (`Rules` r)
+JOIN `RolesRules` rr ON `rr`.`idRules` = `r`.`idRules`
+WHERE `rr`.`idRoles` =  '2'
+AND `rr`.`UserId` =  '2'
+AND `r`.`name` =  'Allow modify review'
+
+-----------------------------
+5.05.2015 20:08:16 : 3.2831
+SELECT `rr`.`value`
+FROM (`Rules` r)
+JOIN `RolesRules` rr ON `rr`.`idRules` = `r`.`idRules`
+WHERE `rr`.`idRoles` =  '2'
+AND `rr`.`UserId` =  '2'
+AND `r`.`name` =  'Allow view buildings tree tab'
+
+-----------------------------

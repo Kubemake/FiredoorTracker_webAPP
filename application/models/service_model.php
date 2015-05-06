@@ -54,37 +54,11 @@ class Service_model  extends CI_Model
 
 	function get_aperture_info_and_selected($aperture_id)
 	{
-		$doorval = $this->db->select('wall_Rating, smoke_Rating, material, rating')->where('idDoors', $aperture_id)->get('Doors')->row_array();
-		if (!empty($doorval))
-		{
-			foreach ($doorval as $key => $value)
-			{
-				$fields[$key]['selected'] = $value;
-			}
-		}
+		$this->db->select('Building, Floor, Wing, Area, Level, IntExt, wall_Rating, smoke_Rating, material, rating, width, height, door_type_1, frame_type, vision_Light_Present, vision_Light, singage, door_type_2, auto_Operator, doorLabel_Type, doorLabel_Time, doorLabel_Testing_Lab, doorLabel_Manufacturer, doorLabel_serial, doorLabel_Min_Latch, doorLabel_Temp_Rise, frameLabel_Type, frameLabel_Time, frameLabel_Testing_Lab, frameLabel_Manufacturer, frameLabel_serial, frameLabel_Min_Latch, frameLabel_Temp_Rise, frameLabel_Number_Doors'); 
+		$this->db->where('idDoors', $aperture_id);
+		$doorval = $this->db->get('Doors')->row_array();
 		
-		$wall_rating 	= $this->config->item('wall_rates');
-		$smoke_rating 	= $this->config->item('rates_types');
-		$material 		= $this->config->item('door_matherial');
-		$rating 		= $this->config->item('door_rating');
-		$fields['wall_Rating']['type'] = 'enum';
-		$fields['wall_Rating']['values'] = $wall_rating;
-		$fields['wall_Rating']['selected'] = @$wall_rating[$fields['wall_Rating']['selected']];
-		$fields['wall_Rating']['name'] = 'Wall Rating';
-		$fields['smoke_Rating']['type'] = 'enum';
-		$fields['smoke_Rating']['values'] = $smoke_rating;
-		$fields['smoke_Rating']['selected'] = @$smoke_rating[$fields['smoke_Rating']['selected']];
-		$fields['smoke_Rating']['name'] = 'Smoke Rating';
-		$fields['material']['type'] = 'enum';
-		$fields['material']['values'] = $material;
-		$fields['material']['selected'] = @$material[$fields['material']['selected']];
-		$fields['material']['name'] = 'Material';
-		$fields['rating']['type'] = 'enum';
-		$fields['rating']['values'] = $rating;
-		$fields['rating']['selected'] = @$rating[$fields['rating']['selected']];
-		$fields['rating']['name'] = 'Rating';
-
-		return $fields;
+		return $doorval;
 	}
 
 	function update_aperture_overview_info($inspection_id, $updateData, $user_id)
@@ -100,14 +74,6 @@ class Service_model  extends CI_Model
 
 	function get_aperture_issues_and_selected($input_data)
 	{
-/*
-		$input_data['inspection_id'] = 52;
-		$input_data['wall_Rating'] = 2;
-		$input_data['smoke_Rating'] = 1;
-		$input_data['material'] = 3;
-		$input_data['rating'] = 4;
-
-*/
 		$aperture_id = $this->db->where('idInspections', $input_data['inspection_id'])->get('Inspections')->row_array();
 		$aperture_id = $aperture_id['idAperture'];
 		
@@ -122,9 +88,12 @@ class Service_model  extends CI_Model
 
 		$issues = array(); $tabs = array();
 		
+		$addbtnQ = 0;
+
 		foreach ($results as $result) {
 			$temp = $result;
-			unset($temp['deleted'], $temp['level'], $temp['parent'], $temp['path']);//, $temp['idFiles']
+			unset($temp['deleted'], $temp['level'], $temp['parent'], $temp['path']);
+
 			if ($result['type'] == 'answer')
 			{
 				if ($result['parent'] == 0)
@@ -136,7 +105,6 @@ class Service_model  extends CI_Model
 
 					if (!empty($result['path']))
 						$tabs[$result['idFormFields']]['images'][] = $result['path'];
-						// $tabs[$result['idFormFields']]['images'][] = array('file_id'	=> $result['idFiles'],'url'		=> $result['path']);
 				}
 				else
 				{
@@ -147,12 +115,14 @@ class Service_model  extends CI_Model
 
 					if (!empty($result['path']))
 						$issues[$result['questionId']]['images'][] = $result['path'];
-						// $issues[$result['questionId']]['answers'][$result['idFormFields']]['images'][] = array('file_id'	=> $result['idFiles'],'url'		=> $result['path']);
-
 				}
 			}
 			else
 			{
+				//special part for sings
+				if ($result['name'] == 'EnterinDimensionsofSigns')
+					$addbtnQ = $result['idFormFields'];
+
 				$issues[$result['idFormFields']] = $temp;
 
 				if (!isset($issues[$result['idFormFields']]['images']))
@@ -160,11 +130,11 @@ class Service_model  extends CI_Model
 				
 				if (!empty($result['path']))
 					$issues[$result['idFormFields']]['images'][] = $result['path'];
-					// $issues[$result['idFormFields']]['images'][] = array('file_id'	=> $result['idFiles'],'url'		=> $result['path']);
 			}
 		}
 
 		return array(
+			'addbtnq'	=> $addbtnQ,
 			'tabs' 		=> $tabs,
 			'issues' 	=> $issues
 		);
@@ -180,10 +150,27 @@ class Service_model  extends CI_Model
 
 		$quest = $this->db->select('questionId')->where('idFormFields', $idField)->get('FormFields')->row_array();
 
-		$this->db->select('ff.idFormFields, cc.value as status');
+		$this->db->select('ff.*, cc.value as status, dff.value as selected');
 		$this->db->from('FormFields ff');
+		$this->db->join('DoorsFormFields dff', 'dff.FormFields_idFormFields = ff.idFormFields AND dff.Inspections_idInspections = ' . $inspection, 'left');
 		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $apert['wall_Rating'] . ' AND cc.ratesTypes = ' . $apert['smoke_Rating'] . ' AND doorRating = ' . $apert['rating'] . ' AND doorMatherial = ' . $apert['material'], 'left');
 		$this->db->where('ff.questionId', $quest['questionId']);
+		return $this->db->get()->result_array();
+	}
+
+function get_question_answers_by_question_id_and_inspection_id($quest, $inspection)
+	{
+		$this->db->select('d.*');
+		$this->db->from('Inspections i');
+		$this->db->join('Doors d', 'i.idAperture = d.idDoors');
+		$this->db->where('idInspections', $inspection);
+		$apert = $this->db->get()->row_array();
+
+		$this->db->select('ff.*, cc.value as status, dff.value as selected');
+		$this->db->from('FormFields ff');
+		$this->db->join('DoorsFormFields dff', 'dff.FormFields_idFormFields = ff.idFormFields AND dff.Inspections_idInspections = ' . $inspection, 'left');
+		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $apert['wall_Rating'] . ' AND cc.ratesTypes = ' . $apert['smoke_Rating'] . ' AND doorRating = ' . $apert['rating'] . ' AND doorMatherial = ' . $apert['material'], 'left');
+		$this->db->where('ff.questionId', $quest);
 		return $this->db->get()->result_array();
 	}
 
@@ -301,6 +288,14 @@ class Service_model  extends CI_Model
 		$this->db->where('idInspections', $inspection_id);
 
 		return $this->db->get('Inspections')->row_array();
+	}
+
+	function get_enum_values($table_name, $field_name)
+	{
+		$type = $this->db->query("SHOW COLUMNS FROM {$table_name} LIKE '{$field_name}'")->row( 0 )->Type;
+		preg_match("/^enum\(\'(.*)\'\)$/", $type, $matches);
+		$enum = explode("','", $matches[1]);
+		return $enum;
 	}
 
 }
