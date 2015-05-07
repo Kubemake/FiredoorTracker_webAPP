@@ -54,7 +54,7 @@ class Service_model  extends CI_Model
 
 	function get_aperture_info_and_selected($aperture_id)
 	{
-		$this->db->select('Building, Floor, Wing, Area, Level, IntExt, wall_Rating, smoke_Rating, material, rating, width, height, door_type_1, frame_type, vision_Light_Present, vision_Light, singage, door_type_2, auto_Operator, doorLabel_Type, doorLabel_Time, doorLabel_Testing_Lab, doorLabel_Manufacturer, doorLabel_serial, doorLabel_Min_Latch, doorLabel_Temp_Rise, frameLabel_Type, frameLabel_Time, frameLabel_Testing_Lab, frameLabel_Manufacturer, frameLabel_serial, frameLabel_Min_Latch, frameLabel_Temp_Rise, frameLabel_Number_Doors'); 
+		$this->db->select('Building, Floor, Wing, Area, Level, IntExt, wall_Rating, smoke_Rating, material, rating, width, height, door_type, vision_Light_Present, vision_Light, singage, auto_Operator, doorLabel_Type, doorLabel_Time, doorLabel_Testing_Lab, doorLabel_Manufacturer, doorLabel_serial, doorLabel_Min_Latch, doorLabel_Temp_Rise, frameLabel_Type, frameLabel_Time, frameLabel_Testing_Lab, frameLabel_Manufacturer, frameLabel_serial, frameLabel_Min_Latch, frameLabel_Temp_Rise, frameLabel_Number_Doors'); 
 		$this->db->where('idDoors', $aperture_id);
 		$doorval = $this->db->get('Doors')->row_array();
 		

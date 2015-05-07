@@ -156,7 +156,7 @@ class Dashboard extends CI_Controller {
 			{
 				$loca = array();
 
-				$loca[] = $userlocation[$inspection['Building']]['name'];
+				$loca[] = @$userlocation[$inspection['Building']]['name'];
 				
 				if ($inspection['Floor'] > 0 && isset($userlocation[$inspection['Floor']]['name']))
 					$loca[] = $userlocation[$inspection['Floor']]['name'];

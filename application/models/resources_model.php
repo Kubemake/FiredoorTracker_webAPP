@@ -87,10 +87,6 @@ class Resources_model  extends CI_Model
 
         foreach ($doors as &$door)
         {
-        	// echo '<pre>';
-        	// print_r($door);
-        	// echo '<pre>';
-        	// print_r($buildings[$door['Floor']]);die();
         	$door['Building'] 	= ($door['Building']==0) ? '' : @$buildings[$door['Building']];
         	$door['Floor'] 		= ($door['Floor']==0) ? '' : @$buildings[$door['Floor']];
         	$door['Wing'] 		= ($door['Wing']==0) ? '' : @$buildings[$door['Wing']];
@@ -117,11 +113,16 @@ class Resources_model  extends CI_Model
 		return $this->db->get()->row_array();
 	}
 
-	function get_aperture_info_by_barcode($barcode)
+	function get_aperture_info_by_barcode($barcode, $user_parent = FALSE)
 	{
+		$parent =  $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
+
 		$this->db->where('barcode', $barcode);
 		$this->db->where('deleted', 0);
-		return $this->db->get('Doors')->row_array();
+		$this->db->where('UserId', $parent);
+		$result = $this->db->get('Doors')->row_array();
+
+		return $result;
 	}
 
 	function update_aperture_data($aperture_id, $upddata)
@@ -258,7 +259,9 @@ class Resources_model  extends CI_Model
 		$this->db->where('ub.Users_idUsers', $parent);
 		$this->db->where('b.deleted', 0);
 		$this->db->order_by('b.buildingOrder', 'asc');
-		return $this->db->get()->result_array();
+		$result = $this->db->get()->result_array();
+
+		return $result;
 	}
 
 	function get_user_buildings_root($user_parent = FALSE)
@@ -313,7 +316,7 @@ class Resources_model  extends CI_Model
 
 	function get_user_inspections()
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, d.barcode');
+		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, d.barcode');
 		$this->db->from('Inspections i');
 
 		$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
@@ -325,7 +328,7 @@ class Resources_model  extends CI_Model
 
 	function get_user_inspections_by_parent($parent_id)
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, d.name as aperture_name, i.CreateDate, i.StartDate, i.Completion, i.InspectionStatus, i.Creator, u2.firstName as CreatorfirstName, u2.lastName as CreatorlastName, i.Inspector, u.firstName, u.lastName, d.barcode, d.Building, d.Floor, d.Wing, d.Area, d.Level');
+		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, i.CreateDate, i.StartDate, i.Completion, i.InspectionStatus, i.Creator, u2.firstName as CreatorfirstName, u2.lastName as CreatorlastName, i.Inspector, u.firstName, u.lastName, d.barcode, d.Building, d.Floor, d.Wing, d.Area, d.Level');
 	   	$this->db->from('Inspections i');
 
 	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
@@ -334,13 +337,16 @@ class Resources_model  extends CI_Model
 
 	   	$this->db->where('i.deleted', 0);
 	   	$this->db->where('i.UserId', $parent_id);
+	   	$this->db->order_by('i.CreateDate', 'desc');
 
-	   	return $this->db->get()->result_array();
+	   	$result = $this->db->get()->result_array();
+
+	   	return $result;
 	}
 
 	function get_user_inspections_by_user_id($user_id)
 	{
-		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, d.barcode');
+		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, d.barcode');
 	   	$this->db->from('Inspections i');
 
 	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
@@ -356,7 +362,7 @@ class Resources_model  extends CI_Model
 		$curent_role = $this->db->where('idRoles', $user_role)->get('Roles')->row_array();
 		$roleOrder = $curent_role['rolesOrder'];
 
-		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, d.name as aperture_name,i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, d.barcode');//i.Buildings_idBuildings as location_id,, b.root as building_id, b.name as location_name
+		$this->db->select('i.revision, i.idInspections as id, i.idAperture as aperture_id, i.StartDate, i.Completion, i.InspectionStatus, i.Inspector, u.firstName, u.lastName, d.barcode');//i.Buildings_idBuildings as location_id,, b.root as building_id, b.name as location_name
 	   	$this->db->from('Inspections i');
 
 	   	$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
@@ -410,11 +416,15 @@ class Resources_model  extends CI_Model
 		return $this->db->where('idInspections', $inspection_id)->update('Inspections', array('InspectionStatus' => $status));
 	}
 
-	function get_client_inspection_by_aperture_id($aperture_id)
+	function get_client_inspection_by_aperture_id($aperture_id, $user_parent = FALSE)
 	{
+
+		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
+
 		$this->db->where('idAperture', $aperture_id);
+		$this->db->where('UserId', $parent);
 		$this->db->order_by('revision','desc');
-		return $this->db->get('Inspections')->result_array();
+		return $this->db->get('Inspections')->row_array();
 	}
 
 	function get_aperture_issues_with_status_and_selected($aperture_id, $inspection_id)
