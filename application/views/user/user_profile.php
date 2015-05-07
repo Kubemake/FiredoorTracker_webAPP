@@ -6,7 +6,7 @@
 				<div class="col-md-6 col-md-push-3">
 					<?php if ($this->session->userdata('user_role') == 1): ?>
 					<div class="row">
-						<div class="col-md-6">
+						<div class="col-md-6 col-lg-12">
 							<div id="drop-area-div" class="text-center"<?php if (strlen($profile['logoFilePath']) > 0) echo ' style="display:none;"'; ?>> <?//container for d&d upload?>
 								<div class="line-1">Upload your company logo file here</div>
 								<div class="line-2">drag and drop files to upload</div>

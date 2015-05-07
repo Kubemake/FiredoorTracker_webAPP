@@ -287,7 +287,7 @@ div.dataTables_filter {
 }
 @media all and (min-width:485px) {
 	#drop-area-div {padding-top: 6em;}
-	#drop-area-div .line-1 {font-size: 30px;}
+	#drop-area-div .line-1 {font-size: 24px;}
 }
 #drop-area-div .line-1 {
 	font-family: Impact;
