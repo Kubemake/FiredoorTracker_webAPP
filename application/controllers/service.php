@@ -687,19 +687,107 @@ class Service extends CI_Controller {
 
 		$doorval = $this->service_model->get_aperture_info_and_selected($data['aperture_id']);
 		
-		foreach ($this->resources_model->get_user_buildings($user['parent']) as $value)
-			$userbuildings[$value['idBuildings']] = $value['name'];
-		
+		//get buildings
+		foreach ($this->resources_model->get_user_buildings_root($user['parent']) as $value)
+		{
+			$buildings[$value['idBuildings']] = $value['name'];
+			$buildings_values[] = $value['name'];
+		}
 
-		// echo '<pre>';
-		// print_r($userbuildings);die();
+		$building = (!empty($doorval['Building']) && $doorval['Building'] != 0 && isset($buildings[$doorval['Building']])) ? $buildings[$doorval['Building']] : $buildings_values[0];
+		
+		if (isset($data['olddata']['info']['Location']) && isset($data['newdata']['info']['Location']))
+		{
+			$newdata = $data['newdata']['info']['Location'];
+			$olddata = $data['olddata']['info']['Location'];
+
+			$building = $newdata[0]['selected'];
+		}
+		$locatio[] = array('name' => 'Building', 'label' => 'Building', 'selected' => $building, 'type' => 'enum', 'values' => $buildings_values, 'forcerefresh' => 1);
+
+		//get floors
+		$buildings = array_flip($buildings);
+
+		foreach ($this->resources_model->get_user_buildings_by_building_parent($buildings[$building], $user['parent']) as $value)
+		{
+			$floors[$value['idBuildings']] = $value['name'];
+			$floors_values[] = $value['name'];
+		}
+
+		if (isset($floors_values))
+		{
+			if (isset($olddata) && isset($newdata))
+				$floor = ($olddata[0]['selected'] == $newdata[0]['selected']) ? $newdata[1]['selected'] : $floors_values[0];
+			else
+				$floor = (!empty($doorval['Floor']) && $doorval['Floor'] != 0 && isset($floors[$doorval['Floor']])) ? $floors[$doorval['Floor']] : $floors_values[0];
+			
+			$locatio[] = array('name' => 'Floor', 'label' => 'Floor', 'selected' => $floor, 'type' => 'enum', 'values' => $floors_values, 'forcerefresh' => 1);
+
+			//get wing
+			$floors = array_flip($floors);
+
+			foreach ($this->resources_model->get_user_buildings_by_building_parent($floors[$floor], $user['parent']) as $value)
+			{
+				$wings[$value['idBuildings']] = $value['name'];
+				$wings_values[] = $value['name'];
+			}
+
+			if (isset($wings_values))
+			{
+				if (isset($olddata) && isset($newdata))
+					$wing = ($olddata[1]['selected'] == $newdata[1]['selected']) ? $newdata[2]['selected'] : $wings_values[0];
+				else
+					$wing = (!empty($doorval['Wing']) && $doorval['Wing'] != 0 && isset($wings[$doorval['Wing']])) ? $wings[$doorval['Wing']] : $wings_values[0];
+				
+				$locatio[] = array('name' => 'Wing', 'label' => 'Wing', 'selected' => $wing, 'type' => 'enum', 'values' => $wings_values, 'forcerefresh' => 1);
+
+				//get area
+				$wings = array_flip($wings);
+
+				foreach ($this->resources_model->get_user_buildings_by_building_parent($wings[$wing], $user['parent']) as $value)
+				{
+					$areas[$value['idBuildings']] = $value['name'];
+					$areas_values[] = $value['name'];
+				}
+
+				if (isset($areas_values))
+				{
+					if (isset($olddata) && isset($newdata))
+						$area = ($olddata[2]['selected'] == $newdata[2]['selected']) ? $newdata[3]['selected'] : $areas_values[0];
+					else
+						$area = (!empty($doorval['Area']) && $doorval['Area'] != 0 && isset($areas[$doorval['Area']])) ? $areas[$doorval['Area']] : $areas_values[0];
+					
+					$locatio[] = array('name' => 'Area', 'label' => 'Area', 'selected' => $area, 'type' => 'enum', 'values' => $areas_values, 'forcerefresh' => 1);
+
+					//get level
+					$areas = array_flip($areas);
+
+					foreach ($this->resources_model->get_user_buildings_by_building_parent($areas[$area], $user['parent']) as $value)
+					{
+						$levels[$value['idBuildings']] = $value['name'];
+						$levels_values[] = $value['name'];
+					}
+
+					if (isset($levels_values))
+					{
+						if (isset($olddata) && isset($newdata))
+							$level = ($olddata[3]['selected'] == $newdata[3]['selected']) ? $newdata[4]['selected'] : $levels_values[0];
+						else
+							$level = (!empty($doorval['Level']) && $doorval['Level'] != 0 && isset($levels[$doorval['Level']])) ? $levels[$doorval['Level']] : $levels_values[0];
+						
+						$locatio[] = array('name' => 'Level', 'label' => 'Level', 'selected' => $level, 'type' => 'enum', 'values' => $levels_values, 'forcerefresh' => 1);
+
+						
+					}
+					
+				}
+
+			}
+		}
+		
 		$IntExt = $this->service_model->get_enum_values('Doors', 'IntExt');
-		$locatio[] = array('name'  	=> 'Building',  'label' 	=> 'Building',				 'selected' => (!empty($doorval['Building']) && $doorval['Building'] != 0) ? $userbuildings[$doorval['Building']] : '', 'type' => 'string', 'forcerefresh' => 1);
-		$locatio[] = array('name'  	=> 'Floor',     'label' 	=> 'Floor',   				 'selected' => (!empty($doorval['Floor']) && $doorval['Floor'] != 0) ? $userbuildings[$doorval['Floor']] : '',        	'type' => 'string', 'forcerefresh' => 1);
-		$locatio[] = array('name'  	=> 'Wing',      'label' 	=> 'Wing',    				 'selected' => (!empty($doorval['Wing']) && $doorval['Wing'] != 0) ? $userbuildings[$doorval['Wing']] : '',         	'type' => 'string', 'forcerefresh' => 1);
-		$locatio[] = array('name'  	=> 'Area',      'label' 	=> 'Area',    				 'selected' => (!empty($doorval['Area']) && $doorval['Area'] != 0) ? $userbuildings[$doorval['Area']] : '',         	'type' => 'string', 'forcerefresh' => 1);
-		$locatio[] = array('name'  	=> 'Level',     'label' 	=> 'Level',   				 'selected' => (!empty($doorval['Level']) && $doorval['Level'] != 0) ? $userbuildings[$doorval['Level']] : '',        	'type' => 'string', 'forcerefresh' => 1);
 		$locatio[] = array('name'  	=> 'IntExt',    'label' 	=> 'Interior / Exterior?',   'selected' => (!empty($doorval['IntExt']) && $doorval['IntExt'] != 0) ? $doorval['IntExt'] : $IntExt[0],  				'type' => 'enum', 'values' => $IntExt, 'forcerefresh' => 0);
+
 		$userData['info']['Location'] = $locatio;
 
 		foreach ($this->config->item('wall_rates') as $value)
@@ -765,8 +853,8 @@ class Service extends CI_Controller {
 
 		$userData['status'] = 'ok';
 
-		echo '<pre>';
-		print_r($userData);die();	
+		// echo '<pre>';
+		// print_r($userData);die();	
 		$this->_show_output($userData);
 	}
 
