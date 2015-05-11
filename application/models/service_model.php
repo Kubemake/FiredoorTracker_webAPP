@@ -122,6 +122,12 @@ class Service_model  extends CI_Model
 				//special part for sings
 				if ($result['name'] == 'EnterinDimensionsofSigns')
 					$addbtnQ = $result['idFormFields'];
+				//special part for frame holes
+				if ($result['name'] == 'SelecttheQuantityofHoles')
+					$H1addbtnQ = $result['idFormFields'];
+				//special part for door holes
+				if ($result['name'] == 'SelecttheQuantityofHoles-48')
+					$H2addbtnQ = $result['idFormFields'];
 
 				$issues[$result['idFormFields']] = $temp;
 
@@ -135,6 +141,8 @@ class Service_model  extends CI_Model
 
 		return array(
 			'addbtnq'	=> $addbtnQ,
+			'h1addbtnq'	=> $H1addbtnQ,
+			'h2addbtnq'	=> $H2addbtnQ,
 			'tabs' 		=> $tabs,
 			'issues' 	=> $issues
 		);
