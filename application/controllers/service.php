@@ -664,7 +664,7 @@ class Service extends CI_Controller {
 	}
 
 	/*
-	 * Get aperture overview info
+	 * Get aperture imap_fetch_overview(imap_stream, sequence)ew info
 	 *
 	 * Input data:
 	 * token    	=> auth id from login
@@ -976,8 +976,8 @@ class Service extends CI_Controller {
 
 		$userData['status'] = 'ok';
 
-		// echo '<pre>';
-		// print_r($userData);die();
+		echo '<pre>';
+		print_r($userData);die();
 		$this->_show_output($userData);
 	}
 
