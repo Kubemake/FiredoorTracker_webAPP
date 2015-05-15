@@ -21,6 +21,7 @@
 				<div class="modal-footer">
 					<input type="hidden" name="form_type" value="add_user_building">
 					<input type="hidden" name="parent" value="<?=$parent?>" />
+					<input type="hidden" name="level" value="<?=$level?>" />
 					<button type="submit" class="btn btn-primary">Add element</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel changes</button>
 				</div>

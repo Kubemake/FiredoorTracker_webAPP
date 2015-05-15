@@ -20,6 +20,7 @@ class Ajax extends CI_Controller {
 			
 			case 'add_user_building_modal':
 				$params['parent'] 				= $this->input->post('parent');
+				$params['level'] 				= $this->input->post('level');
 			break;
 			
 			case 'edit_info_modal':

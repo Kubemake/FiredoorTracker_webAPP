@@ -41,7 +41,8 @@
 					type: 'POST',
 					data: {buildings: output},
 					success: function(msg){
-						console.log(msg);
+						window.location.reload(true);
+						// console.log(msg);
 					}
 				})
 			};
@@ -63,9 +64,9 @@
 	</script>
 
 	<script type="text/javascript">
-		function button_add_element_action(parent)
+		function button_add_element_action(parent, level)
 		{
-			$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page:'add_user_building_modal',parent:parent},function(){$('#AddUserBuildingModal').modal({show: true})});
+			$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page:'add_user_building_modal',parent:parent,level:level},function(){$('#AddUserBuildingModal').modal({show: true})});
 			
 		}
 

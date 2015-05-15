@@ -54,7 +54,7 @@ class Service_model  extends CI_Model
 
 	function get_aperture_info_and_selected($aperture_id)
 	{
-		$this->db->select('Building, Floor, Wing, Area, Level, IntExt, wall_Rating, smoke_Rating, material, rating, width, height, door_type, vision_Light_Present, vision_Light, singage, auto_Operator, doorLabel_Type, doorLabel_Time, doorLabel_Testing_Lab, doorLabel_Manufacturer, doorLabel_serial, doorLabel_Min_Latch, doorLabel_Temp_Rise, frameLabel_Type, frameLabel_Time, frameLabel_Testing_Lab, frameLabel_Manufacturer, frameLabel_serial, frameLabel_Min_Latch, frameLabel_Temp_Rise, frameLabel_Number_Doors'); 
+		$this->db->select('Building, Floor, Wing, Area, Level, IntExt, wall_Rating, smoke_Rating, material, rating, width, height, door_type, vision_Light_Present, vision_Light, singage, auto_Operator, doorLabel_Type, doorLabel_Rating, doorLabel_Testing_Lab, doorLabel_Manufacturer, doorLabel_serial, doorLabel_Min_Latch, doorLabel_Temp_Rise, frameLabel_Type, frameLabel_Rating, frameLabel_Testing_Lab, frameLabel_Manufacturer, frameLabel_serial, number_Doors'); 
 		$this->db->where('idDoors', $aperture_id);
 		$doorval = $this->db->get('Doors')->row_array();
 		
@@ -96,8 +96,24 @@ class Service_model  extends CI_Model
 
 			if ($result['type'] == 'answer')
 			{
+				//special part for signage
+				if ($result['name'] == 'Signage')
+					$signage = $result;
+				
+				//special part for Device is Not Labeld as Fire Rated
+				if ($result['name'] == 'AllEndCapsCoversPresentandisSecurelyAttached')
+					$hide_if_wr_more_3[] = $result;
+
+				//special part for Device is Not Labeld as Fire Rated
+				if ($result['name'] == 'MissingEndCapsCovers')
+					$hide_if_wr_more_3[] = $result;
+
 				if ($result['parent'] == 0)
 				{
+					//special part for Glazing Review Tab
+					if ($result['name'] == 'GlazingReview')
+						$glzng = $result;
+
 					$tabs[$result['idFormFields']] = $temp;
 
 					if (!isset($tabs[$result['idFormFields']]['images']))
@@ -128,7 +144,7 @@ class Service_model  extends CI_Model
 				//special part for door holes
 				if ($result['name'] == 'SelecttheQuantityofHoles-48')
 					$H2addbtnQ = $result['idFormFields'];
-
+				
 				$issues[$result['idFormFields']] = $temp;
 
 				if (!isset($issues[$result['idFormFields']]['images']))
@@ -140,11 +156,14 @@ class Service_model  extends CI_Model
 		}
 
 		return array(
-			'addbtnq'	=> $addbtnQ,
-			'h1addbtnq'	=> $H1addbtnQ,
-			'h2addbtnq'	=> $H2addbtnQ,
-			'tabs' 		=> $tabs,
-			'issues' 	=> $issues
+			'addbtnq'			=> $addbtnQ,
+			'h1addbtnq'			=> $H1addbtnQ,
+			'h2addbtnq'			=> $H2addbtnQ,
+			'signage'			=> $signage,
+			'glzng'				=> $glzng,
+			'hide_if_wr_more_3'	=> $hide_if_wr_more_3,
+			'tabs' 				=> $tabs,
+			'issues' 			=> $issues
 		);
 	}
 
