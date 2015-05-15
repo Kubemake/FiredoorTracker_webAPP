@@ -57,7 +57,7 @@ $config['four_params_conditions'] = array(
 	// 'Smoke Rated Door' => array(
 	'Yes' => array(
 		'Wood (Particle Board)'	=> array('20 Minute (Smoke)' => 1),
-		'Wood (Mineral Core)'	=> array('45 Minute (Smoke)' => 1, '60 Minute (Smoke)' => 1, '90 Minute (Smoke)' => 1),
+		'Wood (Mineral Core)'	=> array(						   '45 Minute (Smoke)' => 1, '60 Minute (Smoke)' => 1, '90 Minute (Smoke)' => 1),
 		'Hollow Metal'			=> array('20 Minute (Smoke)' => 1, '45 Minute (Smoke)' => 1, '60 Minute (Smoke)' => 1, '90 Minute (Smoke)' => 1, '180 Minute (Smoke)' => 1),
 		'Glass'					=> array('20 Minute (Smoke)' => 1, '45 Minute (Smoke)' => 1, '60 Minute (Smoke)' => 1, '90 Minute (Smoke)' => 1),
 		'Lead Lined'			=> array('20 Minute (Smoke)' => 1, '45 Minute (Smoke)' => 1)
@@ -65,7 +65,7 @@ $config['four_params_conditions'] = array(
 	// 'Fire Rated Door'  => array(
 	'No'  => array(
 		'Wood (Particle Board)'	=> array('20 Minute' => 1),
-		'Wood (Mineral Core)'	=> array('45 Minute' => 1, '60 Minute' => 1, '90 Minute' => 1),
+		'Wood (Mineral Core)'	=> array(				   '45 Minute' => 1, '60 Minute' => 1, '90 Minute' => 1),
 		'Hollow Metal'			=> array('20 Minute' => 1, '45 Minute' => 1, '60 Minute' => 1, '90 Minute' => 1, '180 Minute' => 1),
 		'Glass'					=> array('20 Minute' => 1, '45 Minute' => 1, '60 Minute' => 1, '90 Minute' => 1),
 		'Lead Lined'			=> array('20 Minute' => 1, '45 Minute' => 1)
