@@ -49,6 +49,7 @@ class Service extends CI_Controller {
 			if (empty($postdata))
 				$this->_show_output(array('status' => 'error', 'error' => 'no data'));
 			
+			file_put_contents('/home/firedoors/public_html/application/cache/postdata', $postdata);  //DEBUG
 			$data = json_decode($postdata, TRUE); //name of JSON post data
 		}
 		
@@ -465,6 +466,10 @@ class Service extends CI_Controller {
 				foreach ($color as $key => $value)
 					$colorresult[] = $key;
 				
+				//make review compliant if new
+				if (empty($colorresult))
+					$colorresult[] = 1;
+
 				$inspection['colorcode'] = $colorresult;
 				$inspection['images'] = isset($inspections_images[$inspection['aperture_id']]) ? $inspections_images[$inspection['aperture_id']] : array();
 			}
@@ -667,8 +672,8 @@ class Service extends CI_Controller {
 			$wall_rating[] = $value;
 			$wall_ratings[$key] = $value;
 		}
-		if (isset($olddata) && isset($newdata)) 				$selected_wall_rating = $newdata['wall_Rating'];
-		else 													$selected_wall_rating = (!empty($doorval['wall_Rating']) && $doorval['wall_Rating'] != 0 && isset($wall_ratings[$doorval['wall_Rating']])) ? $wall_ratings[$doorval['wall_Rating']] : $wall_rating[0];
+		if (isset($olddata) && isset($newdata) && isset($newdata['wall_Rating'])) 	$selected_wall_rating = $newdata['wall_Rating'];
+		else 																		$selected_wall_rating = (!empty($doorval['wall_Rating']) && $doorval['wall_Rating'] != 0 && isset($wall_ratings[$doorval['wall_Rating']])) ? $wall_ratings[$doorval['wall_Rating']] : 'Please select value';
 		$ratings[] = array('name' => 'wall_Rating',  'label' => 'Wall Rating',					'selected' => $selected_wall_rating, 'type' => 'enum', 'values' => $wall_rating,  'enabled' => TRUE, 'force_refresh' => 1);
 		
 		foreach ($this->config->item('rates_types') as $key => $value)
@@ -676,81 +681,88 @@ class Service extends CI_Controller {
 			$smoke_rating[] = $value;
 			$smoke_ratings[$key] = $value;
 		}
-		if (isset($olddata) && isset($newdata)) 				$selected_smoke_rating = $newdata['smoke_Rating'];
-		else 													$selected_smoke_rating = (!empty($doorval['smoke_Rating']) && $doorval['smoke_Rating'] != 0 && isset($smoke_ratings[$doorval['smoke_Rating']])) ? $smoke_ratings[$doorval['smoke_Rating']] : $smoke_rating[0];
+		if (isset($olddata) && isset($newdata) && isset($newdata['smoke_Rating'])) 	$selected_smoke_rating = $newdata['smoke_Rating'];
+		else 																		$selected_smoke_rating = (!empty($doorval['smoke_Rating']) && $doorval['smoke_Rating'] != 0 && isset($smoke_ratings[$doorval['smoke_Rating']])) ? $smoke_ratings[$doorval['smoke_Rating']] : 'Please select value';
 		$ratings[] = array('name' => 'smoke_Rating', 'label' => 'Smoke Rating',					'selected' => $selected_smoke_rating, 'type' => 'enum', 'values' => $smoke_rating, 'enabled' => TRUE, 'force_refresh' => 1);
 
 
-		$material = array_keys($four_params[$selected_smoke_rating]);
+		if ($selected_smoke_rating !== 'Please select value')
+		{
+			$material = array_keys($four_params[$selected_smoke_rating]);
+			$materials = array_flip($material);
+		}
+		else
+			$material = array('Please select Smoke Rating first');
+		
 		$doorval['material']--; //to sync with materials in config
-		if (isset($olddata) && isset($newdata)) 				$selected_material = $newdata['material'];
-		else 													$selected_material = (!empty($doorval['material']) && $doorval['material'] != 0 && isset($material[$doorval['material']])) ? $material[$doorval['material']] : $material[0];
+		if (isset($olddata) && isset($newdata) && isset($newdata['material']) && isset($materials[$newdata['material']])) 	$selected_material = $newdata['material'];
+		else 																												$selected_material = (!empty($doorval['material']) && $doorval['material'] != 0 && isset($material[$doorval['material']])) ? $material[$doorval['material']] : 'Please select value';
 		
 		$min_req_door_rating = $this->config->item('min_req_door_rating');
-		$min_req_door_rating = $min_req_door_rating[$selected_wall_rating][$selected_smoke_rating];
-		$ratings[] = array('name' => 'rating', 		 'label' => 'Minimum Required Door Rating', 'selected' => $min_req_door_rating, 'type' => 'string', 'values' => array($min_req_door_rating), 	 'enabled' => FALSE, 'force_refresh' => 0);
+		$min_req_door_rating = ($selected_wall_rating !== 'Please select value' && $selected_smoke_rating !== 'Please select value') ? $min_req_door_rating[$selected_wall_rating][$selected_smoke_rating] : '';
+		$ratings[] = array('name' => 'min_req_rating', 		 'label' => 'Minimum Required Door Rating', 'selected' => $min_req_door_rating, 'type' => 'string', 'values' => array($min_req_door_rating), 	 'enabled' => FALSE, 'force_refresh' => 0);
 
 		$userData['info']['Ratings'] = $ratings;
 
 
 		//--------------------------------
-		$door_type = 											$this->service_model->get_enum_values('Doors', 'door_type');
+		$door_type = $this->service_model->get_enum_values('Doors', 'door_type');
 
-		if (isset($olddata) && isset($newdata)) 				$selected = $newdata['door_type'];
-		else 													$selected = !empty($doorval['door_type']) ? $doorval['door_type'] : $door_type[0];
+		if (isset($olddata) && isset($newdata) && isset($newdata['door_type'])) 			$selected = $newdata['door_type'];
+		else 																				$selected = !empty($doorval['door_type']) ? $doorval['door_type'] : 'Please select value';
 		$doordetails[] = array('name' => 'door_type', 			 'label' => 'Door Type',						'selected' => $selected, 'type' => 'enum', 'values' => $door_type, 			  'enabled' => TRUE, 'force_refresh' => 0);
 
-		$number_Doors = 										$this->service_model->get_enum_values('Doors', 'number_Doors');
-		if (isset($olddata) && isset($newdata)) 				$selected = $newdata['number_Doors'];
-		else 													$selected = !empty($doorval['number_Doors']) ? $doorval['number_Doors'] : $number_Doors[0];
+		$number_Doors = $this->service_model->get_enum_values('Doors', 'number_Doors');
+		if (isset($olddata) && isset($newdata) && isset($newdata['number_Doors'])) 			$selected = $newdata['number_Doors'];
+		else 																				$selected = !empty($doorval['number_Doors']) ? $doorval['number_Doors'] : 'Please select value';
 		$doordetails[] = array('name' => 'number_Doors',		 'label' => '# of Doors in Frame',				'selected' => $selected, 'type' => 'enum', 'values' => $number_Doors, 'enabled' => TRUE, 'force_refresh' => 0);
 
 		$doordetails[] = array('name' => 'material', 			 'label' => 'Door Material', 					'selected' => $selected_material, 'type' => 'enum', 'values' => $material, 	 'enabled' => TRUE, 'force_refresh' => 1);
 
-		$width = 												$this->service_model->get_enum_values('Doors', 'width');
-		if (isset($olddata) && isset($newdata)) 				$selected = $newdata['width'];
-		else 													$selected = !empty($doorval['width']) ? $doorval['width'] : $width[0];
+		$width = $this->service_model->get_enum_values('Doors', 'width');
+		if (isset($olddata) && isset($newdata) && isset($newdata['width']))					$selected = $newdata['width'];
+		else 																				$selected = !empty($doorval['width']) ? $doorval['width'] : 'Please select value';
 		$doordetails[] = array('name' => 'width', 				 'label' => 'Door Width (inches)', 				'selected' => $selected, 'type' => 'enum', 'values' => $width, 'enabled' => TRUE, 'force_refresh' => 0);
 
-		$height = 												$this->service_model->get_enum_values('Doors', 'height');
-		if (isset($olddata) && isset($newdata)) 				$selected = $newdata['height'];
-		else 													$selected = !empty($doorval['height']) ? $doorval['height'] : $height[0];
+		$height = $this->service_model->get_enum_values('Doors', 'height');
+		if (isset($olddata) && isset($newdata) && isset($newdata['height'])) 				$selected = $newdata['height'];
+		else 																				$selected = !empty($doorval['height']) ? $doorval['height'] : 'Please select value';
 		$doordetails[] = array('name' => 'height', 				 'label' => 'Door Height (inches)', 				'selected' => $selected, 'type' => 'enum', 'values' => $height, 'enabled' => TRUE, 'force_refresh' => 0);
 
-		$vision_Light_Present = 								$this->service_model->get_enum_values('Doors', 'vision_Light_Present');
-		if (isset($olddata) && isset($newdata)) 				$selected_vlp = $newdata['vision_Light_Present'];
-		else 													$selected_vlp = !empty($doorval['vision_Light_Present']) ? $doorval['vision_Light_Present'] : $vision_Light_Present[0];
+		$vision_Light_Present = $this->service_model->get_enum_values('Doors', 'vision_Light_Present');
+		if (isset($olddata) && isset($newdata) && isset($newdata['vision_Light_Present'])) 	$selected_vlp = $newdata['vision_Light_Present'];
+		else 																				$selected_vlp = !empty($doorval['vision_Light_Present']) ? $doorval['vision_Light_Present'] : 'Please select value';
 		$doordetails[] = array('name' => 'vision_Light_Present', 'label' => 'Vision Light (Glass) Present?',	'selected' => $selected_vlp, 'type' => 'enum', 'values' => $vision_Light_Present, 'enabled' => TRUE, 'force_refresh' => 1);
 
 		if ($selected_vlp == 'Yes')
 		{
-			$vision_Light = 									$this->service_model->get_enum_values('Doors', 'vision_Light');
+			$vision_Light = $this->service_model->get_enum_values('Doors', 'vision_Light');
 			if (isset($olddata) && isset($newdata) && isset($newdata['vision_Light'])) 	$selected = $newdata['vision_Light'];
 			else 																		$selected = !empty($doorval['vision_Light']) ? $doorval['vision_Light'] : $vision_Light[0];
 			$doordetails[] = array('name' => 'vision_Light', 	 'label' => 'Dimensions (inches)',			  		'selected' => $selected, 'type' => 'enum', 'values' => $vision_Light, 		  'enabled' => TRUE, 'force_refresh' => 0);
 		}
 
-		$singage = 												$this->service_model->get_enum_values('Doors', 'singage');
-		if (isset($olddata) && isset($newdata)) 				$selected = $newdata['singage'];
-		else 													$selected = !empty($doorval['singage']) ? $doorval['singage'] : $singage[0];
+		$singage = $this->service_model->get_enum_values('Doors', 'singage');
+		if (isset($olddata) && isset($newdata) && isset($newdata['singage'])) 			$selected = $newdata['singage'];
+		else 																			$selected = !empty($doorval['singage']) ? $doorval['singage'] : 'Please select value';
 		$doordetails[] = array('name' => 'singage', 			 'label' => 'Signage Present?',		  			'selected' => $selected, 'type' => 'enum', 'values' => $singage, 			  'enabled' => TRUE, 'force_refresh' => 0);
 
-		$auto_Operator = 										$this->service_model->get_enum_values('Doors', 'auto_Operator');
-		if (isset($olddata) && isset($newdata)) 				$selected = $newdata['auto_Operator'];
-		else 													$selected = !empty($doorval['auto_Operator'])  ? $doorval['auto_Operator'] : $auto_Operator[0];
+		$auto_Operator = $this->service_model->get_enum_values('Doors', 'auto_Operator');
+		if (isset($olddata) && isset($newdata) && isset($newdata['auto_Operator'])) 	$selected = $newdata['auto_Operator'];
+		else 																			$selected = !empty($doorval['auto_Operator'])  ? $doorval['auto_Operator'] : 'Please select value';
 		$doordetails[] = array('name' => 'auto_Operator', 		 'label' => 'Auto Operator Present?', 			'selected' => $selected, 'type' => 'enum', 'values' => $auto_Operator, 		  'enabled' => TRUE, 'force_refresh' => 0);
 		
 		$userData['info']['Door Details'] = $doordetails;
 
 
 		//--------------------------------
-		$frameLabel_Type = 										$this->service_model->get_enum_values('Doors', 'frameLabel_Type');
-		if (isset($olddata) && isset($newdata)) 				$selected_flt = $newdata['frameLabel_Type'];
-		else 													$selected_flt = !empty($doorval['frameLabel_Type']) ? $doorval['frameLabel_Type'] : $frameLabel_Type[0];
+		$frameLabel_Type = $this->service_model->get_enum_values('Doors', 'frameLabel_Type');
+		if (isset($olddata) && isset($newdata) && isset($newdata['frameLabel_Type']))	$selected_flt = $newdata['frameLabel_Type'];
+		else 																			$selected_flt = !empty($doorval['frameLabel_Type']) ? $doorval['frameLabel_Type'] : 'Please select value';
 		$frameLabel[] = array('name' => 'frameLabel_Type',			'label' => 'Type',							'selected' => $selected_flt, 'type' => 'enum', 'values' => $frameLabel_Type, 		 'enabled' => TRUE, 'force_refresh' => 1);
 		
 		
-		if ($selected_flt != 'Not Present')
+		if ($selected_flt != 'Not Present' && $selected_flt != 'Please select value')
 		{
 			$frameLabel_Rating = $this->service_model->get_enum_values('Doors', 'frameLabel_Rating');
 			if (isset($olddata) && isset($newdata) && isset($newdata['frameLabel_Rating'])) 	$selected = $newdata['frameLabel_Rating'];
@@ -767,7 +779,7 @@ class Service extends CI_Controller {
 		else 													$selected = !empty($doorval['frameLabel_Manufacturer']) ? $doorval['frameLabel_Manufacturer'] : '';
 		$frameLabel[] = array('name' => 'frameLabel_Manufacturer',	'label' => 'Manufacturer',					'selected' => $selected, 'type' => 'string', 'enabled' => TRUE, 'force_refresh' => 0);
 		
-		if ($selected_flt != 'Not Present')
+		if ($selected_flt !== 'Not Present' && $selected_flt !== 'Please select value')
 		{
 			if (isset($olddata) && isset($newdata) && isset($newdata['frameLabel_serial']))			$selected = $newdata['frameLabel_serial'];
 			else 																					$selected = !empty($doorval['frameLabel_serial']) ? $doorval['frameLabel_serial'] : '';
@@ -780,17 +792,24 @@ class Service extends CI_Controller {
 		//--------------------------------
 		$doorLabel_Type = 										$this->service_model->get_enum_values('Doors', 'doorLabel_Type');
 		
-		if (isset($olddata) && isset($newdata)) 				$selected_dlt = $newdata['doorLabel_Type'];
-		else 													$selected_dlt = !empty($doorval['doorLabel_Type']) ? $doorval['doorLabel_Type'] : $doorLabel_Type[0];
+		if (isset($olddata) && isset($newdata) && isset($newdata['doorLabel_Type']))				$selected_dlt = $newdata['doorLabel_Type'];
+		else 																						$selected_dlt = !empty($doorval['doorLabel_Type']) ? $doorval['doorLabel_Type'] : 'Please select value';
 		$doorLabel[] = array('name' => 'doorLabel_Type',		 	'label' => 'Type',								'selected' => $selected_dlt, 'type' => 'enum', 'values' => $doorLabel_Type, 		'enabled' => TRUE, 'force_refresh' => 1);
 
-		if ($selected_dlt != 'Not Present')
+		if ($selected_dlt !== 'Not Present' && $selected_dlt !== 'Please select value')
 		{
-			$doorLabel_Rating = array_keys($four_params[$selected_smoke_rating][$selected_material]);
-			$doorLabel_Ratings = array_flip($doorLabel_Rating);
+			if ($selected_smoke_rating !== 'Please select value')
+			{
+				$doorLabel_Rating = array_keys($four_params[$selected_smoke_rating]);
+				$doorLabel_Ratings = array_flip($doorLabel_Rating);
+			}
+			else
+				$doorLabel_Rating = array('Please select Smoke Rating first');
+
 			if (isset($olddata) && isset($newdata) && isset($newdata['doorLabel_Rating']) && isset($doorLabel_Ratings[$newdata['doorLabel_Rating']]))	$selected = $newdata['doorLabel_Rating'];
-			else 																																		$selected = (!empty($doorval['doorLabel_Rating']) && isset($doorLabel_Ratings[$doorval['doorLabel_Rating']])) ? $doorval['doorLabel_Rating'] : $doorLabel_Rating[0];
-			$doorLabel[] = array('name' => 'doorLabel_Rating',		 			'label' => 'Rating',						'selected' => $selected, 'type' => 'enum', 'values' => $doorLabel_Rating, 		'enabled' => TRUE, 'force_refresh' => 0);
+			else 																																		$selected = (!empty($doorval['doorLabel_Rating']) && isset($doorLabel_Ratings[$doorval['doorLabel_Rating']])) ? $doorval['doorLabel_Rating'] : 'Please select value';
+			
+			$doorLabel[] = array('name' => 'doorLabel_Rating',		 			'label' => 'Rating',						'selected' => $selected, 'type' => 'enum', 'values' => $doorLabel_Rating, 		'enabled' => TRUE, 'force_refresh' => 1);
 
 			$doorLabel_Testing_Lab = 								$this->service_model->get_enum_values('Doors', 'doorLabel_Testing_Lab');
 			if (isset($olddata) && isset($newdata) && isset($newdata['doorLabel_Testing_Lab']))		$selected = $newdata['doorLabel_Testing_Lab'];
@@ -802,7 +821,7 @@ class Service extends CI_Controller {
 		else 													$selected = !empty($doorval['doorLabel_Manufacturer']) ? $doorval['doorLabel_Manufacturer'] :'';
 		$doorLabel[] = array('name' => 'doorLabel_Manufacturer', 	'label' => 'Manufacturer',						'selected' => $selected, 'type' => 'string', 'enabled' => TRUE, 'force_refresh' => 0);
 
-		if ($selected_dlt != 'Not Present')
+		if ($selected_dlt !== 'Not Present' && $selected_dlt !== 'Please select value')
 		{		
 			if (isset($olddata) && isset($newdata) && isset($newdata['doorLabel_serial'])) 			$selected = $newdata['doorLabel_serial'];
 			else 																					$selected = !empty($doorval['doorLabel_serial']) ? $doorval['doorLabel_serial'] : '';
@@ -878,9 +897,15 @@ class Service extends CI_Controller {
 			$this->_show_output($userData);
 		}
 
-		$data['rating'] = $data['doorLabel_Rating'];
-		if (!isset($data['rating']) or $data['rating']==='' or $data['rating']==='N/A')
+		if (isset($data['doorLabel_Rating']))
+			$data['rating'] = $data['doorLabel_Rating'];
+		else
+			$data['rating'] = '0';
+		// if (!isset($data['doorLabel_Rating']) or (isset($data['doorLabel_Type']) && $data['doorLabel_Type']==='Not Present'))
+		{
 			 $data['rating'] = '0';
+			 $data['doorLabel_Rating'] = 'N/A';
+		}
 		$data['rating'] = preg_replace('@[^\d]+@si', '', $data['rating']);
 		
 		$data['width'] = @preg_replace('@[^\d\.]+@si', '', $data['width']);
@@ -921,7 +946,7 @@ class Service extends CI_Controller {
 		$data['material'] 	  = $material[$data['material']];
 
 		$upddata 					= $data; //save selected overview parameters
-		unset($upddata['type'], $upddata['token'], $upddata['tokendata'], $upddata['inspection_id']); //remove waste data
+		unset($upddata['type'], $upddata['token'], $upddata['tokendata'], $upddata['inspection_id'], $upddata['min_req_rating']); //remove waste data
 
 		$this->load->library('History_library');
 		
