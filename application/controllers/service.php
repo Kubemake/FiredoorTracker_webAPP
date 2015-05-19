@@ -676,6 +676,7 @@ class Service extends CI_Controller {
 		else 																		$selected_wall_rating = (!empty($doorval['wall_Rating']) && $doorval['wall_Rating'] != 0 && isset($wall_ratings[$doorval['wall_Rating']])) ? $wall_ratings[$doorval['wall_Rating']] : 'Please select value';
 		$ratings[] = array('name' => 'wall_Rating',  'label' => 'Wall Rating',					'selected' => $selected_wall_rating, 'type' => 'enum', 'values' => $wall_rating,  'enabled' => TRUE, 'force_refresh' => 1);
 		
+
 		foreach ($this->config->item('rates_types') as $key => $value)
 		{
 			$smoke_rating[] = $value;
@@ -688,8 +689,16 @@ class Service extends CI_Controller {
 
 		if ($selected_smoke_rating !== 'Please select value')
 		{
-			$material = array_keys($four_params[$selected_smoke_rating]);
+			foreach ($this->config->item('door_matherial') as $key => $value)
+			{
+				if ($selected_smoke_rating == 'No' && $value == 'Aluminum')
+					continue;
+
+				$material[] = $value;
+				$materials[$key] = $value;
+			}
 			$materials = array_flip($material);
+			// $material = array_keys($four_params[$selected_smoke_rating]);
 		}
 		else
 			$material = array('Please select Smoke Rating first');
@@ -717,7 +726,7 @@ class Service extends CI_Controller {
 		else 																				$selected = !empty($doorval['number_Doors']) ? $doorval['number_Doors'] : 'Please select value';
 		$doordetails[] = array('name' => 'number_Doors',		 'label' => '# of Doors in Frame',				'selected' => $selected, 'type' => 'enum', 'values' => $number_Doors, 'enabled' => TRUE, 'force_refresh' => 0);
 
-		$doordetails[] = array('name' => 'material', 			 'label' => 'Door Material', 					'selected' => $selected_material, 'type' => 'enum', 'values' => $material, 	 'enabled' => TRUE, 'force_refresh' => 1);
+		$doordetails[] = array('name' => 'material', 			 'label' => 'Door Material', 					'selected' => $selected_material, 'type' => 'enum', 'values' => $material, 	 'enabled' => TRUE, 'force_refresh' => 0);
 
 		$width = $this->service_model->get_enum_values('Doors', 'width');
 		if (isset($olddata) && isset($newdata) && isset($newdata['width']))					$selected = $newdata['width'];
@@ -900,12 +909,11 @@ class Service extends CI_Controller {
 		if (isset($data['doorLabel_Rating']))
 			$data['rating'] = $data['doorLabel_Rating'];
 		else
-			$data['rating'] = '0';
-		// if (!isset($data['doorLabel_Rating']) or (isset($data['doorLabel_Type']) && $data['doorLabel_Type']==='Not Present'))
 		{
-			 $data['rating'] = '0';
-			 $data['doorLabel_Rating'] = 'N/A';
+			$data['doorLabel_Rating'] = 'N/A';
+			$data['rating'] = '0';
 		}
+
 		$data['rating'] = preg_replace('@[^\d]+@si', '', $data['rating']);
 		
 		$data['width'] = @preg_replace('@[^\d\.]+@si', '', $data['width']);
@@ -924,13 +932,6 @@ class Service extends CI_Controller {
 			$this->_show_output($userData);
 		}
 
-		/*if (!isset($data['Building']) or (empty($data['Building']) && $data['Building']===0))
-		{
-			$userData['status'] = 'error';
-			$userData['error'] = 'not isset or empty input parameter Building';
-			$this->_show_output($userData);
-		}*/
-
 		$wall_rating 	= array_flip($this->config->item('wall_rates'));
 		$smoke_rating 	= array_flip($this->config->item('rates_types'));
 		$material 		= array_flip($this->config->item('door_matherial'));
@@ -946,6 +947,7 @@ class Service extends CI_Controller {
 		$data['material'] 	  = $material[$data['material']];
 
 		$upddata 					= $data; //save selected overview parameters
+
 		unset($upddata['type'], $upddata['token'], $upddata['tokendata'], $upddata['inspection_id'], $upddata['min_req_rating']); //remove waste data
 
 		$this->load->library('History_library');

@@ -1,10 +1,9 @@
 <div class="row">
 	<ul class="nav nav-tabs">
-		<li<?php if ($current_wall_rate_id == 1) echo ' class="active"'; ?>><a href="/admin/conditions/1">1h Fire Wall</a></li>
-		<li<?php if ($current_wall_rate_id == 2) echo ' class="active"'; ?>><a href="/admin/conditions/2">2h Fire Wall</a></li>
-		<li<?php if ($current_wall_rate_id == 3) echo ' class="active"'; ?>><a href="/admin/conditions/3">3h Fire Wall</a></li>
-		<li<?php if ($current_wall_rate_id == 4) echo ' class="active"'; ?>><a href="/admin/conditions/4">Smoke Wall</a></li>
-		<li<?php if ($current_wall_rate_id == 5) echo ' class="active"'; ?>><a href="/admin/conditions/5">Wall Not Rated</a></li>
+		<li<?php if ($current_wall_rate_id == 1) echo ' class="active"'; ?>><a href="/admin/conditions/1">1 Hour</a></li>
+		<li<?php if ($current_wall_rate_id == 2) echo ' class="active"'; ?>><a href="/admin/conditions/2">2 Hour</a></li>
+		<li<?php if ($current_wall_rate_id == 3) echo ' class="active"'; ?>><a href="/admin/conditions/3">3 Hour</a></li>
+		<li<?php if ($current_wall_rate_id == 4) echo ' class="active"'; ?>><a href="/admin/conditions/4">Non-Rated Wall</a></li>
 	</ul>
 </div>
 <div class="row">
