@@ -663,6 +663,182 @@ class Service extends CI_Controller {
 			$olddata = $data['olddata'];
 		}
 
+		if ($user['role'] == 1)
+		{
+			//--------------------------------
+			//get buildings
+			foreach ($this->resources_model->get_user_buildings_root($user['parent']) as $value)
+			{
+				$buildings[$value['idBuildings']] = $value['name'];
+				$buildings_values[] = $value['name'];
+			}
+
+			if (empty($buildings_values))
+			{
+				$userData['status'] = 'error';
+				$userData['error'] = 'empty user buildings list';
+				$this->_show_output($userData);
+			}
+
+			$building = (!empty($doorval['Building']) && $doorval['Building'] != 0 && isset($buildings[$doorval['Building']])) ? $buildings[$doorval['Building']] : $buildings_values[0];
+
+			if (isset($olddata) && isset($newdata))
+				$building = $newdata['Building'];
+
+			$locatio[] = array('name' => 'Building', 'label' => 'Building', 'selected' => $building, 'type' => 'enum', 'values' => $buildings_values, 'enabled' => TRUE, 'force_refresh' => 1);
+
+			//get floors
+			$buildings = array_flip($buildings);
+			
+			foreach ($this->resources_model->get_user_buildings_by_building_parent($buildings[$building], $user['parent']) as $value)
+			{
+				$floors[$value['idBuildings']] = $value['name'];
+				$floors_values[] = $value['name'];
+			}
+
+			if (!empty($floors_values))
+			{
+				array_unshift($floors_values, 'N/A');
+				if (isset($olddata) && isset($newdata))
+				{
+					if (isset($olddata['Building']) && isset($newdata['Building']) && $olddata['Building'] == $newdata['Building'])
+						$floor = $newdata['Floor'];
+					else
+					{
+						$floor = $floors_values[0];
+						$newdata["Floor"] = $floor;
+					} 
+				}
+				else
+					$floor = (!empty($doorval['Floor']) && $doorval['Floor'] != 0 && isset($floors[$doorval['Floor']])) ? $floors[$doorval['Floor']] : $floors_values[0];
+				
+				$locatio[] = array('name' => 'Floor', 'label' => 'Floor', 'selected' => $floor, 'type' => 'enum', 'values' => $floors_values, 'enabled' => TRUE, 'force_refresh' => 1);
+
+				//get wing
+				$floors = array_flip($floors);
+
+				$wings_values = array();
+				if ($floor != 'N/A')
+				{
+					foreach ($this->resources_model->get_user_buildings_by_building_parent($floors[$floor], $user['parent']) as $value)
+					{
+						$wings[$value['idBuildings']] = $value['name'];
+						$wings_values[] = $value['name'];
+					}
+				}
+
+				if (!empty($wings_values))
+				{
+					array_unshift($wings_values, 'N/A');
+					if (isset($olddata) && isset($newdata))
+					{
+						if (isset($olddata['Floor']) && isset($newdata['Floor']) && $olddata['Floor'] == $newdata['Floor'])
+							$wing = $newdata['Wing'];
+						else
+						{
+							$wing = $wings_values[0];
+							$newdata['Wing'] = $wing;
+						}
+					}
+					else
+						$wing = (!empty($doorval['Wing']) && $doorval['Wing'] != 0 && isset($wings[$doorval['Wing']])) ? $wings[$doorval['Wing']] : $wings_values[0];
+					
+					$locatio[] = array('name' => 'Wing', 'label' => 'Wing', 'selected' => $wing, 'type' => 'enum', 'values' => $wings_values, 'enabled' => TRUE, 'force_refresh' => 1);
+
+					//get area
+					$wings = array_flip($wings);
+
+					$areas_values = array();
+					if ($wing != 'N/A')
+					{
+						foreach ($this->resources_model->get_user_buildings_by_building_parent($wings[$wing], $user['parent']) as $value)
+						{
+							$areas[$value['idBuildings']] = $value['name'];
+							$areas_values[] = $value['name'];
+						}
+					}
+					if (!empty($areas_values))
+					{
+						array_unshift($areas_values, 'N/A');
+						if (isset($olddata) && isset($newdata))
+						{
+							if (isset($olddata['Wing']) && isset($newdata['Wing']) && $olddata['Wing'] == $newdata['Wing'])
+								$area = $newdata['Area'];
+							else {
+								$area = $areas_values[0];
+								$newdata['Area'] = $area;
+							} 
+						}
+						else
+							$area = (!empty($doorval['Area']) && $doorval['Area'] != 0 && isset($areas[$doorval['Area']])) ? $areas[$doorval['Area']] : $areas_values[0];
+						
+						$locatio[] = array('name' => 'Area', 'label' => 'Area', 'selected' => $area, 'type' => 'enum', 'values' => $areas_values, 'enabled' => TRUE, 'force_refresh' => 1);
+
+						//get level
+						$areas = array_flip($areas);
+
+						$levels_values = array();
+						if ($area != 'N/A')
+						{
+							foreach ($this->resources_model->get_user_buildings_by_building_parent($areas[$area], $user['parent']) as $value)
+							{
+								$levels[$value['idBuildings']] = $value['name'];
+								$levels_values[] = $value['name'];
+							}
+						}
+						if (!empty($levels_values))
+						{
+							array_unshift($levels_values, 'N/A');
+							if (isset($olddata) && isset($newdata))
+							{
+								if (isset($olddata['Area']) && isset($newdata['Area']) && $olddata['Area'] == $newdata['Area'])
+									$level = $newdata['Level'];
+								else
+								{
+									$level =  $levels_values[0];
+									$newdata['Level'] = $level;
+								}
+							}
+							else
+								$level = (!empty($doorval['Level']) && $doorval['Level'] != 0 && isset($levels[$doorval['Level']])) ? $levels[$doorval['Level']] : $levels_values[0];
+							
+							$locatio[] = array('name' => 'Level', 'label' => 'Level', 'selected' => $level, 'type' => 'enum', 'values' => $levels_values, 'enabled' => TRUE, 'force_refresh' => 1);
+						}
+						else
+							$locatio[] = array('name' => 'Level', 'label' => 'Level', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+					}
+					else
+					{
+						$locatio[] = array('name' => 'Area', 'label' => 'Area', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+						$locatio[] = array('name' => 'Level', 'label' => 'Level', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+					}
+				}
+				else
+				{
+					$locatio[] = array('name' => 'Wing', 'label' => 'Wing', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+					$locatio[] = array('name' => 'Area', 'label' => 'Area', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+					$locatio[] = array('name' => 'Level', 'label' => 'Level', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+				}
+			}
+			else
+			{
+				$locatio[] = array('name' => 'Floor', 'label' => 'Floor', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+				$locatio[] = array('name' => 'Wing', 'label' => 'Wing', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+				$locatio[] = array('name' => 'Area', 'label' => 'Area', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+				$locatio[] = array('name' => 'Level', 'label' => 'Level', 'selected' => 'N/A', 'type' => 'enum', 'values' => array('N/A'), 'enabled' => FALSE, 'force_refresh' => 1);
+			}
+
+			$IntExt = $this->service_model->get_enum_values('Doors', 'IntExt');
+			if (isset($olddata) && isset($newdata))
+				$selected = $newdata['IntExt'];
+			else
+				$selected = (!empty($doorval['IntExt']) && $doorval['IntExt'] != 0) ? $doorval['IntExt'] : $IntExt[0];
+			$locatio[] = array('name' => 'IntExt', 'label' => 'Interior / Exterior?', 'selected' => $selected, 'type' => 'enum', 'values' => $IntExt, 'enabled' => TRUE, 'force_refresh' => 0);
+
+			$userData['info']['Locations'] = $locatio;
+			$userData['sections'][] = 'Locations';
+		}
+
 
 		//--------------------------------
 		$four_params = $this->config->item('four_params_conditions');
@@ -712,9 +888,15 @@ class Service extends CI_Controller {
 		$ratings[] = array('name' => 'min_req_rating', 		 'label' => 'Minimum Required Door Rating', 'selected' => $min_req_door_rating, 'type' => 'string', 'values' => array($min_req_door_rating), 	 'enabled' => FALSE, 'force_refresh' => 0);
 
 		$userData['info']['Ratings'] = $ratings;
+		$userData['sections'][] = 'Ratings';
 
 
-		//--------------------------------
+		//--------------------------------Door Details
+
+		if (isset($olddata) && isset($newdata) && isset($newdata['barcode']))				$selected = $newdata['barcode'];
+		else 																				$selected = !empty($doorval['barcode']) ? $doorval['barcode'] : '';
+		$doordetails[] = array('name' => 'barcode',				'label' => 'Door Id',							'selected' => $selected, 'type' => 'string', 'enabled' => TRUE, 'force_refresh' => 0);
+
 		$door_type = $this->service_model->get_enum_values('Doors', 'door_type');
 
 		if (isset($olddata) && isset($newdata) && isset($newdata['door_type'])) 			$selected = $newdata['door_type'];
@@ -762,6 +944,7 @@ class Service extends CI_Controller {
 		$doordetails[] = array('name' => 'auto_Operator', 		 'label' => 'Auto Operator Present?', 			'selected' => $selected, 'type' => 'enum', 'values' => $auto_Operator, 		  'enabled' => TRUE, 'force_refresh' => 0);
 		
 		$userData['info']['Door Details'] = $doordetails;
+		$userData['sections'][] = 'Door Details';
 
 
 		//--------------------------------
@@ -796,6 +979,7 @@ class Service extends CI_Controller {
 		}
 	
 		$userData['info']['Frame Label'] = $frameLabel;
+		$userData['sections'][] = 'Frame Label';
 
 
 		//--------------------------------
@@ -848,6 +1032,7 @@ class Service extends CI_Controller {
 		}
 
 		$userData['info']['Door Label'] = $doorLabel;
+		$userData['sections'][] = 'Door Label';
 
 		$userData['status'] = 'ok';
 
@@ -938,6 +1123,9 @@ class Service extends CI_Controller {
 		$rating 		= array_flip($this->config->item('door_rating'));
 
 		$user_id = $data['tokendata']['user_id'];
+
+		$this->load->model('user_model');
+		$user = $this->user_model->get_user_info_by_user_id($user_id);
 		
 		//make right data for save for some fields
 		$data = $this->_make_locations_data($data);
@@ -1106,6 +1294,31 @@ class Service extends CI_Controller {
 
 		$userData['status'] = 'ok';
 		$userData['issues'] = $result['issues'];
+		
+		$userlocation 	= $this->resources_model->get_user_buildings($user['parent']);
+		$buildings = array();
+		foreach ($userlocation as $loc)
+			$buildings[$loc['idBuildings']] = $loc;
+		$userlocation = $buildings;
+
+		$updated_inspection = $this->resources_model->get_inspection_info_by_inspection_id($data['inspection_id']);//($user_id);
+
+		$updated_inspection['building_name'] = @$userlocation[$updated_inspection['Building']]['name'];
+		
+		$updated_inspection['location_name'] = array();
+		if ($updated_inspection['Floor'] > 0 && isset($userlocation[$updated_inspection['Floor']]['name']))
+			$updated_inspection['location_name'][] = $userlocation[$updated_inspection['Floor']]['name'];
+		if ($updated_inspection['Wing'] > 0 && isset($userlocation[$updated_inspection['Wing']]['name']))
+			$updated_inspection['location_name'][] = $userlocation[$updated_inspection['Wing']]['name'];
+		if ($updated_inspection['Area'] > 0 && isset($userlocation[$updated_inspection['Area']]['name']))
+			$updated_inspection['location_name'][] = $userlocation[$updated_inspection['Area']]['name'];
+		if ($updated_inspection['Level'] > 0 && isset($userlocation[$updated_inspection['Level']]['name']))
+			$updated_inspection['location_name'][] = $userlocation[$updated_inspection['Level']]['name'];
+		
+		$updated_inspection['location_name'] = (!empty($updated_inspection['location_name'])) ? implode(' ', $updated_inspection['location_name']) : '';
+
+		$userData['updated_inspection'] = $updated_inspection;
+
 		$userData['tabs'] = $result['tabs'];
 
 		// echo '<pre>';
@@ -1801,8 +2014,49 @@ class Service extends CI_Controller {
 				$data['Level'] = $this->user_model->add_building($adddata);
 			}
 		}
-	
+
 		return $data;
+	}
+
+	/*
+	 * Delete inspection and it door
+	 *
+	 * Input data:
+	 * token    		=> auth id from login
+	 * inspection_id  	=> aperture id
+	 * aperture_id  	=> aperture id
+	 *
+	 * Output data:
+	 * status => ok
+	 */
+	function _exec_function_delete_inspection($data)
+	{
+		if (!isset($data['inspection_id']) or empty($data['inspection_id']))
+		{
+			$userData['status'] = 'error';
+			$userData['error'] = 'not isset or empty input parameter inspection_id';
+			$this->_show_output($userData);
+		}
+		
+		if (!isset($data['aperture_id']) or empty($data['aperture_id']))
+		{
+			$userData['status'] = 'error';
+			$userData['error'] = 'not isset or empty input parameter aperture_id';
+			$this->_show_output($userData);
+		}
+
+		$this->load->model('resources_model');
+		$this->load->model('user_model');
+		
+		$user_id = $data['tokendata']['user_id'];
+		$user = $this->user_model->get_user_info_by_user_id($user_id);
+
+		$this->resources_model->delete_aperture_by_id($data['aperture_id'], $user);
+		$this->resources_model->delete_review_by_id($data['inspection_id'], $user);
+
+		$userData['status']   = 'ok';
+
+		$this->_show_output($userData);
 	}
 }
 

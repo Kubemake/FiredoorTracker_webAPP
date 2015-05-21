@@ -130,16 +130,26 @@ class Resources_model  extends CI_Model
 		return $this->db->where('idDoors', $aperture_id)->update('Doors', $upddata);
 	}
 
-	function delete_aperture_by_id($aperture_id)
+	function delete_aperture_by_id($aperture_id, $user = FALSE)
 	{
+		$parent =  $user ? $user['parent'] : $this->session->userdata('user_parent'); //use director id
+		$userid =  $user ? $user['idUsers'] : $this->session->userdata('user_id');
+
 		$this->db->where('idDoors', $aperture_id);
-		return $this->db->update('Doors', array('deleted' => $this->session->userdata('user_id')));
+		$this->db->where('UserId', $parent);
+
+		return $this->db->update('Doors', array('deleted' => $userid));
 	}
 	
-	function delete_review_by_id($review_id)
+	function delete_review_by_id($review_id, $user = FALSE)
 	{
+		$parent =  $user ? $user['parent'] : $this->session->userdata('user_parent'); //use director id
+		$userid =  $user ? $user['idUsers'] : $this->session->userdata('user_id');
+
 		$this->db->where('idInspections', $review_id);
-		return $this->db->update('Inspections', array('deleted' => $this->session->userdata('user_id')));
+		$this->db->where('UserId', $parent);
+
+		return $this->db->update('Inspections', array('deleted' => $userid));
 	}
 
 	function add_issue($adddata)
@@ -377,10 +387,13 @@ class Resources_model  extends CI_Model
 
 	function get_inspection_info_by_inspection_id($inspection_id)
 	{
-		$this->db->select('i.*, b.name');
+		$this->db->select('i.*, b.name, d.barcode, d.Building, d.Floor, d.Wing, d.Area, d.Level, u.firstName, u.lastName, d.barcode');
+		$this->db->join('Doors d', 'd.idDoors = i.idAperture');
+		$this->db->join('Users u', 'u.idUsers = i.Inspector', 'left');
+		$this->db->join('Buildings b', 'b.idBuildings = d.Building');
 		$this->db->where('i.idInspections', $inspection_id);
-		$this->db->join('Buildings b', 'b.idBuildings = i.Buildings_idBuildings');
-		return $this->db->get('Inspections i')->row_array();
+		$result = $this->db->get('Inspections i')->row_array();
+		return $result;
 	}
 
 	function get_inspection_by_aperture_id($aperture_id)
