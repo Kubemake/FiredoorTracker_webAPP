@@ -100,14 +100,6 @@ class Service_model  extends CI_Model
 				if ($result['name'] == 'Signage')
 					$signage = $result;
 				
-				//special part for Device is Not Labeld as Fire Rated
-				if ($result['name'] == 'AllEndCapsCoversPresentandisSecurelyAttached')
-					$hide_if_wr_more_3[] = $result;
-
-				//special part for Device is Not Labeld as Fire Rated
-				if ($result['name'] == 'MissingEndCapsCovers')
-					$hide_if_wr_more_3[] = $result;
-
 				if ($result['parent'] == 0)
 				{
 					//special part for Glazing Review Tab
@@ -135,16 +127,6 @@ class Service_model  extends CI_Model
 			}
 			else
 			{
-				//special part for sings
-				if ($result['name'] == 'EnterinDimensionsofSigns')
-					$addbtnQ = $result['idFormFields'];
-				//special part for frame holes
-				if ($result['name'] == 'SelecttheQuantityofHoles')
-					$H1addbtnQ = $result['idFormFields'];
-				//special part for door holes
-				if ($result['name'] == 'SelecttheQuantityofHoles-48')
-					$H2addbtnQ = $result['idFormFields'];
-				
 				$issues[$result['idFormFields']] = $temp;
 
 				if (!isset($issues[$result['idFormFields']]['images']))
@@ -156,12 +138,8 @@ class Service_model  extends CI_Model
 		}
 
 		return array(
-			'addbtnq'			=> $addbtnQ,
-			'h1addbtnq'			=> $H1addbtnQ,
-			'h2addbtnq'			=> $H2addbtnQ,
 			'signage'			=> $signage,
 			'glzng'				=> $glzng,
-			'hide_if_wr_more_3'	=> $hide_if_wr_more_3,
 			'tabs' 				=> $tabs,
 			'issues' 			=> $issues
 		);
@@ -261,18 +239,17 @@ function get_question_answers_by_question_id_and_inspection_id($quest, $inspecti
 		return count($this->db->get()->result_array());
 	}
 
-	function get_inspection_answers($inspection, $aperture_id, $user)
+	function get_inspection_answers($inspection, $aperture_id)
 	{
 		$apert = $this->db->where('idDoors', $aperture_id)->get('Doors')->row_array();
-		
 		$this->db->select('cc.value');
 		$this->db->from('DoorsFormFields dff');
 		$this->db->join('ConditionalChoices cc', 'cc.idField=dff.FormFields_idFormFields AND cc.wallRates=' . $apert['wall_Rating'] . ' AND cc.ratesTypes=' . $apert['smoke_Rating'] . ' AND cc.doorRating =' . $apert['rating'] . ' AND cc.doorMatherial=' . $apert['material'], 'left');
 		$this->db->where('dff.Inspections_idInspections', $inspection);
-		$this->db->where('dff.Users_idUsers', $user);
 		$this->db->group_by('cc.value');
-		$this->db->where('cc.value >', 0);
-		return $this->db->get()->result_array();
+		$this->db->where('cc.value !=', '');
+		$result = $this->db->get()->result_array();
+		return $result;
 	}
 
 	function get_images_by_aperture_id_and_field_id($aperture_id, $field_id = FALSE)

@@ -71,7 +71,7 @@ class Service extends CI_Controller {
 
 		$func = '_exec_function_' . $data['type']; //exec request api type
 		
-	    call_user_func(array($this,$func), $data);
+		call_user_func(array($this,$func), $data);
 	}
 
 	/*
@@ -259,7 +259,7 @@ class Service extends CI_Controller {
 	 * User authorization function
 	 	 *
 	 * Input data:
-	 * login    => user email
+	 * login	=> user email
 	 * password => user password
 	 *
 	 * Output data:
@@ -292,7 +292,7 @@ class Service extends CI_Controller {
 	 * Get user profile data
 	 *
 	 * Input data:
-	 * token    => auth id from login
+	 * token	=> auth id from login
 	 *
 	 * Output data:
 	 * status => ok
@@ -315,7 +315,7 @@ class Service extends CI_Controller {
 	 * Update user profile data
 	 *
 	 * Input data:
-	 * token    => auth id from login
+	 * token	=> auth id from login
 	 * fields which need to be changed
 	 *
 	 * Output data:
@@ -358,7 +358,7 @@ class Service extends CI_Controller {
 	 * Get inspections list by user
 	 *
 	 * Input data:
-	 * token    => auth id from login
+	 * token	=> auth id from login
 	 * keyword  => key filter for filtering inspections list
 	 *
 	 * Output data:
@@ -452,8 +452,10 @@ class Service extends CI_Controller {
 			unset($inspection);
 			foreach ($userData['inspections'] as &$inspection)
 			{
-				$anwers = $this->service_model->get_inspection_answers($inspection['id'], $inspection['aperture_id'], $user_id);
-				
+				// echo '<pre>';
+				// print_r($inspection);die();
+				$anwers = $this->service_model->get_inspection_answers($inspection['id'], $inspection['aperture_id']);
+								
 				//total inspection troubles in colorcodes
 				$color = array();
 				foreach ($anwers as $answer)
@@ -465,7 +467,6 @@ class Service extends CI_Controller {
 				$colorresult = array();
 				foreach ($color as $key => $value)
 					$colorresult[] = $key;
-				
 				//make review compliant if new
 				if (empty($colorresult))
 					$colorresult[] = 1;
@@ -492,7 +493,7 @@ class Service extends CI_Controller {
 	 * Update inspection status
 	 *
 	 * Input data:
-	 * token    		=> auth id from login
+	 * token			=> auth id from login
 	 * inspection_id 	=> inspection id
 	 *
 	 * Output data:
@@ -509,15 +510,11 @@ class Service extends CI_Controller {
 
 		$user_id = $data['tokendata']['user_id'];
 
-		$total_status_answ = $this->service_model->get_all_questions_with_status_answers($data['inspection_id']);
-
-		$total_curent_status_answ = $this->service_model->get_curent_questions_with_status_answers($data['inspection_id'], $user_id);
-
 		$this->load->model('resources_model');
 
 		$upddata = array();
 
-		$upddata['InspectionStatus'] = ($total_status_answ==$total_curent_status_answ) ? 'Complete' : 'In Progress';
+		$upddata['InspectionStatus'] = 'Complete';
 		$upddata['Completion'] 		 = date('Y-m-d');
 
 		$this->load->library('History_library');
@@ -534,7 +531,7 @@ class Service extends CI_Controller {
 	 * Get glossary non-empty letters
 	 *
 	 * Input data:
-	 * token    => auth id from login
+	 * token	=> auth id from login
 	 *
 	 * Output data:
 	 * status => ok
@@ -562,7 +559,7 @@ class Service extends CI_Controller {
 	 * Get glossary terms by letter
 	 *
 	 * Input data:
-	 * token    => auth id from login
+	 * token	=> auth id from login
 	 * letter   => letter for makeing output
 	 *
 	 * Output data:
@@ -585,7 +582,7 @@ class Service extends CI_Controller {
 	 * Get glossary terms by letter
 	 *
 	 * Input data:
-	 * token    => auth id from login
+	 * token	=> auth id from login
 	 * needle   => peace of text for searching terms
 	 *
 	 * Output data:
@@ -607,7 +604,7 @@ class Service extends CI_Controller {
 	 * Get contact an expert list
 	 *
 	 * Input data:
-	 * token    => auth id from login
+	 * token	=> auth id from login
 	 *
 	 * Output data:
 	 * status => ok
@@ -630,7 +627,7 @@ class Service extends CI_Controller {
 	 * Get aperture overview info tab fields
 	 *
 	 * Input data:
-	 * token    	=> auth id from login
+	 * token		=> auth id from login
 	 * aperture_id  => aperture id
 	 * olddata  	=> marker, if presend means that need refresh locations fields
 	 * newdata  	=> to compare with olddata for refresh locations fields
@@ -962,7 +959,7 @@ class Service extends CI_Controller {
 			$frameLabel[] = array('name' => 'frameLabel_Rating',		'label' => 'Rating',						'selected' => $selected, 'type' => 'enum', 'values' => $frameLabel_Rating, 		 'enabled' => TRUE, 'force_refresh' => 0);
 		
 			$frameLabel_Testing_Lab = 								$this->service_model->get_enum_values('Doors', 'frameLabel_Testing_Lab');
-			if (isset($olddata) && isset($newdata) && isset($newdata['frameLabel_Testing_Lab']))    $selected = $newdata['frameLabel_Testing_Lab'];
+			if (isset($olddata) && isset($newdata) && isset($newdata['frameLabel_Testing_Lab']))	$selected = $newdata['frameLabel_Testing_Lab'];
 			else 																					$selected = !empty($doorval['frameLabel_Testing_Lab']) ? $doorval['frameLabel_Testing_Lab'] : $frameLabel_Testing_Lab[0];
 			$frameLabel[] = array('name' => 'frameLabel_Testing_Lab',	'label' => 'Testing Lab',					'selected' => $selected, 'type' => 'enum', 'values' => $frameLabel_Testing_Lab,  'enabled' => TRUE, 'force_refresh' => 0);
 		}
@@ -1001,7 +998,7 @@ class Service extends CI_Controller {
 
 			if (isset($olddata) && isset($newdata) && isset($newdata['doorLabel_Rating']) && isset($doorLabel_Ratings[$newdata['doorLabel_Rating']]))	$selected = $newdata['doorLabel_Rating'];
 			else 																																		$selected = (!empty($doorval['doorLabel_Rating']) && isset($doorLabel_Ratings[$doorval['doorLabel_Rating']])) ? $doorval['doorLabel_Rating'] : 'Please select value';
-			
+
 			$doorLabel[] = array('name' => 'doorLabel_Rating',		 			'label' => 'Rating',						'selected' => $selected, 'type' => 'enum', 'values' => $doorLabel_Rating, 		'enabled' => TRUE, 'force_refresh' => 1);
 
 			$doorLabel_Testing_Lab = 								$this->service_model->get_enum_values('Doors', 'doorLabel_Testing_Lab');
@@ -1045,7 +1042,7 @@ class Service extends CI_Controller {
 	 * Get aperture issues and update overview info
 	 *
 	 * Input data:
-	 * token    		=> auth id from login
+	 * token			=> auth id from login
 	 * inspection_id  	=> inspection id
 	 * wall_rating  	=> wall rating aperture value
 	 * smoke_rating 	=> smoke rating aperture value
@@ -1054,7 +1051,7 @@ class Service extends CI_Controller {
 	 * width  			=> width aperture value
 	 * height  			=> height aperture value
 	 * Building 		=> Building aperture value
-	 * other params     => Other parameters from overview info
+	 * other params	 => Other parameters from overview info
 	 *
 	 * Output data:
 	 * status => ok
@@ -1147,117 +1144,84 @@ class Service extends CI_Controller {
 		$result = $this->service_model->get_aperture_issues_and_selected($data);
 
 		/*spec code for signs*/
-		if ($result['addbtnq'] > 0)
+		$addbtnqs = array(637, 640, 78);
+		foreach ($addbtnqs as $addbtnq)
 		{
-			$signs = $result['issues'][$result['addbtnq']]['answers'];
-			$square = 0; //total signs square
-			foreach ($signs as &$sign)
+			if ($addbtnq > 0)
 			{
-				if (!isset($nextq))
-					$nextq = $sign['nextQuestionId'];
-				// $sign['status'] = 1; 				//!!!
-				if (strlen($sign['selected']) > 0)
+				$signs = $result['issues'][$addbtnq]['answers'];
+				$square = 0; //total signs square
+				foreach ($signs as &$sign)
 				{
-					$dim = explode(',',$sign['selected']);
-					$square += trim(@$dim[0]) * trim(@$dim[1]);
+					if (strlen($sign['selected']) > 0)
+					{
+						$dim = explode(',',$sign['selected']);
+						$square += trim(@$dim[0]) * trim(@$dim[1]);
+					}
+					else
+						unset($signs[$sign['idFormFields']]);
 				}
-				else
-					unset($signs[$sign['idFormFields']]);
-			}
 
-			$signsize = 0;
-			if ($square > 0)
-				$signsize = $square * 100 / ($data['width']*$data['height']);
-			
-			if ($data['wall_Rating'] < 4 && count($signs) > 0 && $signsize > 5)
-				foreach ($signs as &$value)
-					$value['status'] = 4;
-	
-			//add sign btn
-			$signs['789789'] = array(
-				'idFormFields' => '789789',
-                'type' => 'answer',
-                'nextQuestionId' => $nextq,
-                'name' => 'AddSignBtn',
-                'label' => 'Add Sign',
-                'questionId' => $result['addbtnq'],
-                'questionOrder' => count($signs)+1,
-                'status' => '',
-                'selected' => ''
-			);
-			$result['issues'][$result['addbtnq']]['answers'] = $signs;
+				//calc sings square
+				$signsize = 0;
+				if ($square > 0)
+					$signsize = $square * 100 / ($data['width']*$data['height']);
+				
+				//replace if sign size over 5% of door square
+				if ($data['wall_Rating'] < 4 && count($signs) > 0 && $signsize > 5)
+					foreach ($signs as &$value)
+						$value['status'] = 4;
+		
+				//add sign btn
+				$signs['789789'] = array(
+					'idFormFields' => '789789',
+					'type' => 'answer',
+					'nextQuestionId' => 0,
+					'name' => 'AddSignBtn',
+					'label' => 'Add Sign',
+					'questionId' => $addbtnq,
+					'questionOrder' => count($signs)+1,
+					'status' => '',
+					'selected' => 'Yes'
+				);
+				$result['issues'][$addbtnq]['answers'] = $signs;
+			}
 		}
 		/*END spec code for signs*/
 
-		/*spec code for frame holes*/
-		if ($result['h1addbtnq'] > 0)
+		/*spec code for holes*/
+		$h1addbtnqs = array(323,344,15,566,50);
+		foreach ($h1addbtnqs as $h1addbtnq)
 		{
-			$holes = $result['issues'][$result['h1addbtnq']]['answers'];
-			foreach ($holes as &$hole)
+			if ($h1addbtnq > 0)
 			{
-				if (!empty($hole['status']))
-					$fhstatus = $hole['status'];
+				$addbtn = FALSE;
+				$holes = $result['issues'][$h1addbtnq]['answers'];
+				foreach ($holes as &$hole)
+				{
+					if (!$addbtn) //Save params for AddBtn
+						$addbtn = $hole;
 
-				if (!isset($fhnextq))
-					$fhnextq = $hole['nextQuestionId'];
+					if (strlen($hole['selected']) == 0)
+						unset($holes[$hole['idFormFields']]);
+				}
 
-				if (strlen($hole['selected']) == 0)
-					unset($holes[$hole['idFormFields']]);
-
-				if (!empty($fhstatus))
-					$hole['status'] = $fhstatus;
+				//add hole btn
+				$holes['789790'] = array(
+					'idFormFields' => '789790',
+					'type' => 'answer',
+					'nextQuestionId' => $addbtn['nextQuestionId'],
+					'name' => 'AddHoleBtn',
+					'label' => 'Add Hole',
+					'questionId' => $addbtn['questionId'],
+					'questionOrder' => count($holes)+1,
+					'status' => '',
+					'selected' => 'Yes'
+				);
+				$result['issues'][$h1addbtnq]['answers'] = $holes;
 			}
-
-			//add hole btn
-			$holes['789790'] = array(
-				'idFormFields' => '789790',
-                'type' => 'answer',
-                'nextQuestionId' => $fhnextq,
-                'name' => 'AddFrameHoleBtn',
-                'label' => 'Add Hole',
-                'questionId' => $result['h1addbtnq'],
-                'questionOrder' => count($holes)+1,
-                'status' => '',
-                'selected' => ''
-			);
-			$result['issues'][$result['h1addbtnq']]['answers'] = $holes;
 		}
 		/*END spec code for frame holes*/
-
-		/*spec code for Door holes*/
-		if ($result['h2addbtnq'] > 0)
-		{
-			$holes = $result['issues'][$result['h2addbtnq']]['answers'];
-			foreach ($holes as &$hole)
-			{
-				if (!empty($hole['status']))
-					$fhstatus = $hole['status'];
-
-				if (!isset($fhnextq))
-					$fhnextq = $hole['nextQuestionId'];
-
-				if (strlen($hole['selected']) == 0)
-					unset($holes[$hole['idFormFields']]);
-
-				if (!empty($fhstatus))
-					$hole['status'] = $fhstatus;
-			}
-
-			//add hole btn
-			$holes['789791'] = array(
-				'idFormFields' => '789791',
-                'type' => 'answer',
-                'nextQuestionId' => $fhnextq,
-                'name' => 'AddDoorHoleBtn',
-                'label' => 'Add Hole',
-                'questionId' => $result['h2addbtnq'],
-                'questionOrder' => count($holes)+1,
-                'status' => '',
-                'selected' => ''
-			);
-			$result['issues'][$result['h2addbtnq']]['answers'] = $holes;
-		}
-		/*END spec code for Door holes*/
 
 		/*spec code for signage question */
 		//hide Signage answer variant 
@@ -1265,7 +1229,8 @@ class Service extends CI_Controller {
 		{
 			unset($result['issues'][$result['signage']['parent']]['answers'][$result['signage']['idFormFields']]);
 			unset($result['issues'][$result['signage']['nextQuestionId']]);
-			unset($result['issues'][$result['addbtnq']]);
+			foreach ($addbtnqs as $addbtnq) 
+				unset($result['issues'][$addbtnq]);
 		}
 		/*END spec code for signage question */
 		
@@ -1278,11 +1243,11 @@ class Service extends CI_Controller {
 		}
 		/*END spec code for signage question */
 
-		/*spec code for hidding fields for wall_rating_id > 3*/
-		if ($data['wall_Rating'] > 3)
+		/*spec code for hidding fields for wall_rating_id < 4*/
+		if ($data['wall_Rating'] < 4)
 		{
-			foreach ($result['hide_if_wr_more_3'] as $hid)
-				unset($result['issues'][$hid['questionId']]['answers'][$hid['idFormFields']]);
+			foreach (array(219,220) as $hid)
+				unset($result['issues'][217]['answers'][$hid]);
 		}
 		/*END spec code for hidding fields for wall_rating_id > 3*/
 
@@ -1332,11 +1297,12 @@ class Service extends CI_Controller {
 	 * Update inspection data
 	 *
 	 * Input data:
-	 * token    		=> auth id from login
+	 * token			=> auth id from login
 	 * inspection_id  	=> aperture id
 	 * idFormFields  	=> Answer id
 	 * status 		 	=> Answer status
 	 * selected 	 	=> value of selected field
+	 * Special 			=> question id if addbtn pressed
 	 *
 	 * Output data:
 	 * status => ok
@@ -1390,9 +1356,10 @@ class Service extends CI_Controller {
 
 		if (!empty($data['selected']) && $data['selected'] != 'NO') //if not unselect action
 		{
-			if (!in_array($data['idFormFields'], array(789789,789790,789791)))
+			if (!in_array($data['idFormFields'], array(789789,789790)))
 				$answers = $this->service_model->get_question_answers_by_answer_id_and_inspection_id($field, $inspection); //get all answers from this answer question 
 
+//!!!!!!			//надо такое условия чтобы все ответы которые радом с AddBtn включая её имели ид их вопроса (Special)
 			if (isset($data['Special']) && $data['Special'] != 'null')
 			{
 				
@@ -1403,84 +1370,90 @@ class Service extends CI_Controller {
 
 				$square = 0; //total signs square
 
-				//sort
-				$out = array();
-				unset($nextq, $qid);
-				foreach ($answers as $answer)
+				//remove empty sign and add new value
+				$addbtn = FALSE;
+				
+				//only if addbtn pressed save new value
+				$newval = (in_array($data['idFormFields'], array(789789,789790))) ? FALSE : TRUE;
+				foreach ($answers as $key=>&$answer)
 				{
-					// $answer['status'] = 1;					///!!!!!!!
-					if (!empty($answer['status']))
-						$fhstatus = $answer['status'];
-
-					$out[$answer['questionOrder']] = $answer;
-					if (!isset($nextq))
-						$nextq = $answer['nextQuestionId'];
-					if (!isset($qid))
-						$qid = $answer['questionId'];
-
-					if ($answer['idFormFields'] == $field && $value == '0,0')
+					//if send 0,0 that means DELETE 
+					if ($answer['idFormFields'] == $field && $value == '0,0' && $data['idFormFields'] == 789789)
 						$answer['selected'] = '';
 					
 					if (strlen($answer['selected']) > 0)
 					{
-						$dim = explode(',',$answer['selected']);
-						$square += trim(@$dim[0]) * trim(@$dim[1]);
+						if ($data['idFormFields'] == 789789)
+						{
+							$dim = explode(',',$answer['selected']);
+							$square += trim(@$dim[0]) * trim(@$dim[1]);
+						}
 					}
-					$out[$answer['questionOrder']]['status'] = $fhstatus;
-
-				}
-				ksort($out);
-				$answers = $out;
-				
-				//add new if btn add pressed
-				if ($data['idFormFields'] == 789789)
-				{
-					if (strlen($value) > 0)
+					elseif (!$newval)
 					{
-						$dim = explode(',',$value);
-						$square += trim(@$dim[0]) * trim(@$dim[1]);
+						$newval = $answer;
+						$field = $answer['idFormFields']; //switch from addbtn id
+						$answer['selected'] = $value;
 					}
-
-					foreach ($out as $key => $answer)
+					else
 					{
-						if (!empty($answer['selected']))
-							continue;
-						$answers[$key]['selected'] = $value;
-						$field = $answers[$key]['idFormFields'];
-						break;
+						if (!$addbtn)
+							$addbtn	= $answer;
+						unset($answers[$key]);
 					}
 				}
 
 				//calc size of signs
-				$signsize = 0;
-				if ($square > 0)
-					$signsize = $square * 100 / ($apertredata['width']['selected']*$apertredata['height']['selected']);
+				if ($data['idFormFields'] == 789789)
+				{
+					$signsize = 0;
+					if ($square > 0)
+						$signsize = $square * 100 / ($apertredata['width']['selected']*$apertredata['height']['selected']);
+				}
 				
-				//make answers array
+
+
+				//sort answers
 				$out = array();
 				foreach ($answers as $answer)
 				{
-					if (!empty($answer['selected']))
-					{
-						if ($data['idFormFields'] == 789789 && $signsize > 5) //if sizeof signs > 5% make it replace
-							$answer['status'] = 4;
-						$out[] = $answer;
-					}
+					if ($data['idFormFields'] == 789789 && $apertredata['wall_Rating'] < 4 && $signsize > 5) //if sizeof signs > 5% make it replace
+						$answer['status'] = 4;
+					$out[$answer['questionOrder']] = $answer;
 				}
+				ksort($out);
 				$answers = $out;
 			
-				// add add btn
-				$answers[] = array(
-					'idFormFields' => '789789',
-	                'type' => 'answer',
-	                'nextQuestionId' => $nextq,
-	                'name' => 'AddSignBtn',
-	                'label' => 'Add Sign',
-	                'questionId' => $qid,
-	                'questionOrder' => count($answers)+1,
-	                'status' => '',
-	                'selected' => ''
-				);
+				if (in_array($addbtn['questionId'], array(637, 640, 78)))
+				{
+					// add add btn
+					$answers[] = array(
+						'idFormFields' => '789789',
+						'type' => 'answer',
+						'nextQuestionId' => 0,
+						'name' => 'AddSignBtn',
+						'label' => 'Add Sign',
+						'questionId' => $addbtn['questionId'],
+						'questionOrder' => count($answers)+1,
+						'status' => '',
+						'selected' => 'Yes'
+					);
+				}
+				elseif (in_array($addbtn['questionId'], array(323,344,15,566,50)))
+				{
+					// add add btn
+					$answers[] = array(
+						'idFormFields' => '789790',
+						'type' => 'answer',
+						'nextQuestionId' => 0,
+						'name' => 'AddHoleBtn',
+						'label' => 'Add Hole',
+						'questionId' => $addbtn['questionId'],
+						'questionOrder' => count($answers)+1,
+						'status' => '',
+						'selected' => 'Yes'
+					);
+				}
 		
 				$userData['answers'] = $answers;
 
@@ -1521,7 +1494,7 @@ class Service extends CI_Controller {
 	 * Add Inspection
 	 *
 	 * Input data:
-	 * token    		=> auth id from login
+	 * token			=> auth id from login
 	 * barcode 			=> QR or barcode of door
 	 * StartDate 		=> StartDate in table
 	 * location_id 		=> Buildings_idBuildings in table DEPRECATED!!
@@ -1674,7 +1647,7 @@ class Service extends CI_Controller {
 	 * Check door Unique ID
 	 *
 	 * Input data:
-	 * token    		=> auth id from login
+	 * token			=> auth id from login
 	 * barcode 			=> QR or scancode of door in 1-6 digit format
 	 * olddata  		=> marker, if presend means that need refresh locations fields
 	 * newdata  		=> to compare with olddata for refresh locations fields
@@ -2022,7 +1995,7 @@ class Service extends CI_Controller {
 	 * Delete inspection and it door
 	 *
 	 * Input data:
-	 * token    		=> auth id from login
+	 * token			=> auth id from login
 	 * inspection_id  	=> aperture id
 	 * aperture_id  	=> aperture id
 	 *
