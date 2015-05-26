@@ -23,6 +23,12 @@
 			      <input required="required" onkeyup="update_label(this);" type="text" class="form-control input-xs" name="label" id="label" value="<?=$issue['label']?>" />
 			    </div>
 		  	</div>
+		  	<div class="form-group">
+		    	<label class="control-label col-xs-3" for="autoSubmit">autosumbit:</label>
+			    <div class="col-xs-9">
+			      <input type="checkbox" class="form-control input-xs" name="autoSubmit" id="autoSubmit" <?php echo ($issue['autoSubmit']==1) ? 'checked="checked"' : '';?> />
+			    </div>
+		  	</div>
 		</div>
 		<div class="col-md-6">
 			<div class="form-group">
@@ -82,7 +88,7 @@
 				data: formdata,
 				success: function(result){
 					result = JSON.parse(result);
-
+					// console.log(result);
 					if (result.status=='ok'){
 						$('#dd-' + elem_id).remove();
 						alert('Successfully updated');

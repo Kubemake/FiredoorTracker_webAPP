@@ -49,7 +49,7 @@ class Service extends CI_Controller {
 			if (empty($postdata))
 				$this->_show_output(array('status' => 'error', 'error' => 'no data'));
 			
-			file_put_contents('/home/firedoors/public_html/application/cache/postdata', $postdata);  //DEBUG
+			file_put_contents('/home/firedoors/public_html/application/cache/postdata', $postdata . "\r\n", FILE_APPEND);  //DEBUG
 			$data = json_decode($postdata, TRUE); //name of JSON post data
 		}
 		
@@ -1210,7 +1210,7 @@ class Service extends CI_Controller {
 				$holes['789790'] = array(
 					'idFormFields' => '789790',
 					'type' => 'answer',
-					'nextQuestionId' => $addbtn['nextQuestionId'],
+					'nextQuestionId' => 0,
 					'name' => 'AddHoleBtn',
 					'label' => 'Add Hole',
 					'questionId' => $addbtn['questionId'],
@@ -1354,16 +1354,17 @@ class Service extends CI_Controller {
 		$this->service_model->delete_inspection_data($inspection, $field, $user); //del current answ record
 
 
-		if (!empty($data['selected']) && $data['selected'] != 'NO') //if not unselect action
+		if ((!empty($data['selected']) && $data['selected'] != 'NO') or in_array($data['idFormFields'], array(789789,789790))) //if not unselect action
 		{
 			if (!in_array($data['idFormFields'], array(789789,789790)))
 				$answers = $this->service_model->get_question_answers_by_answer_id_and_inspection_id($field, $inspection); //get all answers from this answer question 
 
 //!!!!!!			//надо такое условия чтобы все ответы которые радом с AddBtn включая её имели ид их вопроса (Special)
-			if (isset($data['Special']) && $data['Special'] != 'null')
+			if ((isset($data['Special']) && $data['Special'] != 'null') or in_array($data['idFormFields'], array(789789,789790)))
 			{
+				$qId = ((isset($data['Special']) && $data['Special'] != 'null')) ? $data['Special'] : $data['questionId'];
 				
-				$answers = $this->service_model->get_question_answers_by_question_id_and_inspection_id($data['Special'], $inspection); //get all answers from this answer question 
+				$answers = $this->service_model->get_question_answers_by_question_id_and_inspection_id($qId, $inspection); //get all answers from this answer question 
 				
 				$apert_id = $this->service_model->get_aperture_id_by_inspection_id($inspection);
 				$apertredata = $this->service_model->get_aperture_info_and_selected($apert_id['idAperture']);
@@ -1372,7 +1373,7 @@ class Service extends CI_Controller {
 
 				//remove empty sign and add new value
 				$addbtn = FALSE;
-				
+
 				//only if addbtn pressed save new value
 				$newval = (in_array($data['idFormFields'], array(789789,789790))) ? FALSE : TRUE;
 				foreach ($answers as $key=>&$answer)
@@ -1436,7 +1437,7 @@ class Service extends CI_Controller {
 						'questionId' => $addbtn['questionId'],
 						'questionOrder' => count($answers)+1,
 						'status' => '',
-						'selected' => 'Yes'
+						'selected' => ''
 					);
 				}
 				elseif (in_array($addbtn['questionId'], array(323,344,15,566,50)))
@@ -1451,7 +1452,7 @@ class Service extends CI_Controller {
 						'questionId' => $addbtn['questionId'],
 						'questionOrder' => count($answers)+1,
 						'status' => '',
-						'selected' => 'Yes'
+						'selected' => ''
 					);
 				}
 		

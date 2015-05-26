@@ -74,7 +74,11 @@ class Issues extends CI_Controller {
 	function ajax_update_issue()
 	{
 		if (!$fielddata = $this->input->post()) die(json_encode(array('status' => 'error')));
-		
+		if (isset($fielddata['autoSubmit']) && $fielddata['autoSubmit'] == 'on')
+			$fielddata['autoSubmit'] = 1;
+		else
+			$fielddata['autoSubmit'] = 0;
+
 		$result = $this->resources_model->update_issue_data($fielddata);
 
 		if ($result === 'duplicate') {

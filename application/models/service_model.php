@@ -176,6 +176,7 @@ function get_question_answers_by_question_id_and_inspection_id($quest, $inspecti
 		$this->db->join('DoorsFormFields dff', 'dff.FormFields_idFormFields = ff.idFormFields AND dff.Inspections_idInspections = ' . $inspection, 'left');
 		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $apert['wall_Rating'] . ' AND cc.ratesTypes = ' . $apert['smoke_Rating'] . ' AND doorRating = ' . $apert['rating'] . ' AND doorMatherial = ' . $apert['material'], 'left');
 		$this->db->where('ff.questionId', $quest);
+		$this->db->order_by('ff.questionOrder', 'ASC');
 		return $this->db->get()->result_array();
 	}
 
