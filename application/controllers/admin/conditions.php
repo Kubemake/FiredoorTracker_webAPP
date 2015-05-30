@@ -12,6 +12,8 @@ class Conditions extends CI_Controller {
 
 	function index($wall_rate_id = 1)
 	{
+		ini_set('memory_limit', '-1');
+		set_time_limit(0);
 		$data['current_wall_rate_id'] = $wall_rate_id;
 		
 		$data['issues'] = $this->resources_model->get_all_issues();
