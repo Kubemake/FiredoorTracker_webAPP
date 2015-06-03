@@ -388,9 +388,9 @@ class Resources_model  extends CI_Model
 	function get_inspection_info_by_inspection_id($inspection_id)
 	{
 		$this->db->select('i.*, b.name, d.barcode, d.Building, d.Floor, d.Wing, d.Area, d.Level, u.firstName, u.lastName, d.barcode');
-		$this->db->join('Doors d', 'd.idDoors = i.idAperture');
+		$this->db->join('Doors d', 'd.idDoors = i.idAperture', 'left');
 		$this->db->join('Users u', 'u.idUsers = i.Inspector', 'left');
-		$this->db->join('Buildings b', 'b.idBuildings = d.Building');
+		$this->db->join('Buildings b', 'b.idBuildings = d.Building', 'left');
 		$this->db->where('i.idInspections', $inspection_id);
 		$result = $this->db->get('Inspections i')->row_array();
 		return $result;

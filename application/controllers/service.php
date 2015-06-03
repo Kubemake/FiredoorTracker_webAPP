@@ -1006,7 +1006,8 @@ class Service extends CI_Controller {
 		{
 			if ($selected_smoke_rating !== 'Please select value')
 			{
-				$doorLabel_Rating = array_keys($four_params[$selected_smoke_rating]);
+				// $doorLabel_Rating = array_keys($four_params[$selected_smoke_rating]);
+				$doorLabel_Rating = $this->service_model->get_enum_values('Doors', 'doorLabel_Rating');
 				$doorLabel_Ratings = array_flip($doorLabel_Rating);
 			}
 			else
@@ -1041,11 +1042,16 @@ class Service extends CI_Controller {
 			$doorLabel_Temp_Rise = 									$this->service_model->get_enum_values('Doors', 'doorLabel_Temp_Rise');
 			if (isset($olddata) && isset($newdata) && isset($newdata['doorLabel_Temp_Rise']))		$selected = $newdata['doorLabel_Temp_Rise'];
 			else 																					$selected = !empty($doorval['doorLabel_Temp_Rise']) ? $doorval['doorLabel_Temp_Rise'] : $doorLabel_Temp_Rise[0];
-			$doorLabel[] = array('name' => 'doorLabel_Temp_Rise',	 	'label' => 'Temperature Rise Requirement',	'selected' => $selected,			 'type' => 'enum', 'values' => $doorLabel_Temp_Rise, 	'enabled' => TRUE, 'force_refresh' => 0, 'alert' => '');
+			$doorLabel[] = array('name' => 'doorLabel_Temp_Rise',	 	'label' => 'Temperature Rise Requirement',	'selected' => $selected, 'type' => 'enum', 'values' => $doorLabel_Temp_Rise, 	'enabled' => TRUE, 'force_refresh' => 0, 'alert' => '');
 		}
 
 		$userData['info']['Door Label'] = $doorLabel;
 		$userData['sections'][] = 'Door Label';
+		
+		if (isset($olddata) && isset($newdata) && isset($newdata['comment'])) 						$selected = $newdata['comment'];
+			else 																					$selected = !empty($doorval['comment']) ? $doorval['comment'] : '';
+		$userData['info']['Comments'][] = array('name' => 'comment',	 'label' => 'Comments',	'selected' => $selected,			 	 	'type' => 'string', 'enabled' => TRUE, 'force_refresh' => 0, 'alert' => '');
+		$userData['sections'][] = 'Comments';
 
 		$userData['status'] = 'ok';
 
@@ -1138,6 +1144,7 @@ class Service extends CI_Controller {
 		$user_id = $data['tokendata']['user_id'];
 
 		$this->load->model('user_model');
+		$this->load->model('resources_model');
 		$user = $this->user_model->get_user_info_by_user_id($user_id);
 		
 		//make right data for save for some fields
@@ -1232,6 +1239,7 @@ class Service extends CI_Controller {
 					'questionId' => $addbtn['questionId'],
 					'questionOrder' => count($holes)+1,
 					'status' => '',
+					'alert' => 'Are you sure you want to add hole?',
 					'forceRefresh' => 1,
 					'selected' => ''
 				);
@@ -1267,6 +1275,7 @@ class Service extends CI_Controller {
 					'questionId' => $addbtn['questionId'],
 					'questionOrder' => count($hinges)+1,
 					'status' => '',
+					'alert' => 'Are you sure you want to add hinge?',
 					'forceRefresh' => 1,
 					'selected' => ''
 				);
@@ -1510,6 +1519,7 @@ class Service extends CI_Controller {
 						'questionId' => $addbtn['questionId'],
 						'questionOrder' => count($answers),
 						'status' => '',
+						'alert' => 'Are you sure you want to add hole?',
 						'forceRefresh' => 1,
 						'selected' => ''
 					);
@@ -1526,6 +1536,7 @@ class Service extends CI_Controller {
 						'questionId' => $addbtn['questionId'],
 						'questionOrder' => count($answers),
 						'status' => '',
+						'alert' => 'Are you sure you want to add hinge?',
 						'forceRefresh' => 1,
 						'selected' => ''
 					);
