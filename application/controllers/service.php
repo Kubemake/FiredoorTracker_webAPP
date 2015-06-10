@@ -679,7 +679,7 @@ class Service extends CI_Controller {
 
 			$building = (!empty($doorval['Building']) && $doorval['Building'] != 0 && isset($buildings[$doorval['Building']])) ? $buildings[$doorval['Building']] : $buildings_values[0];
 
-			if (isset($olddata) && isset($newdata))
+			if (isset($olddata) && isset($newdata) && isset($newdata['Building']) && $newdata['Building'] > 0)
 				$building = $newdata['Building'];
 
 			$locatio[] = array('name' => 'Building', 'label' => 'Building', 'selected' => $building, 'type' => 'enum', 'values' => $buildings_values, 'enabled' => TRUE, 'force_refresh' => 1, 'alert' => 'Are you sure you want to change?');
@@ -1153,6 +1153,24 @@ class Service extends CI_Controller {
 		$data['smoke_Rating'] = $smoke_rating[$data['smoke_Rating']];
 		$data['rating'] 	  = $rating[$data['rating']];
 		$data['material'] 	  = $material[$data['material']];
+
+		$userlocation = $this->resources_model->get_user_buildings($user['parent']);
+		$buildings 	  = array();
+		foreach ($userlocation as $loc)
+			$buildings[$loc['level']][$loc['name']] = $loc;
+		$userlocation = $buildings;
+
+		//Locations handler	
+		if (isset($data['Building']))
+			$data['Building']	= $userlocation[0][$data['Building']]['idBuildings'];
+		if (isset($data['Floor']) && $data['Floor'] != 'N/A')
+			$data['Floor']	= $userlocation[1][$data['Floor']]['idBuildings'];
+		if (isset($data['Wing']) && $data['Wing'] != 'N/A')
+			$data['Wing']	= $userlocation[2][$data['Wing']]['idBuildings'];
+		if (isset($data['Area']) && $data['Area'] != 'N/A')
+			$data['Area']	= $userlocation[3][$data['Area']]['idBuildings'];
+		if (isset($data['Level']) && $data['Level'] != 'N/A')
+			$data['Level']	= $userlocation[4][$data['Level']]['idBuildings'];
 
 		$upddata 					= $data; //save selected overview parameters
 

@@ -92,7 +92,7 @@ class Service_model  extends CI_Model
 
 		foreach ($results as $result) {
 			$temp = $result;
-			unset($temp['deleted'], $temp['level'], $temp['parent'], $temp['path']);
+			unset($temp['deleted'], $temp['level'],$temp['path']);
 
 			if ($result['type'] == 'answer')
 			{
