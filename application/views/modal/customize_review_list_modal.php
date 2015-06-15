@@ -19,7 +19,7 @@
 								<div id="collapseOne" class="panel-collapse collapse in">
 									<div class="panel-body">
 										<div class="form-group">
-											<label for="start_date" class="control-label col-xs-4">Dates</label>
+											<label for="start_date" class="control-label col-xs-4">Dates between</label>
 											<div class="col-xs-4">
 												 <div class="input-group date" id="start_date">
 													<input name="start_date" class="form-control" value="" />
@@ -34,10 +34,23 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label for="users[]" class="control-label col-xs-4">Users</label>
+											<label for="users[]" class="control-label col-xs-4">Reviewers</label>
 											<div class="col-xs-8">
 												 <div class="input-group fullwidth" id="users">
 													<select name="users[]" class="selectpicker fullwidth" data-live-search="true" multiple>
+														<option value="all">All Users</option>
+														<?php foreach ($users as $user): ?>
+															<option value="<?=$user['idUsers']?>"><?=$user['firstName'] . ' ' . $user['lastName']?></option>
+														<?php endforeach; ?>
+													</select>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<label for="creators[]" class="control-label col-xs-4">Creators</label>
+											<div class="col-xs-8">
+												 <div class="input-group fullwidth" id="creators">
+													<select name="creators[]" class="selectpicker fullwidth" data-live-search="true" multiple>
 														<option value="all">All Users</option>
 														<?php foreach ($users as $user): ?>
 															<option value="<?=$user['idUsers']?>"><?=$user['firstName'] . ' ' . $user['lastName']?></option>
@@ -65,7 +78,7 @@
 							<div class="panel panel-default">
 							    <div class="panel-heading">
 							    	<h4 class="panel-title">
-							        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">Select Criteria</a>
+							        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">STEP 2<?//Select Criteria?></a>
 							        </h4>
 							    </div>
 							    <div id="collapseTwo" class="panel-collapse collapse">
@@ -91,7 +104,7 @@
 							<div class="panel panel-default">
 							    <div class="panel-heading">
 							    	<h4 class="panel-title">
-							        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">Select non-compliance area of review</a>
+							        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">STEP 3<?//Select non-compliance area of review?></a>
 							        </h4>
 							    </div>
 							    <div id="collapseThree" class="panel-collapse collapse">

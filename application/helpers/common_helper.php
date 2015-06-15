@@ -67,6 +67,8 @@ function send_mail($to, $subj='', $body='', $from='')
 	return mail($to, $subj, $body, "From: Mailing system <" . $from . ">" . "\r\n" . "Content-type: text/html; charset=UTF-8" . "\r\n");
 }
 
+
+// $type in (success, info, warning, danger)
 function msg($type, $text)
 {
 	return '<div class="alert alert-'.$type.' alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>'.$text.'</div>';

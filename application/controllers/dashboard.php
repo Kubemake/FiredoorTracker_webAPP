@@ -70,6 +70,9 @@ class Dashboard extends CI_Controller {
 					if(isset($postdata['users']) && !empty($postdata['users']) && !in_array('all', $postdata['users']))
 						$filters['users'] = $postdata['users'];
 
+					if(isset($postdata['creators']) && !empty($postdata['creators']) && !in_array('all', $postdata['creators']))
+						$filters['creators'] = $postdata['creators'];
+
 					if(isset($postdata['buildings']) && !empty($postdata['buildings']) && !in_array('all', $postdata['buildings']))
 						$filters['buildings'] = $postdata['buildings'];
 
@@ -699,6 +702,10 @@ class Dashboard extends CI_Controller {
 
 			if(isset($filter_data['users']) && !empty($filter_data['users']) && !in_array('all', $filter_data['users']))
 				if (!empty($inspection['Inspector']) && !in_array($inspection['Inspector'], $filter_data['users']))
+					continue;
+
+			if(isset($filter_data['creators']) && !empty($filter_data['creators']) && !in_array('all', $filter_data['creators']))
+				if (!empty($inspection['Inspector']) && !in_array($inspection['Inspector'], $filter_data['creators']))
 					continue;
 
 			if(isset($filter_data['buildings']) && !empty($filter_data['buildings']) && !in_array('all', $filter_data['buildings']))

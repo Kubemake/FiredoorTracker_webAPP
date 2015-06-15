@@ -49,7 +49,8 @@ INSERT INTO `Users` (`idUsers`, `idAddress`, `email`, `password`, `firstName`, `
 (24, NULL, 'm@cm.nor', '09057de44bec70c9bc8ff80f62880802', 'C', 'M', '', '', '', '0000-00-00', 3, 6, '0000-00-00 00:00:00', NULL, 0),
 (25, NULL, 'm@hw.nor', 'ef70326db4a17e2d3acebd23c1947e6b', 'H', 'W', '', '', '', '0000-00-00', 3, 7, '0000-00-00 00:00:00', NULL, 0),
 (26, NULL, 'm@mi.nor', 'c9ff14de8cee6fe22039e5f264bfe494', 'Michael', '', '', '', '', '0000-00-00', 3, 8, '0000-00-00 00:00:00', NULL, 0),
-(27, NULL, 'm@pb.nor', 'a579cd20cfe6c894c22d588dfe2a978a', 'P', 'B', '', '', '', '0000-00-00', 3, 9, '0000-00-00 00:00:00', NULL, 0);
+(27, NULL, 'm@pb.nor', 'a579cd20cfe6c894c22d588dfe2a978a', 'P', 'B', '', '', '', '0000-00-00', 3, 9, '0000-00-00 00:00:00', NULL, 0),
+(28, NULL, 'empt_ins@test.nor', '4b9d141061099f264b1920494ccfd97a', 'Dev', 'Test', '', '', '', '0000-00-00', 3, 5, '0000-00-00 00:00:00', NULL, 0);
 
 INSERT INTO `Buildings` (`idBuildings`, `name`, `parent`, `root`, `level`, `buildingOrder`, `deleted`) VALUES
 (1, 'Building #1', 0, 1, 0, 0, 0),

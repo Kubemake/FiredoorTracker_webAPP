@@ -61,15 +61,6 @@ class Ajax extends CI_Controller {
 				$params['users_reviewer'] = $this->session->userdata('user_id');
 				if ($this->session->userdata('user_role')!=3)
 					$params['users_reviewer'] 		= $this->user_model->get_users_by_role_and_user_parent($this->session->userdata('user_role'), $this->session->userdata('user_parent'));
-				
-				// if (has_permission('Allow view all reviews'))
-				// {
-
-				// }
-				// else
-				// {
-					// $params['users_reviewer'] 		= $this->user_model->get_users_by_role_and_user_parent(3, $this->session->userdata('user_parent')); //Only mechanics
-				// }
 			break;
 
 			case 'show_inspection_modal':
@@ -92,42 +83,7 @@ class Ajax extends CI_Controller {
 						foreach ($issue['answers'] as $answer)
 							if (strpos($answer['name'], 'Other') !== FALSE)
 								$params['oth'][] = $answer;
-
-
 			break;
-
-			/*case 'show_inspection_modal':
-				if (!$aperture_id = $this->input->post('door_id')) return '';
-				if (!$inspection_id = $this->input->post('insp_id')) return '';
-				$issues = $this->resources_model->get_all_issues();
-
-				$broken_issues = $this->resources_model->get_aperture_issues_with_status_and_selected($aperture_id, $inspection_id);
-
-				$trouble_list = array();
-
-				$params['trouble_list'] = array();
-
-				if (!empty($broken_issues))
-				{
-					foreach ($broken_issues as $brok)
-					{
-						$item = $brok;
-						$section = '-';
-						for ($i=15; $i > 0 ; $i--)
-						{ 
-							if ($item['parent'] == 0)
-								break;
-
-							if ($item['level'] == 2)
-								$section = $item['label'];
-
-							$item = $issues[$item['parent']];
-						}
-						$trouble_list[$item['label']][$section][] = $brok;
-					}
-				}
-				$params['trouble_list'] = $trouble_list;
-			break;*/
 
 			case 'add_employeer_modal':
 				$params['user_roles'] 			= $this->resources_model->get_all_employeers_roles();
@@ -158,19 +114,21 @@ class Ajax extends CI_Controller {
 			break;
 
 			case 'edit_aperture_modal':
-				$this->load->model('user_model');
+				if (!$aperture_id = $this->input->post('id')) return '';
+
+				// $this->load->model('user_model');
+/*
 				$params['wall_rating'] 			= $this->config->item('wall_rates');
 				$params['smoke_rating'] 		= $this->config->item('rates_types');
 				$params['material'] 			= $this->config->item('door_matherial');
 				$params['rating'] 				= $this->config->item('door_rating');
-				// $params['user_buildings'] 		= $this->resources_model->get_user_buildings();
-				
+*/
+
 				$builds = $this->resources_model->get_user_buildings_root();
 
 				foreach ($builds as $key => $value)
 					$params['building'][$key] = $value['name'];
 
-				if (!$aperture_id = $this->input->post('id')) return '';
 				$params['aperture'] 			= $this->resources_model->get_aperture_info_by_aperture_id($aperture_id);
 			break;
 
@@ -218,8 +176,6 @@ class Ajax extends CI_Controller {
 			case 'send_email_modal':
 				$this->load->model('user_model');
 				$params['users'] 		= $this->user_model->get_users_by_role_and_user_parent($this->session->userdata('user_role'), $this->session->userdata('user_parent'));
-				// echo '<pre>';
-				// print_r($params['users']);die();
 			break;
 
 			default:

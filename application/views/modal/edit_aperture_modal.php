@@ -59,54 +59,6 @@
 								</select>
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="wallRating" class="control-label col-xs-4">Wall Rating</label>
-							<div class="col-xs-8">
-								<select name="wallRating" id="wallRating" class="form-control fullwidth" data-live-search="true">
-									<option value="0">Choose Wall Rating</option>
-									<?php foreach ($wall_rating as $key => $val): ?>
-										<?php $select = ($key == $aperture['wall_Rating']) ? ' selected="selected"' : '';?>
-										<option<?=$select?> value="<?=$key?>"><?=$val?></option>
-									<?php endforeach; ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="smokeRating" class="control-label col-xs-4">Smoke Rating</label>
-							<div class="col-xs-8">
-								<select name="smokeRating" id="smokeRating" class="form-control fullwidth" data-live-search="true">
-									<option value="0">Choose Smoke Rating</option>
-									<?php foreach ($smoke_rating as $key => $val): ?>
-										<?php $select = ($key == $aperture['smoke_Rating']) ? ' selected="selected"' : '';?>
-										<option<?=$select?> value="<?=$key?>"><?=$val?></option>
-									<?php endforeach; ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="material" class="control-label col-xs-4">Material</label>
-							<div class="col-xs-8">
-								<select name="material" id="material" class="form-control fullwidth" data-live-search="true">
-									<option value="0">Choose Material</option>
-									<?php foreach ($material as $key => $val): ?>
-										<?php $select = ($key == $aperture['material']) ? ' selected="selected"' : '';?>
-										<option<?=$select?> value="<?=$key?>"><?=$val?></option>
-									<?php endforeach; ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="rating" class="control-label col-xs-4">Rating</label>
-							<div class="col-xs-8">
-								<select name="rating" id="rating" class="form-control fullwidth" data-live-search="true">
-									<option value="0">Choose Rating</option>
-									<?php foreach ($rating as $key => $val): ?>
-										<?php $select = ($key == $aperture['rating']) ? ' selected="selected"' : '';?>
-										<option<?=$select?> value="<?=$key?>"><?=$val?></option>
-									<?php endforeach; ?>
-								</select>
-							</div>
-						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -139,15 +91,15 @@
 												<?php if ($aperture['Area']): ?>
 													$.ajax({
 														url: '/user/ajax_get_building_childs/<?=$aperture['Wing']?>/<?=$aperture['Area']?>',
-														success: function(result)
+														success: function(resultt)
 														{
-															$('#area').html(area+result);
+															$('#area').html(area+resultt);
 
 															<?php if ($aperture['Level']): ?>
 																$.ajax({
 																	url: '/user/ajax_get_building_childs/' + $(this).val(),
-																	success: function(result){
-																		$('#level').html(level+result);
+																	success: function(resultz){
+																		$('#level').html(level+resultz);
 																	}
 																})
 															<?php endif; ?>
@@ -221,6 +173,14 @@
 								}
 							})
 
+						}
+					});
+
+					$("#editbtnform").submit(function(e){
+						if ($('#building').val()==0)
+						{
+							alert('Please choose Building!');
+							return false;
 						}
 					});
 				</script>

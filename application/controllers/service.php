@@ -1179,158 +1179,12 @@ class Service extends CI_Controller {
 		$this->load->library('History_library');
 		
 		$this->history_library->saveDoors(array('user_id' => $user_id, 'iid' => $data['inspection_id'], 'new_val' => json_encode($upddata), 'type' => 'edit'));
-
 		$this->service_model->update_aperture_overview_info($data['inspection_id'], $upddata, $user_id);
 
-		$result = $this->service_model->get_aperture_issues_and_selected($data);
+		$this->history_library->saveInspections(array('user_id' => $user_id, 'line_id' => $data['inspection_id'], 'new_val' => json_encode(array('StartDate' => date('Y-m-d'))), 'type' => 'edit'));
+		$this->resources_model->update_inspection($data['inspection_id'], array('StartDate' => date('Y-m-d'), 'Inspector' => $user_id));
 
-		/*spec code for signs*/
-		$addbtnqs = array(637, 640, 78);
-		foreach ($addbtnqs as $addbtnq)
-		{
-			if ($addbtnq > 0)
-			{
-				$signs = $result['issues'][$addbtnq]['answers'];
-				
-				foreach ($signs as &$sign)
-				{
-					$sign['forceRefresh'] = 1;
-
-					if (strlen($sign['selected']) > 0)
-					{
-						//replace if sign size over 5% of door square
-						$square = 0;
-						$signsize = 0;
-						$dim = explode(',',$sign['selected']);
-						$square = trim(@$dim[0]) * trim(@$dim[1]); //calc sings square
-						if ($square > 0)
-							$signsize = $square * 100 / ($data['width']*$data['height']);
-						if ($data['wall_Rating'] < 4 && $signsize > 5)
-							$sign['status'] = 4;
-					}
-					else
-						unset($signs[$sign['idFormFields']]);
-				}
-
-				//add sign btn
-				$signs['789789'] = array(
-					'idFormFields' => '789789',
-					'type' => 'answer',
-					'nextQuestionId' => 0,
-					'name' => 'AddSignBtn',
-					'label' => 'Add Sign',
-					'questionId' => $addbtnq,
-					'questionOrder' => count($signs)+1,
-					'status' => '',
-					'forceRefresh' => 1,
-					'selected' => ''
-				);
-				$result['issues'][$addbtnq]['answers'] = $signs;
-			}
-		}
-		/*END spec code for signs*/
-
-		/*spec code for holes*/
-		$h1addbtnqs = array(323,344,15,566,50);
-		foreach ($h1addbtnqs as $h1addbtnq)
-		{
-			if ($h1addbtnq > 0)
-			{
-				$addbtn = FALSE;
-				$holes = $result['issues'][$h1addbtnq]['answers'];
-				foreach ($holes as &$hole)
-				{
-					if (!$addbtn) //Save params for AddBtn
-						$addbtn = $hole;
-
-					if (strlen($hole['selected']) == 0)
-						unset($holes[$hole['idFormFields']]);
-				}
-
-				//add hole btn
-				$holes['789790'] = array(
-					'idFormFields' => '789790',
-					'type' => 'answer',
-					'nextQuestionId' => 0,
-					'name' => 'AddHoleBtn',
-					'label' => 'Add Hole',
-					'questionId' => $addbtn['questionId'],
-					'questionOrder' => count($holes)+1,
-					'status' => '',
-					'alert' => 'Are you sure you want to add hole?',
-					'forceRefresh' => 1,
-					'selected' => ''
-				);
-				$result['issues'][$h1addbtnq]['answers'] = $holes;
-			}
-		}
-		/*END spec code for frame holes*/
-
-		/*spec code for hinges*/
-		$hingesaddbtns = array(662,663,664,665,666,105);
-		foreach ($hingesaddbtns as $hngsbtn)
-		{
-			if ($hngsbtn > 0)
-			{
-				$addbtn = FALSE;
-				$hinges = $result['issues'][$hngsbtn]['answers'];
-				foreach ($hinges as &$hinge)
-				{
-					if (!$addbtn) //Save params for AddBtn
-						$addbtn = $hinge;
-
-					if (strlen($hinge['selected']) == 0)
-						unset($hinges[$hinge['idFormFields']]);
-				}
-
-				//add hinge btn
-				$hinges['789791'] = array(
-					'idFormFields' => '789791',
-					'type' => 'answer',
-					'nextQuestionId' => 0,
-					'name' => 'AddHingeBtn',
-					'label' => 'Add Hinge',
-					'questionId' => $addbtn['questionId'],
-					'questionOrder' => count($hinges)+1,
-					'status' => '',
-					'alert' => 'Are you sure you want to add hinge?',
-					'forceRefresh' => 1,
-					'selected' => ''
-				);
-				$result['issues'][$hngsbtn]['answers'] = $hinges;
-			}
-		}
-		/*END spec code for frame holes*/
-
-		/*spec code for signage question */
-		//hide Signage answer variant 
-		if (empty($data['singage']) or $data['singage'] != 'Yes')
-		{
-			unset($result['issues'][$result['signage']['parent']]['answers'][$result['signage']['idFormFields']]);
-			unset($result['issues'][$result['signage']['nextQuestionId']]);
-			foreach ($addbtnqs as $addbtnq) 
-				unset($result['issues'][$addbtnq]);
-		}
-		/*END spec code for signage question */
-		
-		/*spec code for Vision Light (Glass) Present? question */
-		//hide Glazing review TAB!
-		if (empty($data['vision_Light_Present']) or $data['vision_Light_Present'] == 'No')
-		{
-			unset($result['tabs'][$result['glzng']['idFormFields']]);
-			unset($result['issues'][$result['glzng']['nextQuestionId']]);
-			unset($result['issues'][86]['answers'][90]);
-
-		}
-		/*END spec code for signage question */
-
-		/*spec code for hidding fields for wall_rating_id < 4*/
-		if ($data['wall_Rating'] < 4)
-		{
-			foreach (array(219,220) as $hid)
-				unset($result['issues'][217]['answers'][$hid]);
-		}
-		/*END spec code for hidding fields for wall_rating_id > 3*/
+		$result = $this->service_model->get_aperture_issues_and_selected($data); //All SPEC CASES INSIDE
 
 		ksort($result['tabs']);
 		$out = array();
@@ -1533,7 +1387,7 @@ class Service extends CI_Controller {
 						'type' => 'answer',
 						'nextQuestionId' => 0,
 						'name' => 'AddHoleBtn',
-						'label' => 'Add Hole',
+						'label' => ($addbtn['questionId'] != 15) ? 'Add Hole' : 'Add Missing Silencer',
 						'questionId' => $addbtn['questionId'],
 						'questionOrder' => count($answers),
 						'status' => '',
@@ -1715,6 +1569,7 @@ class Service extends CI_Controller {
 		$this->history_library->saveInspections(array('user_id' => $user_id, 'line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
 
 		$adddata['id'] = $iid;
+		$adddata['aperture_id']   = $aperture_id;
 		$adddata['building_name'] = $building_name;
 		$adddata['location_name'] = @$location_name;
 

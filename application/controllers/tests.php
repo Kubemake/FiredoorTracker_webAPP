@@ -29,7 +29,7 @@ class Tests extends CI_Controller {
 		$this->_show('3. empty password', 						array('type' => 'auth', 'login' => 'any@login@err',		'password' => ''));
 		$this->_show('4. wrong login', 							array('type' => 'auth', 'login' => 'any@login@err',		'password' => '124'));
 		$this->_show('5. wrong password', 						array('type' => 'auth', 'login' => 'm@test.nor',		'password' => '1241'));
-		$out = $this->_show('6. normal login', 					array('type' => 'auth', 'login' => 'm@test.nor',		'password' => '124'));
+		$out = $this->_show('6. normal login', 					array('type' => 'auth', 'login' => 'm@pb.nor',		'password' => 'pb'));
 
 		$token = $out->token;
 
@@ -80,7 +80,7 @@ class Tests extends CI_Controller {
 		$this->_show('10. without rating param', 				array('type' => 'get_aperture_issues', 'token' => $token, 'inspection_id' =>  $inspection_id, 'wall_Rating' => 'Smoke Wall', 'smoke_Rating' => 'Smoke Rated Door', 'material' => 'Aluminum'));
 		$this->_show('11. empty rating param', 					array('type' => 'get_aperture_issues', 'token' => $token, 'inspection_id' =>  $inspection_id, 'wall_Rating' => 'Smoke Wall', 'smoke_Rating' => 'Smoke Rated Door', 'material' => 'Aluminum', 'rating' => ''));
 		$this->_show('12. wrong update paramer', 				array('type' => 'get_aperture_issues', 'token' => $token, 'inspection_id' =>  $inspection_id, 'wall_Rating' => 'Smoke Wall', 'smoke_Rating' => 'Smoke Rated Door', 'material' => 'Aluminum', 'rating' => '45', 'wrong_param' => 'wrong_param_value'));
-		$out = $this->_show('13. get normal', 					array('type' => 'get_aperture_issues', 'token' => $token, 'inspection_id' =>  $inspection_id, 'wall_Rating' => '1 Hour', 'smoke_Rating' => 'Yes', 'material' => 'Glass', 'doorLabel_Rating' => '60 Minute', 'width' => '30', 'height' => '84', 'Building' => '4'));
+		$out = $this->_show('13. get normal', 					array('type' => 'get_aperture_issues', 'token' => $token, 'inspection_id' =>  $inspection_id, 'wall_Rating' => '1 Hour', 'smoke_Rating' => 'Yes', 'material' => 'Glass', 'doorLabel_Rating' => '60 Minute', 'width' => '30', 'height' => '84', 'Building' => 'Building #1'));
 		$this->_show('13. updated aperture overview',			array('type' => 'get_aperture_overview_info', 'token' => $token, 'aperture_id' => $aperture_id));
 
 //----------------------------------

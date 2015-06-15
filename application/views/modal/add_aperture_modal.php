@@ -58,50 +58,6 @@
 								</select>
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="wallRating" class="control-label col-xs-4">Wall Rating</label>
-							<div class="col-xs-8">
-								<select name="wallRating" id="wallRating" class="form-control fullwidth" data-live-search="true">
-									<option value="0">Choose Wall Rating</option>
-									<?php foreach ($wall_rating as $key => $val): ?>
-										<option value="<?=$key?>"><?=$val?></option>
-									<?php endforeach; ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="smokeRating" class="control-label col-xs-4">Smoke Rating</label>
-							<div class="col-xs-8">
-								<select name="smokeRating" id="smokeRating" class="form-control fullwidth" data-live-search="true">
-									<option value="0">Choose Smoke Rating</option>
-									<?php foreach ($smoke_rating as $key => $val): ?>
-										<option value="<?=$key?>"><?=$val?></option>
-									<?php endforeach; ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="material" class="control-label col-xs-4">Material</label>
-							<div class="col-xs-8">
-								<select name="material" id="material" class="form-control fullwidth" data-live-search="true">
-									<option value="0">Choose Material</option>
-									<?php foreach ($material as $key => $val): ?>
-										<option value="<?=$key?>"><?=$val?></option>
-									<?php endforeach; ?>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="rating" class="control-label col-xs-4">Rating</label>
-							<div class="col-xs-8">
-								<select name="rating" id="rating" class="form-control fullwidth" data-live-search="true">
-									<option value="0">Choose Rating</option>
-									<?php foreach ($rating as $key => $val): ?>
-										<option value="<?=$key?>"><?=$val?></option>
-									<?php endforeach; ?>
-								</select>
-							</div>
-						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -179,6 +135,13 @@
 						}
 					});
 
+					$("#addbtnform").submit(function(e){
+						if ($('#building').val()==0)
+						{
+							alert('Please choose Building!');
+							return false;
+						}
+					}); 
 				</script>
 			</form>
 		</div>

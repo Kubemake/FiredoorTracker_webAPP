@@ -318,10 +318,10 @@ class User extends CI_Controller {
 			$adddata = array(
 			    'Building'		=> $postdata['building'],
 			    'barcode'		=> $postdata['barcode'],
-			    'wall_Rating'	=> $postdata['wallRating'],
+			    /*'wall_Rating'	=> $postdata['wallRating'],
 			    'smoke_Rating' 	=> $postdata['smokeRating'],
 			    'material'		=> $postdata['material'],
-			    'rating'		=> $postdata['rating'],
+			    'rating'		=> $postdata['rating'],*/
 			    'UserId'		=> $this->session->userdata('user_parent'),
 			);
 			
@@ -337,6 +337,12 @@ class User extends CI_Controller {
 			switch ($postdata['form_type'])
 			{
 				case 'add_aperture':
+					$exist = array();
+					$exist = $this->resources_model->get_aperture_info_by_barcode($adddata['barcode']);
+					if (!empty($exist)) {
+						$header['msg'] = msg('warning', 'Door allready exist!');
+						break;
+					}
 					$newemp = $this->resources_model->add_aperture($adddata);	//add new aperture
 					
 					$this->history_library->saveDoors(array('line_id' => $newemp, 'new_val' => json_encode($adddata), 'type' => 'add'));
@@ -346,6 +352,9 @@ class User extends CI_Controller {
 				break;
 
 				case 'edit_aperture':
+					
+
+
 					$this->history_library->saveDoors(array('line_id' => $postdata['aperture_id'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
 
 					$this->resources_model->update_aperture_data($postdata['aperture_id'], $adddata);
@@ -366,17 +375,17 @@ class User extends CI_Controller {
 				array('data' => 'Floor'  		, 'class' => 'not-mobile'),
 				array('data' => 'Wing'  		, 'class' => 'not-mobile'),
 				array('data' => 'Area'   		, 'class' => 'not-mobile'),
-				array('data' => 'Level'  	 	, 'class' => 'not-mobile'),
+				array('data' => 'Level'  	 	, 'class' => 'not-mobile')/*,
 				array('data' => 'Wall Rating'   , 'class' => 'not-mobile'),
 				array('data' => 'Smoke Rating'	, 'class' => 'not-mobile'),
 				array('data' => 'Material'		, 'class' => 'not-mobile'),
-				array('data' => 'Rating'		, 'class' => 'not-mobile')
+				array('data' => 'Rating'		, 'class' => 'not-mobile')*/
 			);
 
-			$data['wall_Rating'] 	= $this->config->item('wall_rates');
+	/*		$data['wall_Rating'] 	= $this->config->item('wall_rates');
 			$data['smoke_Rating'] 	= $this->config->item('rates_types');
 			$data['material'] 		= $this->config->item('door_matherial');
-			$data['rating'] 		= $this->config->item('door_rating');
+			$data['rating'] 		= $this->config->item('door_rating');*/
 
 			$apertures = $this->resources_model->get_all_user_apertures();
 
@@ -385,7 +394,7 @@ class User extends CI_Controller {
 				foreach ($apertures as $aperture)
 				{
 					$cell = array('data' => $aperture['idDoors'], 'style' => 'display: none !important;');
-					$this->table->add_row($cell, $aperture['barcode'], @$aperture['Building'], @$aperture['Floor'], @$aperture['Wing'], @$aperture['Area'], @$aperture['Level'], @$data['wall_Rating'][$aperture['wall_Rating']], @$data['smoke_Rating'][$aperture['smoke_Rating']], @$data['material'][$aperture['material']], @$data['rating'][$aperture['rating']]);
+					$this->table->add_row($cell, $aperture['barcode'], @$aperture['Building'], @$aperture['Floor'], @$aperture['Wing'], @$aperture['Area'], @$aperture['Level']/*, @$data['wall_Rating'][$aperture['wall_Rating']], @$data['smoke_Rating'][$aperture['smoke_Rating']], @$data['material'][$aperture['material']], @$data['rating'][$aperture['rating']]*/);
 				}
 			}
 			
