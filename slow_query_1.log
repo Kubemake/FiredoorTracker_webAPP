@@ -1,219 +1,53 @@
-17.04.2015 15:49:52 : 1.2977
-SHOW COLUMNS FROM FormFields LIKE 'type'
+18.06.2015 21:59:49 : 1.2297
+INSERT INTO `Files` (`Users_idUsers`, `path`, `type`, `FileUploadDate`) VALUES ('2', 'http://firedoortracker.org/upload/2/what-the-heck-is-seo-jpg_1434664763.jpg', 'image', '2015-06-18 21:59:23')
 
 -----------------------------
-17.04.2015 15:49:52 : 1.3236
-UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '2', `name` = 'FrameReview', `label` = 'Frame Review', `questionId` = 0, `parent` = 0, `questionOrder` = 0, `level` = 0, `deleted` = '0' WHERE `idFormFields` =  '1'
+18.06.2015 22:01:13 : 3.1771
+INSERT INTO `Files` (`Users_idUsers`, `path`, `type`, `FileUploadDate`) VALUES ('2', 'http://firedoortracker.org/upload/2/what-the-heck-is-seo-jpg_1434664852.jpg', 'image', '2015-06-18 22:00:52')
 
 -----------------------------
-17.04.2015 17:13:23 : 2.2152
-SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
-FROM (`Inspections` i)
-LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
-LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
-LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
-WHERE `i`.`idInspections` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '19', '12', '13', '14', '15', '16', '17', '18') 
+18.06.2015 22:01:13 : 5.2502
+INSERT INTO `History` (`entity`, `user_id`, `line_id`, `timestamp`, `new_val`, `prev_val`) VALUES ('iff', '2', '28', 1434664864, '{\"Files_idFiles\":32,\"Doors_idDoors\":\"36\"}', '')
 
 -----------------------------
-17.04.2015 18:30:58 : 1.1892
-SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
-FROM (`Inspections` i)
-LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
-LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
-LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
-WHERE `i`.`idInspections` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '19', '12', '13', '14', '15', '16', '17', '18') 
-
------------------------------
-18.04.2015 9:13:42 : 1.7127
-SELECT `i`.`revision`, `i`.`idInspections` as id, `i`.`Buildings_idBuildings` as location_id, `b`.`name` as location_name, `i`.`idAperture` as aperture_id, `d`.`name` as aperture_name, `i`.`StartDate`, `i`.`Completion`, `i`.`InspectionStatus`, `i`.`Inspector`, `u`.`firstName`, `u`.`lastName`, `b`.`root` as building_id, `d`.`barcode`
-FROM (`Inspections` i)
-LEFT JOIN `Buildings` b ON `b`.`idBuildings` = `i`.`Buildings_idBuildings`
-LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
-LEFT JOIN `Users` u ON `u`.`idUsers` = `i`.`Inspector`
-WHERE `i`.`deleted` =  0
-AND `i`.`UserId` =  '2'
-
------------------------------
-18.04.2015 9:13:42 : 2.8776
+18.06.2015 22:01:36 : 2.8324
 SELECT `rr`.`value`
 FROM (`Rules` r)
 JOIN `RolesRules` rr ON `rr`.`idRules` = `r`.`idRules`
-WHERE `rr`.`idRoles` =  '2'
+WHERE `rr`.`idRoles` =  '1'
 AND `rr`.`UserId` =  '2'
-AND `r`.`name` =  'Allow modify review'
+AND `r`.`name` =  'Allow modify experts'
 
 -----------------------------
-18.04.2015 9:13:52 : 8.7985
-SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
-FROM (`Inspections` i)
-LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
-LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
-LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
-WHERE `i`.`idInspections` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '19', '12', '13', '14', '15', '16', '17', '18') 
+18.06.2015 22:15:01 : 1.5341
+SELECT *
+FROM (`Users`)
+WHERE `idUsers` =  '2'
 
 -----------------------------
-18.04.2015 9:20:23 : 7.4959
-SELECT `d`.*, `b`.`name` as location_name
-FROM (`Doors` d)
-JOIN `Buildings` b ON `b`.`idBuildings` = `d`.`Buildings_idBuildings`
-WHERE `d`.`idDoors` =  '6'
-AND `d`.`deleted` =  0
-
------------------------------
-18.04.2015 9:20:23 : 8.2306
-SELECT `ff`.*, `cc`.`value` as status, `dff`.`value` as selected, `f`.`path`
-FROM (`FormFields` ff)
-LEFT JOIN `DoorsFormFields` dff ON `dff`.`FormFields_idFormFields` = `ff`.`idFormFields` AND dff.Inspections_idInspections = 5
-LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `ff`.`idFormFields` AND cc.wallRates = 3 AND cc.ratesTypes = 1 AND cc.doorRating = 3 AND cc.doorMatherial = 3
-LEFT JOIN `InspectionFieldFiles` iff ON `iff`.`FormFields_idFormFields` = `ff`.`idFormFields` AND iff.deleted = 0 AND iff.Doors_idDoors = 6
-LEFT JOIN `Files` f ON `f`.`idFiles` = `iff`.`Files_idFiles`
-WHERE `ff`.`deleted` =  0
-
------------------------------
-3.05.2015 7:00:53 : 1.7398
-SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
-FROM (`Inspections` i)
-LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
-LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
-LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
-WHERE `i`.`idInspections` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '19', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50') 
-
------------------------------
-3.05.2015 9:02:29 : 3.4911
-SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
-FROM (`Inspections` i)
-LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
-LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
-LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
-WHERE `i`.`idInspections` IN ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '19', '12', '13', '14', '15', '16', '17', '18', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50') 
-
------------------------------
-3.05.2015 10:01:11 : 1.8257
-SELECT `b`.*
-FROM (`UserBuildings` ub)
-LEFT JOIN `Buildings` b ON `b`.`idBuildings` = `ub`.`Buildings_idBuildings`
-WHERE `ub`.`Users_idUsers` =  '2'
-AND `b`.`parent` =  0
-AND `b`.`deleted` =  0
-ORDER BY `b`.`buildingOrder` asc
-
------------------------------
-3.05.2015 10:04:43 : 1.4053
-SELECT `b`.*
-FROM (`UserBuildings` ub)
-LEFT JOIN `Buildings` b ON `b`.`idBuildings` = `ub`.`Buildings_idBuildings`
-WHERE `ub`.`Users_idUsers` =  '2'
-AND `b`.`parent` =  0
-AND `b`.`deleted` =  0
-ORDER BY `b`.`buildingOrder` asc
-
------------------------------
-3.05.2015 12:58:18 : 1.2784
+20.06.2015 9:31:42 : 1.0568
 SELECT *
 FROM (`ConditionalChoices`)
 WHERE `wallRates` =  1
 
 -----------------------------
-5.05.2015 14:43:42 : 5.2911
-SELECT *
-FROM (`FormFields`)
-WHERE `parent` =  '38'
-AND `deleted` =  0
-ORDER BY `questionOrder` asc
-
------------------------------
-5.05.2015 14:45:35 : 5.7664
-UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '15', `name` = 'MissingSilencers', `label` = 'Missing Silencers', `questionId` = 10, `parent` = 10, `questionOrder` = 3, `level` = 4, `deleted` = '0' WHERE `idFormFields` =  '14'
-
------------------------------
-5.05.2015 14:45:35 : 1.5265
-UPDATE `FormFields` SET `type` = 'question', `nextQuestionId` = '0', `name` = 'SelecttheCurrentOpeningClosingCondition', `label` = 'Select the Current Opening / Closing Condition', `questionId` = 0, `parent` = 282, `questionOrder` = 0, `level` = 3, `deleted` = '0' WHERE `idFormFields` =  '283'
-
------------------------------
-5.05.2015 14:46:04 : 1.9901
-SHOW COLUMNS FROM FormFields LIKE 'type'
-
------------------------------
-5.05.2015 14:46:24 : 1.0300
-INSERT INTO `FormFields` (`name`, `label`, `parent`, `type`) VALUES ('Sign8', 'Sign 8', '78', 'answer')
-
------------------------------
-5.05.2015 14:46:24 : 1.0815
-SELECT *
-FROM (`FormFields`)
-WHERE `parent` =  0
-AND `deleted` =  0
-ORDER BY `questionOrder` asc
-
------------------------------
-5.05.2015 14:48:07 : 2.2638
-UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '96', `name` = 'NoIssue-240', `label` = 'No Issue', `questionId` = 241, `parent` = 241, `questionOrder` = 0, `level` = 4, `deleted` = '0' WHERE `idFormFields` =  '242'
-
------------------------------
-5.05.2015 14:48:07 : 2.9825
-UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '96', `name` = 'BoltMissing', `label` = 'Bolt Missing', `questionId` = 241, `parent` = 241, `questionOrder` = 1, `level` = 4, `deleted` = '0' WHERE `idFormFields` =  '243'
-
------------------------------
-5.05.2015 14:48:35 : 2.0798
-UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '73', `name` = 'Signage', `label` = 'Signage', `questionId` = 33, `parent` = 33, `questionOrder` = 4, `level` = 2, `deleted` = '0' WHERE `idFormFields` =  '72'
-
------------------------------
-5.05.2015 14:48:35 : 3.7770
-UPDATE `FormFields` SET `type` = 'question', `nextQuestionId` = '0', `name` = 'EnterinDimensionsofSigns', `label` = 'Enter in Dimensions of Signs', `questionId` = 0, `parent` = 77, `questionOrder` = 0, `level` = 5, `deleted` = '0' WHERE `idFormFields` =  '78'
-
------------------------------
-5.05.2015 14:48:35 : 6.1367
-UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '33', `name` = 'Sign1', `label` = 'Sign 1', `questionId` = 78, `parent` = 78, `questionOrder` = 0, `level` = 6, `deleted` = '0' WHERE `idFormFields` =  '79'
-
------------------------------
-5.05.2015 14:48:35 : 1.1373
-UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '96', `name` = 'BrassBronze', `label` = 'Brass / Bronze', `questionId` = 110, `parent` = 110, `questionOrder` = 2, `level` = 8, `deleted` = '0' WHERE `idFormFields` =  '113'
-
------------------------------
-5.05.2015 14:48:35 : 2.5933
-UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '96', `name` = 'NotFire-Rated-161', `label` = 'Not Fire-Rated', `questionId` = 162, `parent` = 162, `questionOrder` = 4, `level` = 4, `deleted` = '0' WHERE `idFormFields` =  '168'
-
------------------------------
-5.05.2015 18:08:50 : 1.2198
-SELECT *
-FROM (`ConditionalChoices`)
-WHERE `wallRates` =  1
-
------------------------------
-5.05.2015 20:08:16 : 2.3633
-SELECT `i`.`revision`, `i`.`idInspections` as id, `i`.`idAperture` as aperture_id, `d`.`name` as aperture_name, `i`.`CreateDate`, `i`.`StartDate`, `i`.`Completion`, `i`.`InspectionStatus`, `i`.`Creator`, `u2`.`firstName` as CreatorfirstName, `u2`.`lastName` as CreatorlastName, `i`.`Inspector`, `u`.`firstName`, `u`.`lastName`, `d`.`barcode`, `d`.`Building`, `d`.`Floor`, `d`.`Wing`, `d`.`Area`, `d`.`Level`
+20.06.2015 9:57:29 : 2.0071
+SELECT `i`.`revision`, `i`.`idInspections` as id, `i`.`idAperture` as aperture_id, `i`.`CreateDate`, `i`.`StartDate`, `i`.`Completion`, `i`.`InspectionStatus`, `i`.`Creator`, `u2`.`firstName` as CreatorfirstName, `u2`.`lastName` as CreatorlastName, `i`.`Inspector`, `u`.`firstName`, `u`.`lastName`, `d`.`barcode`, `d`.`Building`, `d`.`Floor`, `d`.`Wing`, `d`.`Area`, `d`.`Level`
 FROM (`Inspections` i)
 LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
 LEFT JOIN `Users` u ON `u`.`idUsers` = `i`.`Inspector`
 LEFT JOIN `Users` u2 ON `u2`.`idUsers` = `i`.`Creator`
 WHERE `i`.`deleted` =  0
-AND `i`.`UserId` =  '2'
+AND `i`.`UserId` =  '7'
+ORDER BY `i`.`CreateDate` desc
 
 -----------------------------
-5.05.2015 20:08:16 : 4.7967
-SELECT `b`.*
-FROM (`UserBuildings` ub)
-JOIN `Buildings` b ON `b`.`idBuildings` = `ub`.`Buildings_idBuildings`
-WHERE `ub`.`Users_idUsers` =  '2'
-AND `b`.`deleted` =  0
-ORDER BY `b`.`buildingOrder` asc
-
------------------------------
-5.05.2015 20:08:16 : 3.5307
-SELECT `rr`.`value`
-FROM (`Rules` r)
-JOIN `RolesRules` rr ON `rr`.`idRules` = `r`.`idRules`
-WHERE `rr`.`idRoles` =  '2'
-AND `rr`.`UserId` =  '2'
-AND `r`.`name` =  'Allow modify review'
-
------------------------------
-5.05.2015 20:08:16 : 3.2831
-SELECT `rr`.`value`
-FROM (`Rules` r)
-JOIN `RolesRules` rr ON `rr`.`idRules` = `r`.`idRules`
-WHERE `rr`.`idRoles` =  '2'
-AND `rr`.`UserId` =  '2'
-AND `r`.`name` =  'Allow view buildings tree tab'
+20.06.2015 9:57:33 : 1.2382
+SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
+FROM (`Inspections` i)
+LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
+LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
+LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
+WHERE `i`.`idInspections` IN ('26', '27', '29', '30', '22', '24', '25', '4', '7') 
 
 -----------------------------

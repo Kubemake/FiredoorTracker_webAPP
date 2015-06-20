@@ -72,7 +72,7 @@ class Ajax extends CI_Controller {
 				$door_settings = $this->resources_model->get_aperture_info_by_aperture_id($aperture_id);
 				$door_settings['inspection_id'] = $inspection_id;
 				
-				$params['issues'] = $this->service_model->get_aperture_issues_and_selected($door_settings);
+				$params['issues'] = $this->service_model->get_aperture_issues_and_selected($door_settings, TRUE);
 
 				$params['aperture_id'] 		= $aperture_id;
 				$params['inspection_id'] 	= $inspection_id;

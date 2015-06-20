@@ -106,8 +106,7 @@ class Service extends CI_Controller {
 		$this->load->model('media_model');
 	
 		$postdata = $this->input->post();
-// file_put_contents($_SERVER['DOCUMENT_ROOT'].'/upload/post', json_encode($postdata));
-// $this->_show_output(array('status' => 'error', 'error' => 'debug'));
+
 		if (empty($postdata))
 			$this->_show_output(array('status' => 'error', 'error' => 'no POST data'));
 
@@ -146,10 +145,8 @@ class Service extends CI_Controller {
 		)
 			$this->_show_output(array('status' => 'error', 'error' => 'get idFormFields but empty aperture_id'));
 
-		// $name = $_FILES['file']['name'];
-		// $ext = substr($name, -4);
 		$ext = '.png';
-		// $name = substr($name, 0, -4);
+
 		$name = translate($_FILES['file']['name']);
 		$creation_time = time();
 
@@ -204,15 +201,14 @@ class Service extends CI_Controller {
 				foreach ($imgs as $image)
 				{
 					$images[] = $image['path'];
-					// $images[] = array('file_id'	=> $image['file_id'],'url'		=> $image['path']);
+					$images_comments[] = $image['name'];
 				}
 
 			}
 			else
 				$images[] = base_url($file_path);
-				// $images[] = array('file_id'	=> $fileid,'url'		=> base_url($file_path));
 
-			$this->_show_output(array('status' => 'ok', 'images' => $images, 'aperture_id' => $aperture_id ? $aperture_id : '', 'idFormFields' => $idFormFields ? $idFormFields : ''));
+			$this->_show_output(array('status' => 'ok', 'images' => $images, 'images_comments' => $images_comments, 'aperture_id' => $aperture_id ? $aperture_id : '', 'idFormFields' => $idFormFields ? $idFormFields : ''));
 		}
 	}
 
@@ -444,7 +440,10 @@ class Service extends CI_Controller {
 			if (!empty($allimgs))
 			{
 				foreach ($allimgs as $image)
+				{
 					$inspections_images[$image['aperture_id']][] = $image['path'];
+					$images_comments[$image['aperture_id']][] = @$image['name'];
+				}
 			}			
 			
 
@@ -473,6 +472,7 @@ class Service extends CI_Controller {
 
 				$inspection['colorcode'] = $colorresult;
 				$inspection['images'] = isset($inspections_images[$inspection['aperture_id']]) ? $inspections_images[$inspection['aperture_id']] : array();
+				$inspection['images_comments'] = isset($images_comments[$inspection['aperture_id']]) ? $images_comments[$inspection['aperture_id']] : array();
 			}
 
 			$output = array();
@@ -1119,6 +1119,9 @@ class Service extends CI_Controller {
 		}
 
 		$data['rating'] = preg_replace('@[^\d]+@si', '', $data['rating']);
+
+		if (empty($data['rating']))
+			$data['rating'] = 0;
 		
 		$data['width'] = @preg_replace('@[^\d\.]+@si', '', $data['width']);
 		if (!isset($data['width']) or empty($data['width']) or $data['width']===0)

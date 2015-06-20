@@ -72,17 +72,21 @@ class Service_model  extends CI_Model
 		$this->db->update('Doors', $updateData);
 	}
 
-	function get_aperture_issues_and_selected($input_data)
+	function get_aperture_issues_and_selected($input_data, $light = FALSE)
 	{
 		$aperture_id = $this->db->where('idInspections', $input_data['inspection_id'])->get('Inspections')->row_array();
 		$aperture_id = $aperture_id['idAperture'];
 		
-		$this->db->select('ff.*, cc.value as status, dff.value as selected, f.path'); //, f.idFiles
+		$imgss = $light ? '' : ', f.path, f.name as fname';
+		$this->db->select('ff.*, cc.value as status, dff.value as selected' . $imgss); //, f.idFiles
 		$this->db->from('FormFields ff');
 		$this->db->join('DoorsFormFields dff', 'dff.FormFields_idFormFields = ff.idFormFields AND dff.Inspections_idInspections = ' . $input_data['inspection_id'], 'left');
 		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $input_data['wall_Rating'] . ' AND cc.ratesTypes = ' . $input_data['smoke_Rating'] . ' AND cc.doorRating = ' . $input_data['rating'] . ' AND cc.doorMatherial = ' . $input_data['material'], 'left');
 		$this->db->join('InspectionFieldFiles iff', 'iff.FormFields_idFormFields = ff.idFormFields AND iff.deleted = 0 AND iff.Doors_idDoors = ' . $aperture_id, 'left');
-		$this->db->join('Files f', 'f.idFiles = iff.Files_idFiles', 'left');
+		
+		if (!$light)
+			$this->db->join('Files f', 'f.idFiles = iff.Files_idFiles', 'left');
+
 		$this->db->where('ff.deleted', 0);
 		$results = $this->db->get()->result_array();
 
@@ -90,9 +94,13 @@ class Service_model  extends CI_Model
 		
 		$addbtnQ = 0;
 
-		foreach ($results as $result) {
+		foreach ($results as $result)
+		{
 			$temp = $result;
-			unset($temp['deleted'], $temp['level'],$temp['path']);
+			unset($temp['deleted'], $temp['level']);
+			
+			if (!$light)
+				unset($temp['path']);
 
 			if ($result['type'] == 'answer')
 			{
@@ -111,18 +119,25 @@ class Service_model  extends CI_Model
 					if (!isset($tabs[$result['idFormFields']]['images']))
 						$tabs[$result['idFormFields']]['images'] = array();
 
-					if (!empty($result['path']))
+					if (!$light && !empty($result['path']))
+					{
 						$tabs[$result['idFormFields']]['images'][] = $result['path'];
+						$tabs[$result['idFormFields']]['images_comments'][] = $result['fname'];
+					}
 				}
 				else
 				{
 					$issues[$result['questionId']]['answers'][$result['idFormFields']] = $temp;
 
 					if (!isset($issues[$result['questionId']]['images']))
+
 						$issues[$result['questionId']]['images'] = array();
 
-					if (!empty($result['path']))
+					if (!$light && !empty($result['path']))
+					{
 						$issues[$result['questionId']]['images'][] = $result['path'];
+						$issues[$result['questionId']]['images_comments'][] = $result['fname'];
+					}
 				}
 			}
 			else
@@ -132,10 +147,15 @@ class Service_model  extends CI_Model
 				if (!isset($issues[$result['idFormFields']]['images']))
 					$issues[$result['idFormFields']]['images'] = array();
 				
-				if (!empty($result['path']))
+				if (!$light && !empty($result['path']))
+				{
 					$issues[$result['idFormFields']]['images'][] = $result['path'];
+					$issues[$result['idFormFields']]['images_comments'][] = $result['fname'];
+				}
 			}
 		}
+
+		unset($result, $results);
 
 		$result = array(
 			'signage'			=> $signage,
@@ -143,6 +163,8 @@ class Service_model  extends CI_Model
 			'tabs' 				=> $tabs,
 			'issues' 			=> $issues
 		);
+
+		unset($issues, $tabs);
 
 		/*spec code for signs*/
 		$addbtnqs = array(637, 640, 78);
@@ -293,11 +315,12 @@ class Service_model  extends CI_Model
 		/*END spec code for hidding fields for wall_rating_id > 3*/
 
 		/*spec code for change label for door label rating = 45 */
+		/*
 		if ($input_data['rating'] == 3)
 		{
 			$result['issues'][254]['answers'][255]['label'] = 'Less Than 1,296 Square Inches';
 			$result['issues'][254]['answers'][256]['label'] = 'Greater Than 1,296 Square Inches';
-		}
+		}*/
 		/*END spec code for hidding fields for wall_rating_id > 3*/
 
 		return $result;
@@ -437,7 +460,7 @@ function get_question_answers_by_question_id_and_inspection_id($quest, $inspecti
 		// else
 		// 	$this->db->where('iff.FormFields_idFormFields IS ', 'NULL', FALSE);
 
-		$this->db->select('iff.Files_idFiles as file_id, f.path, iff.Doors_idDoors as aperture_id');
+		$this->db->select('iff.Files_idFiles as file_id, f.path, iff.Doors_idDoors as aperture_id, f.name');
 		$this->db->from('InspectionFieldFiles iff');
 		$this->db->join('Files f', 'f.idFiles = iff.Files_idFiles', 'left');
 		$this->db->where_in('iff.Doors_idDoors', $aperture_id);

@@ -22,6 +22,8 @@ class Rules extends CI_Controller {
 
 			$this->history_library->saveRR(array('line_id' => $this->session->userdata('user_parent'), 'new_val' => json_encode($postdata), 'type' => 'edit'));
 
+			$this->rules_model->delete_all_user_rules($this->session->userdata('user_parent'));
+
 			foreach ($rules as $rule)
 			{
 				foreach ($roles as $role)

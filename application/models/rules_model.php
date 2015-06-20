@@ -28,6 +28,11 @@ class Rules_model  extends CI_Model
 		return $this->db->get('RolesRules')->result_array();
 	}
 
+	function delete_all_user_rules($parent_id)
+	{
+		return $this->db->delete('RolesRules', array('UserId' => $parent_id));
+	}
+
 	function update_role_permission($rule_id, $role_id, $parent_id, $value)
 	{
 		if ($value=='on') 
