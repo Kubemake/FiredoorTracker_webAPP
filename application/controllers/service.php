@@ -1394,7 +1394,7 @@ class Service extends CI_Controller {
 						'selected' => ''
 					);
 				}
-				elseif (in_array($addbtn['questionId'], array(323,344,15,566,50)))
+				elseif (in_array($addbtn['questionId'], array(323,344,566,50)))
 				{
 					// add add btn
 					$answers[] = array(
@@ -1402,7 +1402,7 @@ class Service extends CI_Controller {
 						'type' => 'answer',
 						'nextQuestionId' => 0,
 						'name' => 'AddHoleBtn',
-						'label' => ($addbtn['questionId'] != 15) ? 'Add Hole' : 'Add Missing Silencer',
+						'label' => 'Add Hole',
 						'questionId' => $addbtn['questionId'],
 						'questionOrder' => count($answers),
 						'status' => '',

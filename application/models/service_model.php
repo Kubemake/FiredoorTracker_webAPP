@@ -221,7 +221,7 @@ class Service_model  extends CI_Model
 		/*END spec code for signs*/
 
 		/*spec code for holes*/
-		$h1addbtnqs = array(323,344,15,566,50);
+		$h1addbtnqs = array(323,344,566,50);
 		foreach ($h1addbtnqs as $h1addbtnq)
 		{
 			if ($h1addbtnq > 0)
@@ -243,7 +243,7 @@ class Service_model  extends CI_Model
 					'type' => 'answer',
 					'nextQuestionId' => 0,
 					'name' => 'AddHoleBtn',
-					'label' => ($h1addbtnq != 15) ? 'Add Hole' : 'Add Missing Silencer',
+					'label' => 'Add Hole',
 					'questionId' => $addbtn['questionId'],
 					'questionOrder' => count($holes)+1,
 					'status' => '',
