@@ -72,17 +72,20 @@ class Ajax extends CI_Controller {
 				$door_settings = $this->resources_model->get_aperture_info_by_aperture_id($aperture_id);
 				$door_settings['inspection_id'] = $inspection_id;
 				
-				$params['issues'] = $this->service_model->get_aperture_issues_and_selected($door_settings, TRUE);
+				$result = $this->service_model->get_aperture_issues_and_selected($door_settings);
 
+				$params['tabs'] = $result['tabs'];
 				$params['aperture_id'] 		= $aperture_id;
 				$params['inspection_id'] 	= $inspection_id;
 
 				$params['oth'] = array();
-				foreach ($params['issues']['issues'] as $issue)
+				foreach ($result['issues']['issues'] as $issue)
 					if (!empty($issue['answers']))
 						foreach ($issue['answers'] as $answer)
 							if (strpos($answer['name'], 'Other') !== FALSE)
 								$params['oth'][] = $answer;
+
+				unset($result);
 			break;
 
 			case 'add_employeer_modal':
@@ -98,7 +101,6 @@ class Ajax extends CI_Controller {
 			case 'add_aperture_modal':
 				$this->load->model('user_model');
 
-				// $params['user_buildings'] 		= $this->resources_model->get_user_buildings();
 				$builds = $this->resources_model->get_user_buildings_root();
 
 				foreach ($builds as $key => $value)
@@ -115,14 +117,6 @@ class Ajax extends CI_Controller {
 
 			case 'edit_aperture_modal':
 				if (!$aperture_id = $this->input->post('id')) return '';
-
-				// $this->load->model('user_model');
-/*
-				$params['wall_rating'] 			= $this->config->item('wall_rates');
-				$params['smoke_rating'] 		= $this->config->item('rates_types');
-				$params['material'] 			= $this->config->item('door_matherial');
-				$params['rating'] 				= $this->config->item('door_rating');
-*/
 
 				$builds = $this->resources_model->get_user_buildings_root();
 
@@ -195,6 +189,30 @@ class Ajax extends CI_Controller {
 		return print($msg);
 	}
 
+	function ajax_load_inspection_issues_by_tab()
+	{
+		// if (!$aperture_id = $this->input->post('door_id')) return '';
+		// if (!$tab_id = $this->input->post('tabid')) return '';
+		// if (!$inspection_id = $this->input->post('inspection_id')) return '';
+// echo '<pre>';
+// print_r($tab_id);die();
+	if (!$aperture_id = $this->input->get('door_id')) return 's';
+		if (!$tab_id = $this->input->get('tabid')) return 'd';
+		if (!$inspection_id = $this->input->get('inspection_id')) return 'd';
+
+		$this->load->model('service_model');
+
+		$door_settings = $this->resources_model->get_aperture_info_by_aperture_id($aperture_id);
+
+		$door_settings['inspection_id'] = $inspection_id;
+		
+		$result = $this->service_model->get_aperture_issues_and_selected($door_settings);
+
+		$params['tabnextQuestionId'] = $result['tabs'][$tab_id]['nextQuestionId'];
+		$params['issues'] = $result;
+
+		$this->load->view('modal/view_issues_by_tab', $params);
+	}
 }
 
 /* End of file ajax.php */

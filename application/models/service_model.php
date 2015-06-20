@@ -72,6 +72,14 @@ class Service_model  extends CI_Model
 		$this->db->update('Doors', $updateData);
 	}
 
+	function get_aperture_issues_tabs($inspection_id)
+	{
+		$this->db->where('type', 'answer');
+		$this->db->where('parent', 0);
+		$this->db->where('level', 0);
+		return $this->db->get('FormFields')->result_array();
+	}
+
 	function get_aperture_issues_and_selected($input_data, $light = FALSE)
 	{
 		$aperture_id = $this->db->where('idInspections', $input_data['inspection_id'])->get('Inspections')->row_array();
@@ -361,22 +369,20 @@ function get_question_answers_by_question_id_and_inspection_id($quest, $inspecti
 		return $this->db->get()->result_array();
 	}
 
-	function delete_inspection_data($inspection, $field, $user)
+	function delete_inspection_data($inspection, $field)
 	{
 		$this->db->where(array(
 			'FormFields_idFormFields' 	=> $field,
-			'Inspections_idInspections' => $inspection,
-    		'Users_idUsers' 		  	=> $user
+			'Inspections_idInspections' => $inspection
 		));
 		return $this->db->delete('DoorsFormFields');
 	}
 	
-	function add_inspection_data($inspection, $field, $user, $value)
+	function add_inspection_data($inspection, $field, $value)
 	{
 		$insdata = array(
 			'FormFields_idFormFields' 	=> $field,
 			'Inspections_idInspections' => $inspection,
-    		'Users_idUsers' 		  	=> $user,
     		'value' 				  	=> $value
 		);
 
@@ -413,7 +419,7 @@ function get_question_answers_by_question_id_and_inspection_id($quest, $inspecti
 		$this->db->select('ff.questionId');
 		$this->db->from('FormFields ff');
 		$this->db->join('ConditionalChoices cc', 'cc.idField = ff.idFormFields AND cc.wallRates = ' . $apert['wall_Rating'] . ' AND cc.ratesTypes = ' . $apert['smoke_Rating'] . ' AND cc.doorRating = ' . $apert['rating'] . ' AND cc.doorMatherial = ' . $apert['material'], 'left');
-		$this->db->join('DoorsFormFields dff', 'dff.FormFields_idFormFields = ff.idFormFields AND dff.Inspections_idInspections = ' . $inspection . ' AND dff.Users_idUsers = ' . $user, 'left');
+		$this->db->join('DoorsFormFields dff', 'dff.FormFields_idFormFields = ff.idFormFields AND dff.Inspections_idInspections = ' . $inspection, 'left');
 		$this->db->group_by('ff.questionId');
 		$this->db->where('cc.value >', 0);
 		$this->db->where('dff.value IS NOT ', 'NULL', FALSE);

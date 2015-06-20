@@ -1195,6 +1195,16 @@ class Service extends CI_Controller {
 			$out[] = $tab;
 		$result['tabs'] = $out;
 
+		//make array from ordered list for IOS
+		$issues = $result['issues'];
+		foreach ($issues as $key => $value)
+		{
+			$result['issues'][$key]['answers'] = array();
+			foreach ($value['answers'] as $value)
+				$result['issues'][$key]['answers'][] = $value;
+		}
+		unset($issues);
+
 		$userData['status'] = 'ok';
 		$userData['issues'] = $result['issues'];
 		
@@ -1278,20 +1288,22 @@ class Service extends CI_Controller {
 		}
 
 		$this->load->model('resources_model');
+		$this->load->model('user_model');
 
 		$userData['status'] = 'error';
 
 		$field 		= $data['idFormFields'];
 		$inspection = $data['inspection_id'];
-		$user 		= $data['tokendata']['user_id'];
+		$user_id = $data['tokendata']['user_id'];
+		$user = $this->user_model->get_user_info_by_user_id($user_id);
 		$value 		= $data['selected'];
 		$status  	= $data['status'];
 
 		$this->load->library('History_library');
 
-		$cur_dff = $this->history_library->get_cur_dff($inspection, $field, $user);
+		$cur_dff = $this->history_library->get_cur_dff($inspection, $field, $user_id);
 
-		$this->service_model->delete_inspection_data($inspection, $field, $user); //del current answ record
+		$this->service_model->delete_inspection_data($inspection, $field); //del current answ record
 
 		if ((!empty($data['selected']) && $data['selected'] != 'NO') or in_array($data['idFormFields'], array(789789,789790,789791)) or in_array($data['questionId'], array(637, 640, 78))) //if not unselect action or AddBtn
 		{
@@ -1426,7 +1438,7 @@ class Service extends CI_Controller {
 				foreach ($answers as $answer)
 				{
 					if ($answer['status'] == 1)
-						$this->service_model->delete_inspection_data($inspection, $answer['idFormFields'], $user);
+						$this->service_model->delete_inspection_data($inspection, $answer['idFormFields']);
 				}
 			}
 			elseif ($status == 1) //if user send compliant answer - remove all non-compliant
@@ -1434,16 +1446,17 @@ class Service extends CI_Controller {
 				foreach ($answers as $answer)
 				{
 					if ($answer['status'] > 1)
-						$this->service_model->delete_inspection_data($inspection, $answer['idFormFields'], $user);
+						$this->service_model->delete_inspection_data($inspection, $answer['idFormFields']);
 				}
 			}
 			if ($value != '0,0')
-				$dffid = $this->service_model->add_inspection_data($inspection, $field, $user, $value);
+				$dffid = $this->service_model->add_inspection_data($inspection, $field, $value);
 
-			$this->history_library->saveDff(array('user_id' => $user, 'line_id' => $dffid, 'new_val' => json_encode(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'Users_idUsers' => $user, 'value' => $value)), 'cur_val' => json_encode($cur_dff)));
+
+			$this->history_library->saveDff(array('user_id' => $user_id, 'line_id' => $dffid, 'new_val' => json_encode(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'value' => $value)), 'cur_val' => json_encode($cur_dff)));
 
 			if ($dffid)
-				$this->resources_model->update_inspection($data['inspection_id'], array('InspectionStatus' => 'In Progress', 'Inspector' => $user));
+				$this->resources_model->update_inspection($data['inspection_id'], array('InspectionStatus' => 'In Progress', 'Inspector' => $user_id));
 
 		}
 

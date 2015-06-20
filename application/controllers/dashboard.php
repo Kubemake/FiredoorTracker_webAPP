@@ -176,7 +176,8 @@ class Dashboard extends CI_Controller {
 					$loca = '';
 
 				// $item = (in_array($inspection['InspectionStatus'], array('In Progress', 'Complete'))) ? '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>' : $inspection['barcode'];
-				$item = '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>';
+				// $item = '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>';
+				$item = $inspection['barcode'];
 				$cell = array('data' => $inspection['id'], 'style' => 'display: none !important;');
 				$this->table->add_row($cell, $item, $loca, $inspection['CreatorfirstName'].' '.$inspection['CreatorlastName'], $inspection['CreateDate'], $inspection['StartDate'], $inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
 			}

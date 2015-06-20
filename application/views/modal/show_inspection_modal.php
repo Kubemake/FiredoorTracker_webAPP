@@ -12,16 +12,19 @@
 				<div class="modal-body">
 					<div class="row pad15">
 						<div class="panel-group" id="accordion">
-							<?php $it=1; foreach ($issues['tabs'] as $tab): ?>
+							<?php $it=1; foreach ($tabs as $tab): ?>
 								<div class="panel panel-default">
 									<div class="panel-heading">
 										<h4 class="panel-title">
-											<a data-toggle="collapse" data-parent="#accordion" href="#collapse<?=$it?>"><?=$tab['label']?></a>
+											<a id="<?=$tab['name']?>" data-tabid="<?=$tab['idFormFields']?>" data-toggle="collapse" data-parent="#accordion" href="#collapse<?=$it?>"><?=$tab['label']?></a>
 										</h4>
 									</div>
 									<div id="collapse<?=$it++?>" class="panel-collapse collapse<?php echo ($it==2) ? ' in' : '';?>">
 										<div class="panel-body">
-											<?php foreach ($issues['issues'][$tab['nextQuestionId']]['answers'] as $section): ?>
+											Loading...
+										<?php //echo '<pre>';
+										//print_r($tab); ?>
+											<?php /*foreach ($issues['issues'][$tab['nextQuestionId']]['answers'] as $section): ?>
 												<div class="row">
 													<div class="col-md-6"><?=$section['label']?></div>
 													<div class="col-md-6">
@@ -58,7 +61,7 @@
 														</div>
 													</div>
 												</div>
-											<?php endforeach; ?>
+											<?php endforeach; */?>
 										</div>
 									</div>
 								</div>
@@ -79,7 +82,45 @@
 			</form>
 		</div>
 	</div>
-</div>
+</div> 
 <script type="text/javascript">
+	function get_issues_by_tabNQid(tabname)
+	{
+		inside = $('#' + tabname).prop('href');
+		inside = inside.replace('http://firedoortracker.org/','');
+		inside = $(inside + ' .panel-body');
+
+		if (inside.html().replace( /\s+/g, '') == 'Loading...')
+		{
+			$.ajax({
+				url: '/ajax/ajax_load_inspection_issues_by_tab',
+				type: 'POST',
+				data: {inspection_id: <?=$inspection_id?>, door_id: <?=$aperture_id?>, tabid: $('#' + tabname).data('tabid')},
+				async: false,
+				success: function(result)
+				{
+					inside.empty().html(result);
+				}
+			});
+		}
+	}
+
+	readydocstate = 0;
+	$(document).ready(function(){
+		get_issues_by_tabNQid('OperationalTestReview');
+		get_issues_by_tabNQid('GlazingReview');
+		// get_issues_by_tabNQid('HardwareReview');
+		get_issues_by_tabNQid('DoorReview');
+		get_issues_by_tabNQid('FrameReview');
+		readydocstate = 1;
+	})
+
+	$("#editreviewform").submit(function(e){
+		if (readydocstate == 0)
+		{
+			alert('Please wait for loading all review data!');
+			return false;
+		}
+	}); 
 
 </script>
