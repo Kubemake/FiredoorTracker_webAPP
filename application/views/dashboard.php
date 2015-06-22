@@ -3,8 +3,8 @@
 		<div class="col-xs-3 graphacceptor" id="compliance">
 			<img width="95%" src="/images/compliance.jpg" />
 		</div>
-		<div class="col-xs-3 graphacceptor" id="statuschart">
-			<img width="95%" src="/images/statuschart.jpg" />
+		<div class="col-xs-3 graphacceptor" id="inventorychart">
+			<img width="95%" src="/images/inventory.jpg" />
 		</div>
 		<div class="col-xs-3 graphacceptor" id="companyreview">
 			<img width="95%" src="/images/companyreviewchart.jpg" />
@@ -16,6 +16,14 @@
 	<div class="row">
 		<div class="col-xs-9 col-md-10" id="chartwrapper">
 			<div id="charttitle"></div>
+			<div id="inventorytab" style="display:none;">
+				<ul class="nav nav-pills nav-justified">
+					<li><a href="javascript:;" id="inventorychart1"  class="graphacceptor">Door Rating</a></li>
+					<li><a href="javascript:;" id="inventorychart2" class="graphacceptor">Wall Rating</a></li>
+					<li><a href="javascript:;" id="inventorychart3" class="graphacceptor">Door Type</a></li>
+					<li><a href="javascript:;" id="inventorychart4" class="graphacceptor">Door Material</a></li>
+				</ul>
+			</div>
 			<div id="chartacceptor"></div>
 		</div>
 		<div class="col-xs-2">
@@ -46,7 +54,7 @@
 <?=@$result_table?>
 
 <form method="POST" id="graphform">
-	<input type="hidden" id="graphpdata" name="graphpdata" value="">
+	<input type="hidden" id="graphdata" name="graphdata" value="">
 	<input type="hidden" id="graphpid" name="graphpid" value="">
 	<input type="hidden" name="form_type" value="graph_click_data">
 </form>
@@ -94,7 +102,7 @@
 			type: "POST",
 			data: {img: picture},
 			success: function(result) {
-				// console.log(result);
+				console.log(result);
 				if (result == 'done') {
 					window.location = "/dashboard/getexport/html";
 				};
@@ -177,40 +185,97 @@
 
 <?/* CHARTS STARTER */?>
 <script type="text/javascript">
-	$(function(){
-		$('#compliance').click();
-	});
-	$('#chartmagnify').on('click', function(){
-		$('#charttitle').html('');
-		$('#chartwrapper').hide();
+	$(function(){ //Load graph after full page load.
+		makegraph('<?=$selected_graph?>');
 	});
 
 	$('.graphacceptor').on('click', function(){
 		id = $(this).attr('id');
-		
+		makegraph(id);
+	});
+
+	function makegraph(id)
+	{
 		switch (id)
 		{
 			case 'compliance':
 				title = 'Compliance Report';
+				$('#inventorytab').hide();
+			break;
+			case 'compliance2':
+				title = 'Compliance Report';
+				$('#inventorytab').hide();
+			break;
+			case 'inventorychart':
+				title = 'Inventory Report';
+				$('#inventorytab').show();
+				$('#inventorytab li').removeClass('active');
+				$('#inventorychart1').parent().addClass('active');
+			break;
+			case 'inventorychart1':
+				title = 'Inventory Report';
+				$('#inventorytab').show();
+				$('#inventorytab li').removeClass('active');
+				$('#inventorychart1').parent().addClass('active');
+			break;
+			case 'inventorychart2':
+				title = 'Inventory Report';
+				$('#inventorytab').show();
+				$('#inventorytab li').removeClass('active');
+				$('#inventorychart2').parent().addClass('active');
+			break;
+			case 'inventorychart3':
+				title = 'Inventory Report';
+				$('#inventorytab').show();
+				$('#inventorytab li').removeClass('active');
+				$('#inventorychart3').parent().addClass('active');
+			break;
+			case 'inventorychart4':
+				title = 'Inventory Report';
+				$('#inventorytab').show();
+				$('#inventorytab li').removeClass('active');
+				$('#inventorychart4').parent().addClass('active');
 			break;
 			case 'completiondate':
 				title = 'Completion Date';
-			break;
-			case 'statuschart':
-				title = 'Status';
+				$('#inventorytab').hide();
 			break;
 			case 'companyreview':
 				title = 'Company Review';
+				$('#inventorytab').hide();
 			break;
 			case 'totalinmonth':
 				title = 'Total in Month';
+				$('#inventorytab').hide();
 			break;
 		}
 
 		$('#charttitle').html(title);
 		showgraph(id);
 		$('.graphacceptor').show();
-	});
+
+		
+		$('#chartacceptor').bind('jqplotDataClick', function (ev, seriesIndex, pointIndex, data)
+		{
+			if (id == 'compliance' && data[0] == 'Non-Complaint Doors')
+			{
+				showgraph('compliance2');
+				// id = 'compliance2';
+			}
+
+			if (id == 'compliance' && data[0] != 'Non-Complaint Doors')
+			{
+				$('#graphdata').val(data[0]);
+				$('#graphform').submit();
+			}
+
+			if (id == 'compliance2')
+			{
+		   		$('#graphdata').val(data[0]);
+				$('#graphform').submit();
+			};
+		});
+	}
 
 	function showgraph(graph_id)
 	{
@@ -220,6 +285,7 @@
 			type: 'POST',
 			data: {graph_id: graph_id},
 			success: function(result) {
+				// console.log(result);
 				if (result == '<scr' + 'ipt type="text/javascript">window.location = "/user/login"</scr' + 'ipt>')
 				{
 					window.location = "/user/login";
@@ -231,10 +297,4 @@
 			}
 		})
 	}
-
-	$('#chartacceptor').bind('jqplotDataClick', function (ev, seriesIndex, pointIndex, data) {
-   		$('#graphpdata').val(data[0]);
-		$('#graphform').submit();
-	});
-
 </script>

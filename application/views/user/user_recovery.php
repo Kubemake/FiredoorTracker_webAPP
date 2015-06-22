@@ -22,7 +22,7 @@
     	<div class="site-wrapper-inner text-center">
     		<div class="container">
 	    		<div class="row">
-	    			<div class="col-md-12"><a href="/"><img id="logo" width="443" height="128" src="/images/logo.jpg" alt="FireDoor tracker" alt="FireDoor tracker"></a></div>
+	    			<div class="col-md-12"><a href="/"><img id="login" width="443" height="128" src="/images/logo.png" alt="FireDoor tracker" alt="FireDoor tracker"></a></div>
 	    		</div>
 	    		<div class="row">
 					<div class="col-xs-4 col-xs-push-4">

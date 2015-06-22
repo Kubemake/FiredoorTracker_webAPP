@@ -44,7 +44,7 @@ $route['resources/(:any)'] = "resources/index/$1";
 $route['admin/conditions/ajax_update_condition'] = "admin/conditions/ajax_update_condition";
 $route['admin/conditions/(:any)'] = "admin/conditions/index/$1";
 // $route['resources/conditions/(:num)'] = "resources/conditions/index/$1";
-$route['default_controller'] = "dashboard";
+$route['default_controller'] = "dashboard/index/clear";
 $route['404_override'] = '';
 
 

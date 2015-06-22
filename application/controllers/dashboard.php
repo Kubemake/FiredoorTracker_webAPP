@@ -10,17 +10,19 @@ class Dashboard extends CI_Controller {
 		$this->load->library('table');
 	}
 
-	function index()
+	function index($clear = FALSE)
 	{
 		// printdbg(array());
-		$this->session->unset_userdata('filters_array');
+		if ($clear)
+			$this->session->unset_userdata('filters_array');
+
+		$data['selected_graph'] = 'compliance'; //by default show compliance graph
 
 		if ($postdata = $this->input->post())
 		{
 			$this->load->library('History_library');
 
 			$adddata = array(
-				// 'Buildings_idBuildings'	=> @$postdata['location'],
 				'idAperture'			=> @$postdata['aperture'],
 				'UserId'				=> $this->session->userdata('user_parent'),
 			);
@@ -120,11 +122,13 @@ class Dashboard extends CI_Controller {
 				case 'graph_click_data':
 					$filters = $this->session->userdata('filters_array');
 					
-					if ($postdata['graphpid'] == 'compliance')
+					$data['selected_graph'] = $postdata['graphpid'];
+
+					if (!empty($postdata['graphpid']) && !empty($postdata['graphdata']))
 					{
 						$filters['graph'] = array(
 							'graphpid' 		=> $postdata['graphpid'],
-							'graphpdata'	=> $postdata['graphpdata']
+							'graphdata'	=> ($postdata['graphpid'] == 'compliance') ? 'Compliant' : $postdata['graphdata']
 						);
 					}
 					
@@ -132,7 +136,7 @@ class Dashboard extends CI_Controller {
 				break;
 			}
 		}
-
+		
 		$this->table->set_heading(
 			array('data' => ''   , 'style' => 'display: none !important;'),
 			'Door Id',
@@ -201,10 +205,6 @@ class Dashboard extends CI_Controller {
 		$header['styles']  .= '<link href="/js/bootstrap-datepicker/datepicker.css" rel="stylesheet">';
 		$footer['scripts'] .= '<script type="text/javascript" src="/js/bootstrap-datepicker/bootstrap-datepicker.js"></script>';
 		
-		//highcharts 
-		// $footer['scripts'] .= '<script src="http://code.highcharts.com/highcharts.js"></script>';
-		// $footer['scripts'] .= '<script src="http://code.highcharts.com/modules/exporting.js"></script>';
-
 		//jqplot
 		$header['styles']  .= '<link rel="stylesheet" type="text/css" href="/js/jqplot/jquery.jqplot.css" />';
 		$footer['scripts'] .= '<script type="text/javascript" src="/js/jqplot/jquery.jqplot.min.js"></script>';
@@ -291,23 +291,79 @@ class Dashboard extends CI_Controller {
 				{
 					foreach ($inspections as $inspection)
 					{
+						if ($inspection['status'] < 1)
+							continue;
+
+						if ($inspection['status'] == 1)
+							$graphdata[1][$inspection['inspection_id']] = 1; //Compliant
+						else
+							$graphdata[9][$inspection['inspection_id']] = 1; //Non-Compliant
+					}
+
+					foreach ($inspections as $inspection)
+					{
+						if (!isset($graphdata[1][$inspection['inspection_id']]) && !isset($graphdata[9][$inspection['inspection_id']]))
+							$graphdata[1][$inspection['inspection_id']] = 1;
+					}
+
+					$total = 0;
+
+					foreach ($graphdata[9] as $insp_id => $noncomp)
+					{
+						unset($graphdata[1][$insp_id]);
+						$total++;
+					}
+					
+					foreach ($graphdata[1] as $comp)
+						$total++;
+
+					$tempdata = array();
+					$datalabels = array();
+					$comtproc = round(count($graphdata[1])/$total*100);
+					$tempdata[]   = '[\'Compliant Doors\', ' . count($graphdata[1]) . ']';
+					$datalabels[] = "'" . $comtproc . '% (' . count($graphdata[1]) . ")'";
+					
+					$tempdata[]   = '[\'Non-Complaint Doors\', ' . count($graphdata[9]) . ']';
+					$datalabels[] = "'" . (100 - $comtproc) . '% (' . count($graphdata[9]) . ")'";
+
+					$output = "[[" . implode(', ', $tempdata) . "]], {
+						seriesDefaults: {
+							// Make this a pie chart.
+							renderer: jQuery.jqplot.PieRenderer, 
+							rendererOptions: {
+							  sliceMargin: 10,
+							  showDataLabels: true,
+							  dataLabels: [" . implode(', ', $datalabels) . "]
+							}
+						  }, 
+						  legend: { show:true, location: 'e' }
+						}";
+				}
+			break;
+
+			case 'compliance2':
+				$inspections 	= $this->_build_reviews_list(FALSE, TRUE);
+				$insp = array();
+				foreach ($inspections as $inspection)
+				{
+					$insp[] = $inspection['id'];
+				}
+
+				$inspections = $this->resources_model->get_inspections_statuses($this->session->userdata('user_parent'), $insp);
+
+				if (!empty($inspections))
+				{
+					foreach ($inspections as $inspection)
+					{
 						if ($inspection['status']<1)
 							continue;
 
 						$graphdata[$inspection['status']][$inspection['inspection_id']] = 1;
-						$inspstats[$inspection['inspection_id']][$inspection['status']] = 1;
-					}
-
-					foreach ($inspstats as $insp_id => $insp)
-					{
-						if (count($insp) > 1)
-						{
-							if (isset($insp[1]))
-								unset($graphdata[1][$insp_id]);
-						}
 					}
 
 					$statuss = $this->config->item('door_state');
+					
+					unset($statuss[1], $graphdata[1]); //remove inspection with Comliant only
 
 					$total = 0;
 					foreach ($graphdata as $key => $val)
@@ -339,28 +395,81 @@ class Dashboard extends CI_Controller {
 				}
 			break;
 
-			case 'statuschart':
-				$inspections 	= $this->_build_reviews_list();
+			case 'inventorychart':
+			case 'inventorychart1':
+			case 'inventorychart2':
+			case 'inventorychart3':
+			case 'inventorychart4':
 
-				if (!empty($inspections))
+				$inspections 	= $this->_build_reviews_list(FALSE, TRUE);
+				
+				$apertures = array();
+				foreach ($inspections as $inspection)
+					$apertures[] = $inspection['aperture_id'];
+
+				$apertdata = $this->resources_model->get_apertures_info_by_aperture_ids($apertures);
+
+				if (!empty($apertdata))
 				{
-					foreach ($inspections as $inspection)
-						$graphdata[$inspection['InspectionStatus']] = isset($graphdata[$inspection['InspectionStatus']]) ? ++$graphdata[$inspection['InspectionStatus']] : 1;
+					$doorrating = $this->config->item('door_rating');
+					$wallrating = $this->config->item('wall_rates');
+					$smoke = array(1 => 'Smoke', 2 => 'Fire');
+					$materials = $this->config->item('door_matherial');
+
+					foreach ($apertdata as $doorinfo)
+					{
+						if ($doorinfo['rating'] == 0)
+							continue;
+
+						switch ($graph_id) {
+							case 'inventorychart':
+							case 'inventorychart1':
+								$graphdata[$doorrating[$doorinfo['rating']]] = isset($graphdata[$doorrating[$doorinfo['rating']]]) ? ++$graphdata[$doorrating[$doorinfo['rating']]] : 1;		
+							break;
+							case 'inventorychart2':
+								$graphdata[$wallrating[$doorinfo['wall_Rating']]] = isset($graphdata[$wallrating[$doorinfo['wall_Rating']]]) ? ++$graphdata[$wallrating[$doorinfo['wall_Rating']]] : 1;		
+							break;
+							case 'inventorychart3':
+								$graphdata[$smoke[$doorinfo['smoke_Rating']]] = isset($graphdata[$smoke[$doorinfo['smoke_Rating']]]) ? ++$graphdata[$smoke[$doorinfo['smoke_Rating']]] : 1;		
+							break;
+							case 'inventorychart4':
+								$graphdata[$materials[$doorinfo['material']]] = isset($graphdata[$materials[$doorinfo['material']]]) ? ++$graphdata[$materials[$doorinfo['material']]] : 1;		
+							break;
+						}
+						
+					}
+					ksort($graphdata);
 
 					foreach ($graphdata as $key => $val)
-						$tempdata[]   = '[\'' . $key . '\', ' . $val . ']';
+					{
+						$text = ($graph_id == 'inventorychart' or $graph_id == 'inventorychart1') ? $key . ' Minute' : $key;
+						$tempdata[]   = '[\'' . $text . '\', ' . $val . ']';
+						$datalabels[] = "'" . round(count($val)/count($apertdata)*100) . '% (' . count($val) . ")'";
+					}
 
 					$output = "[[" . implode(', ', $tempdata) . "]], {
-						seriesDefaults: {
-							// Make this a pie chart.
-							renderer: jQuery.jqplot.PieRenderer, 
-							rendererOptions: {
-							  sliceMargin: 10,
-							  showDataLabels: true
-							}
-						  }, 
-						  legend: { show:true, location: 'e' }
-						}";
+						seriesDefaults:{
+				            renderer:$.jqplot.BarRenderer,
+				            rendererOptions: {
+				                varyBarColor: true
+				            }
+				        },
+						axes: {
+					      xaxis: {
+					        renderer: $.jqplot.CategoryAxisRenderer,
+					        tickOptions: {
+					          labelPosition: 'middle'
+					        }
+					      },
+					      yaxis: {
+					        autoscale:true,
+					        tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+					        tickOptions: {
+					          labelPosition: 'start'
+					        }
+					      }
+					    }
+					}";
 				}
 			break;
 
@@ -485,7 +594,7 @@ class Dashboard extends CI_Controller {
 					foreach ($inspections as $inspection)
 					{
 						$tbl .= '"' . @$inspection['barcode'] . '",';
-						$tbl .= '"' . @$inspection['location_name'] . '",';
+						$tbl .= '"' . @$inspection['location'] . '",';
 						$tbl .= '"' . @$inspection['CreatorfirstName'] . ' ' . @$inspection['CreatorlastName'] . '",';
 						$tbl .= '"' . @$inspection['CreateDate'] . '",';
 						$tbl .= '"' . @$inspection['StartDate'] . '",';
@@ -600,7 +709,7 @@ class Dashboard extends CI_Controller {
 				
 				$tbl .= '<tr>';
 				$tbl .= '<td>' . @$inspection['barcode'] . '</td>';
-				$tbl .= '<td>' . @$inspection['location_name'] . '</td>';
+				$tbl .= '<td>' . @$inspection['location'] . '</td>';
 				$tbl .= '<td>' . @$inspection['CreatorfirstName'] . ' ' . @$inspection['CreatorlastName'] . '</td>';
 				$tbl .= '<td>' . @$inspection['CreateDate'] . '</td>';
 				$tbl .= '<td>' . @$inspection['StartDate'] . '</td>';
@@ -627,12 +736,13 @@ class Dashboard extends CI_Controller {
 	{
 		$data_image = @$this->input->post('img');
 
-		// $file = FCPATH . 'upload';
 		$file = FCPATH . 'upload/' . $this->session->userdata('user_id');
-		
+
 		if (!is_dir($file)) 
 			mkdir($file);
-
+		
+		chmod($file, 0777);
+		
 		$file .= '/html_export.html';
 
 		if (file_exists($file))
@@ -655,16 +765,16 @@ class Dashboard extends CI_Controller {
 					</tr>
 				</thead>
 				<tbody>';
-
 		$inspections = $this->_build_reviews_list();
 
 		if (!empty($inspections))
 		{
+
 			foreach ($inspections as $inspection)
 			{
 				$tbl .= '<tr>';
 				$tbl .= '<td>' . @$inspection['barcode'] . '</td>';
-				$tbl .= '<td>' . @$inspection['location_name'] . '</td>';
+				$tbl .= '<td>' . @$inspection['location'] . '</td>';
 				$tbl .= '<td>' . @$inspection['CreatorfirstName'] . ' ' . @$inspection['CreatorlastName'] . '</td>';
 				$tbl .= '<td>' . @$inspection['CreateDate'] . '</td>';
 				$tbl .= '<td>' . @$inspection['StartDate'] . '</td>';
@@ -686,8 +796,14 @@ class Dashboard extends CI_Controller {
 	function _build_reviews_list($revision_no_filter = FALSE, $skip_graph = FALSE)
 	{
 		$output = array();
-		
+
 		$inspections = $this->resources_model->get_user_inspections_by_parent($this->session->userdata('user_parent'));
+
+		$userlocation 	= $this->resources_model->get_user_buildings($this->session->userdata['user_parent']);;
+		$buildings = array();
+		foreach ($userlocation as $loc)
+			$buildings[$loc['idBuildings']] = $loc;
+		$userlocation = $buildings;
 
 		$filter_data = $this->session->userdata('filters_array');
 
@@ -725,7 +841,6 @@ class Dashboard extends CI_Controller {
 					continue;
 
 				$inspstats = array();
-
 				foreach ($ins as $in)
 				{
 					if ($in['status']<1)
@@ -735,15 +850,33 @@ class Dashboard extends CI_Controller {
 				}
 
 				if (empty($inspstats))
-					continue;
+					$inspstats[1] = 1;
 
 				if (count($inspstats) > 1 && isset($inspstats[1]))
 					unset($inspstats[1]);
-				
-				if (!isset($inspstats[$statuss[$filter_data['graph']['graphpdata']]]))
+
+				if (!isset($inspstats[$statuss[$filter_data['graph']['graphdata']]]))
 					continue;
 			}
 			//end filter
+
+			$loca = array();
+
+			$loca[] = @$userlocation[$inspection['Building']]['name'];
+			
+			if ($inspection['Floor'] > 0 && isset($userlocation[$inspection['Floor']]['name']))
+				$loca[] = $userlocation[$inspection['Floor']]['name'];
+			if ($inspection['Wing'] > 0 && isset($userlocation[$inspection['Wing']]['name']))
+				$loca[] = $userlocation[$inspection['Wing']]['name'];
+			if ($inspection['Area'] > 0 && isset($userlocation[$inspection['Area']]['name']))
+				$loca[] = $userlocation[$inspection['Area']]['name'];
+			if ($inspection['Level'] > 0 && isset($userlocation[$inspection['Level']]['name']))
+				$loca[] = $userlocation[$inspection['Level']]['name'];
+			
+			if (!empty($loca))
+				$inspection['location'] =  implode(' ', $loca);
+			else
+				$inspection['location'] = '';
 
 			if (!$revision_no_filter)
 				$output[$inspection['aperture_id']] = $inspection;
@@ -755,7 +888,7 @@ class Dashboard extends CI_Controller {
 					$output[$inspection['aperture_id']] = $inspection;
 			}
 		}
-	
+
 		return $output;
 	}
 }

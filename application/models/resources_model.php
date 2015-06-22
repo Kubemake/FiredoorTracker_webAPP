@@ -113,6 +113,18 @@ class Resources_model  extends CI_Model
 		return $this->db->get()->row_array();
 	}
 
+	function get_apertures_info_by_aperture_ids($aperture_ids)
+	{
+		if (!is_array($aperture_ids))
+			$aperture_ids = array($aperture_ids);
+
+		$this->db->select('idDoors, wall_Rating, rating, smoke_Rating, material');
+		$this->db->from('Doors');
+		$this->db->where_in('idDoors', $aperture_ids);
+		$this->db->where('deleted', 0);
+		return $this->db->get()->result_array();
+	}
+
 	function get_aperture_info_by_barcode($barcode, $user_parent = FALSE)
 	{
 		$parent =  $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
