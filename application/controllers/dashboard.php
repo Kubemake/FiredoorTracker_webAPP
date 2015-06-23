@@ -418,28 +418,36 @@ class Dashboard extends CI_Controller {
 
 					foreach ($apertdata as $doorinfo)
 					{
-						if ($doorinfo['rating'] == 0)
-							continue;
+						
 
 						switch ($graph_id) {
 							case 'inventorychart':
 							case 'inventorychart1':
+								if ($doorinfo['rating'] == 0)
+									continue;
 								$graphdata[$doorrating[$doorinfo['rating']]] = isset($graphdata[$doorrating[$doorinfo['rating']]]) ? ++$graphdata[$doorrating[$doorinfo['rating']]] : 1;		
 							break;
 							case 'inventorychart2':
+								if ($doorinfo['wall_Rating'] == 0)
+									continue;
 								$graphdata[$wallrating[$doorinfo['wall_Rating']]] = isset($graphdata[$wallrating[$doorinfo['wall_Rating']]]) ? ++$graphdata[$wallrating[$doorinfo['wall_Rating']]] : 1;		
 							break;
 							case 'inventorychart3':
+								if ($doorinfo['smoke_Rating'] == 0)
+									continue;
 								$graphdata[$smoke[$doorinfo['smoke_Rating']]] = isset($graphdata[$smoke[$doorinfo['smoke_Rating']]]) ? ++$graphdata[$smoke[$doorinfo['smoke_Rating']]] : 1;		
 							break;
 							case 'inventorychart4':
+								if ($doorinfo['material'] == 0)
+									continue;
 								$graphdata[$materials[$doorinfo['material']]] = isset($graphdata[$materials[$doorinfo['material']]]) ? ++$graphdata[$materials[$doorinfo['material']]] : 1;		
 							break;
 						}
 						
 					}
 					ksort($graphdata);
-
+// echo '<pre>';
+// print_r($apertdata);die();
 					foreach ($graphdata as $key => $val)
 					{
 						$text = ($graph_id == 'inventorychart' or $graph_id == 'inventorychart1') ? $key . ' Minute' : $key;
@@ -449,122 +457,277 @@ class Dashboard extends CI_Controller {
 
 					$output = "[[" . implode(', ', $tempdata) . "]], {
 						seriesDefaults:{
-				            renderer:$.jqplot.BarRenderer,
-				            rendererOptions: {
-				                varyBarColor: true
-				            }
-				        },
+							renderer:$.jqplot.BarRenderer,
+							rendererOptions: {
+								varyBarColor: true
+							}
+						},
 						axes: {
-					      xaxis: {
-					        renderer: $.jqplot.CategoryAxisRenderer,
-					        tickOptions: {
-					          labelPosition: 'middle'
-					        }
-					      },
-					      yaxis: {
-					        autoscale:true,
-					        tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-					        tickOptions: {
-					          labelPosition: 'start'
-					        }
-					      }
-					    }
+						  xaxis: {
+							renderer: $.jqplot.CategoryAxisRenderer,
+							tickOptions: {
+							  labelPosition: 'middle'
+							}
+						  },
+						  yaxis: {
+							autoscale:true,
+							tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+							tickOptions: {
+							  labelPosition: 'start'
+							}
+						  }
+						}
 					}";
 				}
 			break;
 
-			case 'companyreview':
-				$inspections 	= $this->_build_reviews_list();
-				if (!empty($inspections))
+			case 'ahjreport':
+			case 'ahjreport1':
+				$query['type'] = 'ahjreport1';
+				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
+				$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
+
+				if (!empty($inspdata))
 				{
-					foreach ($inspections as $inspection)
-						$graphdata[$inspection['location_name']] = isset($graphdata[$inspection['location_name']]) ? ++$graphdata[$inspection['location_name']] : 1;
-
-					foreach ($graphdata as $key => $val)
-						$tempdata[]   = '[\'' . $key . '\', ' . $val . ']';
-
-					$output = "[[" . implode(', ', $tempdata) . "]], {
-						seriesDefaults: {
-							// Make this a pie chart.
-							renderer: jQuery.jqplot.PieRenderer, 
-							rendererOptions: {
-							  sliceMargin: 10,
-							  showDataLabels: true
+					foreach ($inspdata as $inspection)
+					{
+						foreach ($inspection as  $YearMonth => $value) {
+							if (!empty($value['value']))
+							{
+								$colorcodes = json_decode($value['value']);
+								foreach ($colorcodes as $code)
+									$graphdata[$code][date('F', strtotime($YearMonth))] = isset($graphdata[$code][date('F', strtotime($YearMonth))]) ? ++$graphdata[$code][date('F', strtotime($YearMonth))] : 1;
 							}
-						  }, 
-						  legend: { show:true, location: 'e' }
-						}";
+						}
+					}
+
+					$ticks = array();
+					for ($i=1; $i <= date('m'); $i++)
+						$ticks[] = '"' . date('F', strtotime(date('Y') . '-' . $i . '-1' )) . '"';
+
+					$codes = $this->config->item('door_state');
+					$labels = array();
+					foreach ($codes as $code) {
+						$labels[] = '{label: \'' . $code . '\'}';
+					}
+
+					$tempdata = array();
+					foreach ($codes as $cod)
+					{
+						$monthdata = array();
+						for ($i=1; $i <= date('m'); $i++)
+							$monthdata[] = isset($graphdata[$cod][date('F', strtotime(date('Y') . '-' . $i . '-1' ))]) ? $graphdata[$cod][date('F', strtotime(date('Y') . '-' . $i . '-1' ))] : 0;
+
+						$tempdata[]   = '[' . implode(',', $monthdata) . ']';
+					}
+
+					$output = "[" . implode(', ', $tempdata) . "], {
+						legend: {
+							show: true
+						},
+						seriesDefaults: {
+							renderer: $.jqplot.BarRenderer,
+							rendererOptions: {
+							   barPadding: 2
+							}
+						},
+						series: [".implode(',', $labels)."],
+						axes: {
+							xaxis: {
+								renderer: $.jqplot.CategoryAxisRenderer,
+								tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+								labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+								ticks: [".implode(',', $ticks)."],
+							}
+						}
+					}";
+				}
+			break;
+			case 'ahjreport2':
+				$query['type'] = 'ahjreport2';
+				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
+				$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
+
+				if (!empty($inspdata))
+				{
+					foreach ($inspdata as $inspection)
+					{
+						foreach ($inspection as  $YearMonth => $value) {
+							if (!empty($value['value']))
+							{
+								$colorcodes = json_decode($value['value']);
+								foreach ($colorcodes as $code)
+									$graphdata[$code][$YearMonth] = isset($graphdata[$code][$YearMonth]) ? ++$graphdata[$code][$YearMonth] : 1;
+							}
+						}
+					}
+
+					$ticks = array();
+					for ($i=1; $i <= 4; $i++)
+						$ticks[] = '"' .'Q' . $i . ' - ' . (date('y')-1) . '"';
+					for ($i=1; $i <= ceil(date('m')/3); $i++)
+						$ticks[] = '"' .'Q' . $i . ' - ' . date('y') . '"';
+
+					$codes = $this->config->item('door_state');
+					$labels = array();
+					foreach ($codes as $code) {
+						$labels[] = '{label: \'' . $code . '\'}';
+					}
+
+					$tempdata = array();
+					foreach ($codes as $cod)
+					{
+						$monthdata = array();
+						for ($i=1; $i <= 4; $i++)
+							$monthdata[] = isset($graphdata[$cod]['Q' . $i . ' - ' . (date('Y')-1)]) ? $graphdata[$cod]['Q' . $i . ' - ' . (date('Y')-1)] : 0;
+						for ($i=1; $i <= ceil(date('m')/3); $i++)
+							$monthdata[] = isset($graphdata[$cod]['Q' . $i . ' - ' . date('Y')]) ? $graphdata[$cod]['Q' . $i . ' - ' . date('Y')] : 0;
+						$tempdata[]   = '[' . implode(',', $monthdata) . ']';
+					}
+
+					$output = "[" . implode(', ', $tempdata) . "], {
+						legend: {
+							show: true
+						},
+						seriesDefaults: {
+							renderer: $.jqplot.BarRenderer,
+							rendererOptions: {
+							   barPadding: 2
+							}
+						},
+						series: [".implode(',', $labels)."],
+						axes: {
+							xaxis: {
+								renderer: $.jqplot.CategoryAxisRenderer,
+								tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+								labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+								ticks: [".implode(',', $ticks)."],
+							}
+						}
+					}";
+				}
+			break;
+			case 'ahjreport3':
+				$query['type'] = 'ahjreport3';
+				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
+				$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
+
+				if (!empty($inspdata))
+				{
+					foreach ($inspdata as $inspection)
+					{
+						foreach ($inspection as  $YearMonth => $value) {
+							if (!empty($value['value']))
+							{
+								$colorcodes = json_decode($value['value']);
+								foreach ($colorcodes as $code)
+									$graphdata[$code][$YearMonth] = isset($graphdata[$code][$YearMonth]) ? ++$graphdata[$code][$YearMonth] : 1;
+							}
+						}
+					}
+
+					$ticks = array();
+
+					for ($i=date('Y')-4; $i <= date('Y'); $i++)
+						$ticks[] = '"' .$i . '"';
+
+					$codes = $this->config->item('door_state');
+					$labels = array();
+					foreach ($codes as $code) {
+						$labels[] = '{label: \'' . $code . '\'}';
+					}
+
+					$tempdata = array();
+					foreach ($codes as $cod)
+					{
+						$monthdata = array();
+						for ($i=date('Y')-4; $i <= date('Y'); $i++)
+							$monthdata[] = isset($graphdata[$cod][$i]) ? $graphdata[$cod][$i] : 0;
+
+						$tempdata[]   = '[' . implode(',', $monthdata) . ']';
+					}
+
+					$output = "[" . implode(', ', $tempdata) . "], {
+						legend: {
+							show: true
+						},
+						seriesDefaults: {
+							renderer: $.jqplot.BarRenderer,
+							rendererOptions: {
+							   barPadding: 2
+							}
+						},
+						series: [".implode(',', $labels)."],
+						axes: {
+							xaxis: {
+								renderer: $.jqplot.CategoryAxisRenderer,
+								tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+								labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+								ticks: [".implode(',', $ticks)."],
+							}
+						}
+					}";
 				}
 			break;
 
-			case 'totalinmonth':
-				$min = time()+60*60*24*30;
-				$max = 0;
+			case 'activityreport':
+			case 'activityreport1':
+			case 'activityreport2':
+			case 'activityreport3':
+				$query['type'] = 'activityreport';
+				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
+				$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
 
-				$inspections 	= $this->_build_reviews_list();
-				if (!empty($inspections))
+				if (!empty($inspdata))
 				{
-					foreach ($inspections as $inspection)
+					$this->load->model('user_model');
+					$dbusers = $this->user_model->get_users_by_parent($this->session->userdata('user_parent'));
+					
+					foreach ($inspdata as $inspection)
 					{
-						if (empty($inspection['StartDate']) or empty($inspection['firstName']) or empty($inspection['lastName']) )
-							continue;
+						foreach ($inspection as  $YearMonth => $value) {
+							if (!empty($value['value']))
+							{
+								$cdate = date('Y-m-d', $YearMonth);
+								$graphformat = '%v';
+								
+								if ($graph_id == 'activityreport2')
+								{
+									$cdate = date('Y-m', $YearMonth);
+									$graphformat = '%b-%Y';
+								}
+								if ($graph_id == 'activityreport3')
+								{
+									$cdate = date('Y', $YearMonth);
+									$graphformat = '%Y';
+								}
 
-						if ($min > strtotime($inspection['StartDate']))
-							$min = strtotime($inspection['StartDate']);
-						
-						if ($max < strtotime($inspection['StartDate']))
-							$max = strtotime($inspection['StartDate']);
-
-						if ($inspection['revision']==0)
-							$graphdata[$inspection['InspectionStatus']][date('Y-m-d', strtotime($inspection['StartDate']))] = isset($graphdata[$inspection['InspectionStatus']][date('Y-m-d', strtotime($inspection['StartDate']))]) ? ++$graphdata[$inspection['InspectionStatus']][date('Y-m-d', strtotime($inspection['StartDate']))] : 1;
-						else
-							$graphdata['Reinspect'][date('Y-m-d', strtotime($inspection['StartDate']))] = isset($graphdata[$inspection['InspectionStatus']][date('Y-m-d', strtotime($inspection['StartDate']))]) ? ++$graphdata[$inspection['InspectionStatus']][date('Y-m-d', strtotime($inspection['StartDate']))] : 1;
+								$users = json_decode($value['value']);
+								foreach ($users as $user)
+								{
+									$curuser = $dbusers[$user]['firstName'] .' ' . $dbusers[$user]['lastName'];
+									$graphdata[$curuser][$cdate] = isset($graphdata[$curuser][$cdate]) ? ++$graphdata[$curuser][$cdate] : 1;
+								}
+							}
+						}
 					}
 
-					$size = 3;
-					$tempdata = '';
-					foreach ($graphdata as $status => $datas) {
+					$tempdata = array();
+					foreach ($graphdata as $user => $datas)
+					{
 						foreach ($datas as $dat => $value)
 							$temp[]   = '[\'' . $dat . '\', ' . $value . ']';
 
 						$tempdata[] = '[' . implode(', ', $temp) . ']';
 						
-						$tempseries[] = "{label: '{$status}'}";
-						$size++;
+						$tempseries[] = "{label: '{$user}'}";
 					}
 
 					$output = "[" . implode(', ', $tempdata) . "], {
-					  	animate: !$.jqplot.use_excanvas,
-					  	seriesDefaults:{
-							renderer:$.jqplot.BarRenderer,
-							rendererOptions: {fillToZero: true}
-						},
-						axes:{
-							xaxis:{
-								renderer:$.jqplot.DateAxisRenderer,
-								syncTicks: true,
-								min: '" . date('Y-m-d', $min-60*60*24*3) . "',
-								max: '" . date('Y-m-d', $max+60*60*24*3) . "'
-							},
-							yaxis:{
-								renderer:$.jqplot.CategoryAxisRenderer,
-								pad: 1.05
-							}
-						},
-						series:[" . implode(',', $tempseries) . "],
-						legend: {
-							show: true,
-							location: 's',
-							showLabels: true,
-							showSwatches: true,
-							placement: 'outsideGrid',
-							renderer: $.jqplot.TableLegendRenderer,
-							preDraw: true
-						},
-						cursor:{
-							show: true, 
-							zoom: true
-						}
+						legend: {show: true},
+					  	axes: {xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'$graphformat'}}},
+					  	series: [".implode(',', $tempseries)."],
+					  	cursor:{show: true, zoom: true, showTooltip: true,followMouse: true} 
 					}";
 				}
 			break;
@@ -830,7 +993,7 @@ class Dashboard extends CI_Controller {
 				if (!empty($inspection['building_id']) && !in_array($inspection['building_id'], $filter_data['buildings']))
 					continue;
 
-			if (!$skip_graph && isset($filter_data['graph']))
+			if (!$skip_graph && isset($filter_data['graph']) && ($filter_data['graph']['graphpid'] == 'compliance' or $filter_data['graph']['graphpid'] == 'compliance2'))
 			{
 				$ins = $this->resources_model->get_inspections_statuses($this->session->userdata('user_parent'), $inspection['id']);
 
@@ -891,6 +1054,188 @@ class Dashboard extends CI_Controller {
 
 		return $output;
 	}
+
+	function _get_report_cache($params)
+	{
+		$this->load->model('history_model');
+		
+		$cached_data = array();
+
+		switch ($params['type'])
+		{
+			case 'ahjreport1':
+				$cached_data = $this->resources_model->get_cached_report_data($params['type'],$params['inspections']);
+
+				foreach ($params['inspections'] as $inspec_id)
+				{
+					for ($m=1; $m <= date('m'); $m++)
+					{ 
+						$m = (strlen($m) < 2) ? '0' . $m : $m;
+						if (!isset($cached_data[$inspec_id][date('Y') . '-' . $m])) //CALC AND MAKE CACHE IF ABSENT
+						{
+							$histdata = $this->history_model->get_data_by_date_and_type('dff', $inspec_id, strtotime(date('Y') . '-' . $m . '-' . idate('t',strtotime(date('Y') . '-' . $m)) . ' 23:59:59'));
+							if (empty($histdata))
+								$val = '';
+							else
+							{
+								$doorinfo = $this->resources_model->get_aperture_info_by_inspection_id($inspec_id);		//get DIO by inspection id
+								$cc = $this->resources_model->get_aperture_issues_with_status($doorinfo);				//get CC values
+								
+								$val = array();
+								foreach ($histdata as $element)															//concat all colorcoded values
+								{
+									$fieldinfo = json_decode($element['new_val']);
+									if (empty($fieldinfo->value))
+										unset($val[$fieldinfo->FormFields_idFormFields]);
+									elseif (isset($cc[$fieldinfo->FormFields_idFormFields]))
+										$val[$fieldinfo->FormFields_idFormFields]=$cc[$fieldinfo->FormFields_idFormFields];
+								}
+
+								$val = array_flip($val);																//if has noncompliant value kill complant
+								if (count($val) > 1 && isset($val['Compliant']))
+									unset($val['Compliant']);
+								$val = json_encode(array_keys($val));
+							}
+							$cached_data[$inspec_id][date('Y') . '-' . $m] = $this->resources_model->add_cache_data($params['type'], $inspec_id, date('Y') . '-' . $m, $val); //save to DB and add to array
+						}
+					}
+					
+				}
+			break;
+			case 'ahjreport2':
+				$cached_data = $this->resources_model->get_cached_report_data($params['type'],$params['inspections']);
+
+				foreach ($params['inspections'] as $inspec_id)
+				{
+					for ($m=1; $m <= 4; $m++)
+					{ 
+						if (!isset($cached_data[$inspec_id]['Q' . $m . ' - ' . (date('Y')-1)])) //CALC AND MAKE CACHE IF ABSENT
+						{
+							$histdata = $this->history_model->get_data_by_date_and_type('dff', $inspec_id, strtotime((date('Y')-1) . '-' . $m*3 . '-' . idate('t',strtotime((date('Y')-1) . '-' . $m*3)) . ' 23:59:59'));
+							if (empty($histdata))
+								$val = '';
+							else
+							{
+								$doorinfo = $this->resources_model->get_aperture_info_by_inspection_id($inspec_id);		//get DIO by inspection id
+								$cc = $this->resources_model->get_aperture_issues_with_status($doorinfo);				//get CC values
+								
+								$val = array();
+								foreach ($histdata as $element)															//concat all colorcoded values
+								{
+									$fieldinfo = json_decode($element['new_val']);
+									if (empty($fieldinfo->value))
+										unset($val[$fieldinfo->FormFields_idFormFields]);
+									elseif (isset($cc[$fieldinfo->FormFields_idFormFields]))
+										$val[$fieldinfo->FormFields_idFormFields]=$cc[$fieldinfo->FormFields_idFormFields];
+								}
+
+								$val = array_flip($val);																//if has noncompliant value kill complant
+								if (count($val) > 1 && isset($val['Compliant']))
+									unset($val['Compliant']);
+								$val = json_encode(array_keys($val));
+							}
+							$cached_data[$inspec_id]['Q' . $m . ' - ' . (date('Y')-1)] = $this->resources_model->add_cache_data($params['type'], $inspec_id, 'Q' . $m . ' - ' . (date('Y')-1), $val); //save to DB and add to array
+						}
+					}
+					for ($m=1; $m <= ceil(date('m')/3); $m++)
+					{ 
+						if (!isset($cached_data[$inspec_id]['Q' . $m . ' - ' . date('Y')])) //CALC AND MAKE CACHE IF ABSENT
+						{
+							$histdata = $this->history_model->get_data_by_date_and_type('dff', $inspec_id, strtotime(date('Y') . '-' . $m*3 . '-' . idate('t',strtotime(date('Y') . '-' . $m*3)) . ' 23:59:59'));
+							if (empty($histdata))
+								$val = '';
+							else
+							{
+								$doorinfo = $this->resources_model->get_aperture_info_by_inspection_id($inspec_id);		//get DIO by inspection id
+								$cc = $this->resources_model->get_aperture_issues_with_status($doorinfo);				//get CC values
+								
+								$val = array();
+								foreach ($histdata as $element)															//concat all colorcoded values
+								{
+									$fieldinfo = json_decode($element['new_val']);
+									if (empty($fieldinfo->value))
+										unset($val[$fieldinfo->FormFields_idFormFields]);
+									elseif (isset($cc[$fieldinfo->FormFields_idFormFields]))
+										$val[$fieldinfo->FormFields_idFormFields]=$cc[$fieldinfo->FormFields_idFormFields];
+								}
+
+								$val = array_flip($val);																//if has noncompliant value kill complant
+								if (count($val) > 1 && isset($val['Compliant']))
+									unset($val['Compliant']);
+								$val = json_encode(array_keys($val));
+							}
+							$cached_data[$inspec_id]['Q' . $m . ' - ' . date('Y')] = $this->resources_model->add_cache_data($params['type'], $inspec_id, 'Q' . $m . ' - ' . date('Y'), $val); //save to DB and add to array
+						}
+					}
+					
+				}
+			break;
+			case 'ahjreport3':
+				$cached_data = $this->resources_model->get_cached_report_data($params['type'],$params['inspections']);
+
+				foreach ($params['inspections'] as $inspec_id)
+				{
+					for ($m = date('Y')-4; $m <= date('Y'); $m++)
+					{ 
+						if (!isset($cached_data[$inspec_id][$m])) //CALC AND MAKE CACHE IF ABSENT
+						{
+							$histdata = $this->history_model->get_data_by_date_and_type('dff', $inspec_id, strtotime($m . '-12-' . idate('t',strtotime($m . '-12')) . ' 23:59:59'));
+							if (empty($histdata))
+								$val = '';
+							else
+							{
+								$doorinfo = $this->resources_model->get_aperture_info_by_inspection_id($inspec_id);		//get DIO by inspection id
+								$cc = $this->resources_model->get_aperture_issues_with_status($doorinfo);				//get CC values
+								
+								$val = array();
+								foreach ($histdata as $element)															//concat all colorcoded values
+								{
+									$fieldinfo = json_decode($element['new_val']);
+									if (empty($fieldinfo->value))
+										unset($val[$fieldinfo->FormFields_idFormFields]);
+									elseif (isset($cc[$fieldinfo->FormFields_idFormFields]))
+										$val[$fieldinfo->FormFields_idFormFields]=$cc[$fieldinfo->FormFields_idFormFields];
+								}
+
+								$val = array_flip($val);																//if has noncompliant value kill complant
+								if (count($val) > 1 && isset($val['Compliant']))
+									unset($val['Compliant']);
+								$val = json_encode(array_keys($val));
+							}
+							$cached_data[$inspec_id][$m] = $this->resources_model->add_cache_data($params['type'], $inspec_id, $m, $val); //save to DB and add to array
+						}
+					}
+				}
+			break;
+			case 'activityreport':
+				//here save in cache only days with completitions
+				$cached_data = $this->resources_model->get_cached_report_data($params['type'],$params['inspections']);
+
+				foreach ($params['inspections'] as $inspec_id)
+				{
+					$minz = !empty($cached_data[$inspec_id]) ? max(array_keys($cached_data[$inspec_id])) : 1405886400;//1430427600; //2015-05-01 or last record
+					$day = 86400;
+					for ($i = $minz+86400; $i < date('U'); $i = $i+$day) //loop +1 day
+					{ 
+						$nowdate = date('Y-m-d', $i);
+						$histdata = $this->history_model->get_data_by_date_and_type('inspections', $inspec_id, $nowdate);
+						
+						if (!empty($histdata))
+						{
+							$val = array();
+							foreach ($histdata as $record)
+								$val[$record['user_id']] = 1;
+							$val = json_encode(array_keys($val));
+
+							$cached_data[$inspec_id][$i] = $this->resources_model->add_cache_data($params['type'], $inspec_id, strtotime($nowdate . ' 00:00:00'), $val); //save to DB and add to array
+						}
+					}
+				}
+			break;
+		}
+		return $cached_data;
+	}
+
 }
 
 /* End of file dashboard.php */

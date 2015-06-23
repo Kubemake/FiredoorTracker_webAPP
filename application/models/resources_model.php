@@ -518,6 +518,145 @@ class Resources_model  extends CI_Model
 
 		return $output;
 	}
+
+	function get_inspections_by_complete_date($datetype, $user_parent=FALSE)
+	{
+		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
+		$this->db->select('idInspections');
+		$this->db->where('deleted', 0);
+		$this->db->where('UserId', $parent);
+		switch ($datetype)
+		{
+			case 'ahjreport1':
+				$this->db->like('Completion', date('Y'), 'after');
+			break;
+			case 'ahjreport2':
+				$this->db->like('Completion', date('Y'), 'after');
+				$this->db->or_like('Completion', (date('Y')-1), 'after');
+			break;
+			case 'ahjreport2':
+				$this->db->like('Completion', date('Y'), 'after');
+				$this->db->or_like('Completion', (date('Y')-1), 'after');
+				$this->db->or_like('Completion', (date('Y')-2), 'after');
+				$this->db->or_like('Completion', (date('Y')-3), 'after');
+				$this->db->or_like('Completion', (date('Y')-4), 'after');
+			break;
+			case 'activityreport':
+				$this->db->where('Completion IS NOT ', 'NULL', FALSE);
+			break;
+		}
+		$result = $this->db->get('Inspections')->result_array();
+		
+		$output = array();
+		foreach ($result as $value)
+			$output[] = $value['idInspections'];
+// echo '<pre>';
+// print_r($this->db->last_query());die();
+		return $output;
+	}
+
+	function get_cached_report_data($type, $inspcetions)
+	{
+		if (!is_array($inspcetions))
+			$inspcetions = array($inspcetions);
+
+		switch ($type)
+		{
+			case 'ahjreport1':
+				$this->db->like('InspectionTime', date('Y'), 'after');
+			break;
+			case 'ahjreport2':
+				$this->db->like('InspectionTime', date('Y'), 'before');
+				$this->db->or_like('InspectionTime', (date('Y')-1), 'before');
+			break;
+			case 'ahjreport3':
+				$this->db->like('InspectionTime', date('Y'), 'none');
+				$this->db->or_like('InspectionTime', (date('Y')-1), 'none');
+				$this->db->or_like('InspectionTime', (date('Y')-2), 'none');
+				$this->db->or_like('InspectionTime', (date('Y')-3), 'none');
+				$this->db->or_like('InspectionTime', (date('Y')-4), 'none');
+			break;
+			case 'ahjreport3':
+				$this->db->like('InspectionTime', date('Y'), 'none');
+				$this->db->or_like('InspectionTime', (date('Y')-1), 'none');
+				$this->db->or_like('InspectionTime', (date('Y')-2), 'none');
+				$this->db->or_like('InspectionTime', (date('Y')-3), 'none');
+				$this->db->or_like('InspectionTime', (date('Y')-4), 'none');
+			break;
+		}
+		
+		$this->db->where('ReportType', $type);
+		$this->db->where_in('Inspections_idInspections', $inspcetions);
+
+		$result = $this->db->get('ReportCache')->result_array();
+
+		$output = array();
+		foreach ($result as $value)
+			$output[$value['Inspections_idInspections']][$value['InspectionTime']] = $value;
+
+		return $output;
+	}
+
+	function add_cache_data($type, $inspections, $date, $value)
+	{
+		$adddata = array(
+			'Inspections_idInspections' => $inspections,
+			'ReportType' 				=> $type,
+			'InspectionTime' 			=> $date,
+			'value'						=> $value
+		);
+		
+		switch ($type) {
+				case 'ahjreport1':
+					if ($date != date('Y-m'))
+						$this->db->insert('ReportCache', $adddata);
+				break;
+				case 'ahjreport2':
+					if ($date != 'Q' . (date('m')/3) . ' - ' . date('Y'))
+						$this->db->insert('ReportCache', $adddata);
+				break;
+				case 'ahjreport3':
+					if ($date != date('Y'))
+						$this->db->insert('ReportCache', $adddata);
+				break;
+				case 'activityreport':
+					if ($date != date('Y-m-d'))
+						$this->db->insert('ReportCache', $adddata);
+				break;
+				
+				default:
+					$this->db->insert('ReportCache', $adddata);
+				break;
+			}	
+		
+
+		return $adddata;
+	}
+
+	function get_aperture_info_by_inspection_id($inspection_id)
+	{
+		$this->db->select('d.*');
+		$this->db->from('Doors d');
+		$this->db->join('Inspections i', 'i.idAperture = d.idDoors', 'left');
+		$this->db->where('i.idInspections', $inspection_id);
+
+		return $this->db->get()->row_array();
+	}
+
+	function get_aperture_issues_with_status($aperture_info)
+	{
+		$this->db->select('idField, value');
+		$this->db->where('wallRates', $aperture_info['wall_Rating']);
+		$this->db->where('ratesTypes', $aperture_info['smoke_Rating']);
+		$this->db->where('doorRating', $aperture_info['rating']);
+		$this->db->where('doorMatherial', $aperture_info['material']);
+		$result = $this->db->get('ConditionalChoices')->result_array();
+		$values = $this->config->item('door_state');
+		$output = array();
+		foreach ($result as $value)
+			$output[$value['idField']] = $values[$value['value']];
+		return $output;
+	}
 }
 
 /* End of file resources_model.php */

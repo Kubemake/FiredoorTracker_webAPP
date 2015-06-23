@@ -635,6 +635,8 @@ h4.panel-title a {
     padding: 10px 0 10px 10px;
     margin-bottom: -9px;
 }
-#inventorytab {
+#ahjtab,
+#inventorytab,
+#activitytab {
     margin: 15px 9px 3px 9px;
 }

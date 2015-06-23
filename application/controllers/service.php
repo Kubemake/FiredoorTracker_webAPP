@@ -1453,12 +1453,13 @@ class Service extends CI_Controller {
 				$dffid = $this->service_model->add_inspection_data($inspection, $field, $value);
 
 
-			$this->history_library->saveDff(array('user_id' => $user_id, 'line_id' => $dffid, 'new_val' => json_encode(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'value' => $value)), 'cur_val' => json_encode($cur_dff)));
 
 			if ($dffid)
 				$this->resources_model->update_inspection($data['inspection_id'], array('InspectionStatus' => 'In Progress', 'Inspector' => $user_id));
 
 		}
+
+		$this->history_library->saveDff(array('user_id' => $user_id, 'line_id' => @$dffid, 'new_val' => json_encode(array('Inspections_idInspections' => $inspection, 'FormFields_idFormFields' => $field, 'value' => $value)), 'cur_val' => json_encode($cur_dff)));
 
 		$userData['status'] = 'ok';
 

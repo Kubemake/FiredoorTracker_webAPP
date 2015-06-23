@@ -170,7 +170,21 @@ class User_model  extends CI_Model
 		$this->db->where('u.deleted', 0);
 		$this->db->where('r.rolesOrder >=', $roleid);
 		$this->db->where('u.parent', $parent);
-		return $this->db->get()->result_array();
+		$result = $this->db->get()->result_array();
+		return $result;
+	}
+
+	function get_users_by_parent($parent_id)
+	{
+		$this->db->select('idUsers, firstName, lastName');
+		$this->db->where('parent', $parent_id);
+		$result = $this->db->get('Users')->result_array();
+		
+		$output = array();
+		foreach ($result as $value)
+			$output[$value['idUsers']] = $value;
+
+		return $output;
 	}
 
 }

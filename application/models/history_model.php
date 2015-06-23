@@ -73,6 +73,27 @@ class History_model  extends CI_Model
 
 		return $app_id['idAperture'];
 	}
+
+	function get_data_by_date_and_type($type, $inspec_id, $maxdate, $mindate = FALSE)
+	{
+		if ($type == 'inspections')
+		{
+			$this->db->like('new_val', '"InspectionStatus":"Complete"');
+			$this->db->like('new_val', '"Completion":"' . $maxdate . '"');
+			$this->db->where('line_id', $inspec_id);
+		}
+		else
+		{
+			$this->db->where('timestamp <=', $maxdate,FALSE);
+			$this->db->like('new_val', '"Inspections_idInspections":"'.$inspec_id.'"');
+		}
+
+		$this->db->like('entity', $type, 'none');
+		$this->db->order_by('timestamp', 'ASC');
+		$result = $this->db->get('History')->result_array();
+
+		return $result;
+	}
 }
 
 /* End of file history_model.php */

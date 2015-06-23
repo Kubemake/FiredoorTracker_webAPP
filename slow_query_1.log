@@ -1505,3 +1505,101 @@ UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '204', `name` = 'O
 UPDATE `FormFields` SET `type` = 'question', `nextQuestionId` = '281', `name` = 'SelecttheCurrentOpeningClosingCondition', `label` = 'Select the Current Opening / Closing Condition', `questionId` = 0, `parent` = 282, `questionOrder` = 0, `level` = 3, `autoSubmit` = '0', `deleted` = '0' WHERE `idFormFields` =  '283'
 
 -----------------------------
+22.06.2015 11:51:25 : 1.1598
+INSERT INTO `Buildings` (`name`, `parent`, `level`) VALUES ('Wadya', '0', '')
+
+-----------------------------
+22.06.2015 11:51:50 : 2.1704
+INSERT INTO `Buildings` (`name`, `parent`, `level`) VALUES ('Wadya', '0', '')
+
+-----------------------------
+22.06.2015 11:51:50 : 2.1763
+UPDATE `Buildings` SET `root` = 78 WHERE `idBuildings` =  78
+
+-----------------------------
+22.06.2015 11:51:50 : 2.2277
+INSERT INTO `UserBuildings` (`Buildings_idBuildings`, `Users_idUsers`) VALUES (78, '0')
+
+-----------------------------
+22.06.2015 11:51:50 : 2.9106
+INSERT INTO `History` (`entity`, `user_id`, `line_id`, `timestamp`, `new_val`, `prev_val`) VALUES ('buildings', '1', 78, 1434973897, '{\"name\":\"Wadya\",\"parent\":\"0\",\"level\":\"\"}', '')
+
+-----------------------------
+22.06.2015 11:51:50 : 1.9295
+SELECT `ub`.*
+FROM (`UserBuildings` ub)
+JOIN `Buildings` b ON `b`.`idBuildings` = `ub`.`Buildings_idBuildings`
+WHERE `ub`.`Users_idUsers` =  '0'
+AND `b`.`deleted` =  0
+ORDER BY `b`.`buildingOrder` asc
+
+-----------------------------
+22.06.2015 11:51:50 : 1.7904
+INSERT INTO `Buildings` (`name`, `parent`, `level`) VALUES ('2wadya', '77', '1')
+
+-----------------------------
+22.06.2015 11:51:50 : 2.3771
+UPDATE `Buildings` SET `root` = '77' WHERE `idBuildings` =  79
+
+-----------------------------
+22.06.2015 11:52:06 : 2.5563
+UPDATE `Buildings` SET `name` = 'Wadya', `parent` = 0, `root` = 77, `level` = 0, `buildingOrder` = 0, `deleted` = '0' WHERE `idBuildings` =  '77'
+
+-----------------------------
+22.06.2015 11:52:06 : 1.2506
+UPDATE `Buildings` SET `name` = '2wadya', `parent` = 77, `root` = 77, `level` = 1, `buildingOrder` = 0, `deleted` = '0' WHERE `idBuildings` =  '79'
+
+-----------------------------
+22.06.2015 11:52:06 : 3.7482
+UPDATE `Buildings` SET `name` = 'Wadya', `parent` = 0, `root` = 78, `level` = 0, `buildingOrder` = 1, `deleted` = '0' WHERE `idBuildings` =  '78'
+
+-----------------------------
+22.06.2015 11:52:20 : 1.4571
+22.06.2015 11:52:20 : 2.4177
+SELECT *
+FROM (`Buildings`)
+WHERE `idBuildings` =  '78'
+
+-----------------------------
+SELECT *
+FROM (`Buildings`)
+WHERE `idBuildings` =  '78'
+
+-----------------------------
+22.06.2015 11:52:21 : 2.3892
+INSERT INTO `Buildings` (`name`, `parent`, `level`) VALUES ('3wa', '78', '1')
+
+-----------------------------
+22.06.2015 11:52:21 : 2.7313
+UPDATE `Buildings` SET `root` = '78' WHERE `idBuildings` =  80
+
+-----------------------------
+22.06.2015 11:52:21 : 8.0897
+INSERT INTO `UserBuildings` (`Buildings_idBuildings`, `Users_idUsers`) VALUES (80, '0')
+
+-----------------------------
+22.06.2015 11:52:21 : 3.1512
+INSERT INTO `History` (`entity`, `user_id`, `line_id`, `timestamp`, `new_val`, `prev_val`) VALUES ('buildings', '1', 80, 1434973923, '{\"name\":\"3wa\",\"parent\":\"78\",\"level\":\"1\"}', '')
+
+-----------------------------
+22.06.2015 11:52:37 : 2.3670
+UPDATE `Buildings` SET `name` = 'Wadya', `parent` = 0, `root` = 77, `level` = 0, `buildingOrder` = 0, `deleted` = '0' WHERE `idBuildings` =  '77'
+
+-----------------------------
+22.06.2015 11:53:29 : 3.4862
+INSERT INTO `History` (`entity`, `user_id`, `line_id`, `timestamp`, `new_val`, `prev_val`) VALUES ('buildings', '1', '78', 1434974006, '{\"idBuildings\":\"78\",\"name\":\"Wadya2\",\"parent\":\"0\"}', '{\"idBuildings\":\"78\",\"name\":\"Wadya\",\"parent\":\"0\",\"root\":\"78\",\"level\":\"0\",\"buildingOrder\":\"1\",\"deleted\":\"0\"}')
+
+-----------------------------
+22.06.2015 11:53:57 : 1.6137
+INSERT INTO `Buildings` (`name`, `parent`, `level`) VALUES ('Wadya3', '0', '')
+
+-----------------------------
+23.06.2015 13:06:57 : 1.0198
+SELECT `idField`, `value`
+FROM (`ConditionalChoices`)
+WHERE `wallRates` =  '1'
+AND `ratesTypes` =  '1'
+AND `doorRating` =  '1'
+AND `doorMatherial` =  '1'
+
+-----------------------------

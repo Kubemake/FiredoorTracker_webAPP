@@ -6,11 +6,11 @@
 		<div class="col-xs-3 graphacceptor" id="inventorychart">
 			<img width="95%" src="/images/inventory.jpg" />
 		</div>
-		<div class="col-xs-3 graphacceptor" id="companyreview">
-			<img width="95%" src="/images/companyreviewchart.jpg" />
+		<div class="col-xs-3 graphacceptor" id="ahjreport">
+			<img width="95%" src="/images/ahjreport.jpg" />
 		</div>
-		<div class="col-xs-3 graphacceptor" id="totalinmonth">
-			<img width="95%" src="/images/totalinmonthchart.jpg" />
+		<div class="col-xs-3 graphacceptor" id="activityreport">
+			<img width="95%" src="/images/activityreport.jpg" />
 		</div>
 	</div>
 	<div class="row">
@@ -24,6 +24,21 @@
 					<li><a href="javascript:;" id="inventorychart4" class="graphacceptor">Door Material</a></li>
 				</ul>
 			</div>
+			<div id="ahjtab" style="display:none;">
+				<ul class="nav nav-pills nav-justified">
+					<li><a href="javascript:;" id="ahjreport1"  class="graphacceptor">By Month</a></li>
+					<li><a href="javascript:;" id="ahjreport2"  class="graphacceptor">By Quarter</a></li>
+					<li><a href="javascript:;" id="ahjreport3"  class="graphacceptor">By Year</a></li>
+				</ul>
+			</div>
+			<div id="activitytab" style="display:none;">
+				<ul class="nav nav-pills nav-justified">
+					<li><a href="javascript:;" id="activityreport1"  class="graphacceptor">By Day</a></li>
+					<li><a href="javascript:;" id="activityreport2"  class="graphacceptor">By Month</a></li>
+					<li><a href="javascript:;" id="activityreport3"  class="graphacceptor">By Year</a></li>
+				</ul>
+			</div>
+
 			<div id="chartacceptor"></div>
 		</div>
 		<div class="col-xs-2">
@@ -201,51 +216,96 @@
 			case 'compliance':
 				title = 'Compliance Report';
 				$('#inventorytab').hide();
+				$('#ahjtab').hide();
+				$('#activitytab').hide();
 			break;
 			case 'compliance2':
 				title = 'Compliance Report';
 				$('#inventorytab').hide();
+				$('#ahjtab').hide();
+				$('#activitytab').hide();
 			break;
 			case 'inventorychart':
-				title = 'Inventory Report';
-				$('#inventorytab').show();
-				$('#inventorytab li').removeClass('active');
-				$('#inventorychart1').parent().addClass('active');
-			break;
 			case 'inventorychart1':
 				title = 'Inventory Report';
 				$('#inventorytab').show();
+				$('#ahjtab').hide();
+				$('#activitytab').hide();
 				$('#inventorytab li').removeClass('active');
 				$('#inventorychart1').parent().addClass('active');
 			break;
 			case 'inventorychart2':
 				title = 'Inventory Report';
 				$('#inventorytab').show();
+				$('#ahjtab').hide();
+				$('#activitytab').hide();
 				$('#inventorytab li').removeClass('active');
 				$('#inventorychart2').parent().addClass('active');
 			break;
 			case 'inventorychart3':
 				title = 'Inventory Report';
 				$('#inventorytab').show();
+				$('#ahjtab').hide();
+				$('#activitytab').hide();
 				$('#inventorytab li').removeClass('active');
 				$('#inventorychart3').parent().addClass('active');
 			break;
 			case 'inventorychart4':
 				title = 'Inventory Report';
 				$('#inventorytab').show();
+				$('#ahjtab').hide();
+				$('#activitytab').hide();
 				$('#inventorytab li').removeClass('active');
 				$('#inventorychart4').parent().addClass('active');
 			break;
-			case 'completiondate':
-				title = 'Completion Date';
+			case 'ahjreport':
+			case 'ahjreport1':
+				title = 'AHJ Report';
+				$('#ahjtab').show();
+				$('#inventorytab').hide();
+				$('#activitytab').hide();
+				$('#ahjtab li').removeClass('active');
+				$('#ahjreport1').parent().addClass('active');
+			break;
+			case 'ahjreport2':
+				title = 'AHJ Report';
+				$('#ahjtab').show();
+				$('#inventorytab').hide();
+				$('#activitytab').hide();
+				$('#ahjtab li').removeClass('active');
+				$('#ahjreport2').parent().addClass('active');
+			break;
+			case 'ahjreport3':
+				title = 'AHJ Report';
+				$('#ahjtab').show();
+				$('#inventorytab').hide();
+				$('#activitytab').hide();
+				$('#ahjtab li').removeClass('active');
+				$('#ahjreport3').parent().addClass('active');
+			break;
+			case 'activityreport':
+			case 'activityreport1':
+				title = 'User Activity Report';
+				$('#activitytab').show();
+				$('#activitytab li').removeClass('active');
+				$('#activityreport1').parent().addClass('active');
+				$('#ahjtab').hide();
 				$('#inventorytab').hide();
 			break;
-			case 'companyreview':
-				title = 'Company Review';
+			case 'activityreport2':
+				title = 'User Activity Report';
+				$('#activitytab').show();
+				$('#activitytab li').removeClass('active');
+				$('#activityreport2').parent().addClass('active');
+				$('#ahjtab').hide();
 				$('#inventorytab').hide();
 			break;
-			case 'totalinmonth':
-				title = 'Total in Month';
+			case 'activityreport3':
+				title = 'User Activity Report';
+				$('#activitytab').show();
+				$('#activitytab li').removeClass('active');
+				$('#activityreport3').parent().addClass('active');
+				$('#ahjtab').hide();
 				$('#inventorytab').hide();
 			break;
 		}
@@ -262,18 +322,21 @@
 				showgraph('compliance2');
 				// id = 'compliance2';
 			}
-
-			if (id == 'compliance' && data[0] != 'Non-Complaint Doors')
+			else if (id == 'compliance' && data[0] != 'Non-Complaint Doors')
 			{
 				$('#graphdata').val(data[0]);
 				$('#graphform').submit();
 			}
 
-			if (id == 'compliance2')
+			else if (id == 'compliance2')
 			{
 		   		$('#graphdata').val(data[0]);
 				$('#graphform').submit();
-			};
+			}
+			else
+			{
+				return;
+			}
 		});
 	}
 
@@ -285,7 +348,7 @@
 			type: 'POST',
 			data: {graph_id: graph_id},
 			success: function(result) {
-				// console.log(result);
+				console.log(result);
 				if (result == '<scr' + 'ipt type="text/javascript">window.location = "/user/login"</scr' + 'ipt>')
 				{
 					window.location = "/user/login";
