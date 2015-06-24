@@ -569,20 +569,20 @@ class Resources_model  extends CI_Model
 				$this->db->like('InspectionTime', date('Y'), 'before');
 				$this->db->or_like('InspectionTime', (date('Y')-1), 'before');
 			break;
-			case 'ahjreport3':
+			/*case 'ahjreport3':
 				$this->db->like('InspectionTime', date('Y'), 'none');
 				$this->db->or_like('InspectionTime', (date('Y')-1), 'none');
 				$this->db->or_like('InspectionTime', (date('Y')-2), 'none');
 				$this->db->or_like('InspectionTime', (date('Y')-3), 'none');
 				$this->db->or_like('InspectionTime', (date('Y')-4), 'none');
-			break;
-			case 'ahjreport3':
+			break;*/
+			/*case 'ahjreport3':
 				$this->db->like('InspectionTime', date('Y'), 'none');
 				$this->db->or_like('InspectionTime', (date('Y')-1), 'none');
 				$this->db->or_like('InspectionTime', (date('Y')-2), 'none');
 				$this->db->or_like('InspectionTime', (date('Y')-3), 'none');
 				$this->db->or_like('InspectionTime', (date('Y')-4), 'none');
-			break;
+			break;*/
 		}
 		
 		$this->db->where('ReportType', $type);

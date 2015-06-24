@@ -323,7 +323,7 @@ class Dashboard extends CI_Controller {
 					$tempdata[]   = '[\'Compliant Doors\', ' . count($graphdata[1]) . ']';
 					$datalabels[] = "'" . $comtproc . '% (' . count($graphdata[1]) . ")'";
 					
-					$tempdata[]   = '[\'Non-Complaint Doors\', ' . count($graphdata[9]) . ']';
+					$tempdata[]   = '[\'Non-Compliant Doors\', ' . count($graphdata[9]) . ']';
 					$datalabels[] = "'" . (100 - $comtproc) . '% (' . count($graphdata[9]) . ")'";
 
 					$output = "[[" . implode(', ', $tempdata) . "]], {
@@ -425,33 +425,48 @@ class Dashboard extends CI_Controller {
 							case 'inventorychart1':
 								if ($doorinfo['rating'] == 0)
 									continue;
-								$graphdata[$doorrating[$doorinfo['rating']]] = isset($graphdata[$doorrating[$doorinfo['rating']]]) ? ++$graphdata[$doorrating[$doorinfo['rating']]] : 1;		
+								$graphdata[$doorinfo['rating']] = isset($graphdata[$doorinfo['rating']]) ? ++$graphdata[$doorinfo['rating']] : 1;		
 							break;
 							case 'inventorychart2':
 								if ($doorinfo['wall_Rating'] == 0)
 									continue;
-								$graphdata[$wallrating[$doorinfo['wall_Rating']]] = isset($graphdata[$wallrating[$doorinfo['wall_Rating']]]) ? ++$graphdata[$wallrating[$doorinfo['wall_Rating']]] : 1;		
+								$graphdata[$doorinfo['wall_Rating']] = isset($graphdata[$doorinfo['wall_Rating']]) ? ++$graphdata[$doorinfo['wall_Rating']] : 1;		
 							break;
 							case 'inventorychart3':
 								if ($doorinfo['smoke_Rating'] == 0)
 									continue;
-								$graphdata[$smoke[$doorinfo['smoke_Rating']]] = isset($graphdata[$smoke[$doorinfo['smoke_Rating']]]) ? ++$graphdata[$smoke[$doorinfo['smoke_Rating']]] : 1;		
+								$graphdata[$doorinfo['smoke_Rating']] = isset($graphdata[$doorinfo['smoke_Rating']]) ? ++$graphdata[$doorinfo['smoke_Rating']] : 1;		
 							break;
 							case 'inventorychart4':
 								if ($doorinfo['material'] == 0)
 									continue;
-								$graphdata[$materials[$doorinfo['material']]] = isset($graphdata[$materials[$doorinfo['material']]]) ? ++$graphdata[$materials[$doorinfo['material']]] : 1;		
+								$graphdata[$doorinfo['material']] = isset($graphdata[$doorinfo['material']]) ? ++$graphdata[$doorinfo['material']] : 1;		
 							break;
 						}
 						
 					}
 					ksort($graphdata);
 // echo '<pre>';
-// print_r($apertdata);die();
+// print_r($graphdata);die();
 					foreach ($graphdata as $key => $val)
 					{
-						$text = ($graph_id == 'inventorychart' or $graph_id == 'inventorychart1') ? $key . ' Minute' : $key;
-						$tempdata[]   = '[\'' . $text . '\', ' . $val . ']';
+						// $text = ($graph_id == 'inventorychart' or $graph_id == 'inventorychart1') ? $key . ' Minute' : $key;
+						switch ($graph_id) {
+							case 'inventorychart':
+							case 'inventorychart1':
+								$tempdata[]   = '[\'' . $doorrating[$key] . ' Minute' . '\', ' . $val . ']';
+							break;
+							case 'inventorychart2':
+								$tempdata[]   = '[\'' . $wallrating[$key] . '\', ' . $val . ']';
+							break;
+							case 'inventorychart3':
+								$tempdata[]   = '[\'' . $smoke[$key] . '\', ' . $val . ']';
+							break;
+							case 'inventorychart4':
+								$tempdata[]   = '[\'' . $materials[$key] . '\', ' . $val . ']';
+							break;
+						}
+						
 						$datalabels[] = "'" . round(count($val)/count($apertdata)*100) . '% (' . count($val) . ")'";
 					}
 
@@ -523,7 +538,9 @@ class Dashboard extends CI_Controller {
 
 					$output = "[" . implode(', ', $tempdata) . "], {
 						legend: {
-							show: true
+							show: true, 
+								location: 'e',
+								placement: 'outsideGrid'
 						},
 						seriesDefaults: {
 							renderer: $.jqplot.BarRenderer,
@@ -587,7 +604,9 @@ class Dashboard extends CI_Controller {
 
 					$output = "[" . implode(', ', $tempdata) . "], {
 						legend: {
-							show: true
+							show: true, 
+								location: 'e',
+								placement: 'outsideGrid'
 						},
 						seriesDefaults: {
 							renderer: $.jqplot.BarRenderer,
@@ -616,7 +635,11 @@ class Dashboard extends CI_Controller {
 				{
 					foreach ($inspdata as $inspection)
 					{
+						$minyear = date('Y');
 						foreach ($inspection as  $YearMonth => $value) {
+							// echo $YearMonth . "\r\n";
+							$minyear = ($YearMonth < $minyear) ? $YearMonth : $minyear;
+							// $minyear--;
 							if (!empty($value['value']))
 							{
 								$colorcodes = json_decode($value['value']);
@@ -628,7 +651,7 @@ class Dashboard extends CI_Controller {
 
 					$ticks = array();
 
-					for ($i=date('Y')-4; $i <= date('Y'); $i++)
+					for ($i=$minyear; $i <= date('Y'); $i++)
 						$ticks[] = '"' .$i . '"';
 
 					$codes = $this->config->item('door_state');
@@ -641,7 +664,7 @@ class Dashboard extends CI_Controller {
 					foreach ($codes as $cod)
 					{
 						$monthdata = array();
-						for ($i=date('Y')-4; $i <= date('Y'); $i++)
+						for ($i=$minyear; $i <= date('Y'); $i++)
 							$monthdata[] = isset($graphdata[$cod][$i]) ? $graphdata[$cod][$i] : 0;
 
 						$tempdata[]   = '[' . implode(',', $monthdata) . ']';
@@ -649,7 +672,9 @@ class Dashboard extends CI_Controller {
 
 					$output = "[" . implode(', ', $tempdata) . "], {
 						legend: {
-							show: true
+							show: true, 
+								location: 'e',
+								placement: 'outsideGrid'
 						},
 						seriesDefaults: {
 							renderer: $.jqplot.BarRenderer,
@@ -1021,6 +1046,33 @@ class Dashboard extends CI_Controller {
 				if (!isset($inspstats[$statuss[$filter_data['graph']['graphdata']]]))
 					continue;
 			}
+			if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('inventorychart', 'inventorychart1', 'inventorychart2', 'inventorychart3', 'inventorychart4')))
+			{
+				$inspdata = $this->resources_model->get_aperture_info_by_inspection_id($inspection['id']);
+				// $doorrating = array_flip($this->config->item('door_rating')); 
+				// $wallrating = array_flip($this->config->item('wall_rates'));
+				// $smoke = array('Smoke' => 1, 'Fire' => 2);
+				// $materials = array_flip($this->config->item('door_matherial'));
+				switch ($filter_data['graph']['graphpid']) {
+					case 'inventorychart':
+					case 'inventorychart1':
+						if ($inspdata['rating'] != $filter_data['graph']['graphdata'])
+							continue 2;
+					break;
+					case 'inventorychart2':
+						if ($inspdata['wall_Rating'] != $filter_data['graph']['graphdata'])
+							continue 2;
+					break;
+					case 'inventorychart3':
+						if ($inspdata['smoke_Rating'] != $filter_data['graph']['graphdata'])
+							continue 2;
+					break;
+					case 'inventorychart4':
+						if ($inspdata['material'] != $filter_data['graph']['graphdata'])
+							continue 2;
+					break;
+				}
+			}
 			//end filter
 
 			$loca = array();
@@ -1175,7 +1227,7 @@ class Dashboard extends CI_Controller {
 
 				foreach ($params['inspections'] as $inspec_id)
 				{
-					for ($m = date('Y')-4; $m <= date('Y'); $m++)
+					for ($m = 2014; $m <= date('Y'); $m++)
 					{ 
 						if (!isset($cached_data[$inspec_id][$m])) //CALC AND MAKE CACHE IF ABSENT
 						{

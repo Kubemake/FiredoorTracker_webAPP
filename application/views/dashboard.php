@@ -317,12 +317,12 @@
 		
 		$('#chartacceptor').bind('jqplotDataClick', function (ev, seriesIndex, pointIndex, data)
 		{
-			if (id == 'compliance' && data[0] == 'Non-Complaint Doors')
+			if (id == 'compliance' && data[0] == 'Non-Compliant Doors')
 			{
 				showgraph('compliance2');
 				// id = 'compliance2';
 			}
-			else if (id == 'compliance' && data[0] != 'Non-Complaint Doors')
+			else if (id == 'compliance' && data[0] != 'Non-Compliant Doors')
 			{
 				$('#graphdata').val(data[0]);
 				$('#graphform').submit();
@@ -330,6 +330,12 @@
 
 			else if (id == 'compliance2')
 			{
+		   		$('#graphdata').val(data[0]);
+				$('#graphform').submit();
+			}
+			else if (id == 'inventorychart' || id == 'inventorychart1' || id == 'inventorychart2' || id == 'inventorychart3' || id == 'inventorychart4')
+			{
+
 		   		$('#graphdata').val(data[0]);
 				$('#graphform').submit();
 			}
@@ -348,7 +354,7 @@
 			type: 'POST',
 			data: {graph_id: graph_id},
 			success: function(result) {
-				console.log(result);
+				// console.log(result);
 				if (result == '<scr' + 'ipt type="text/javascript">window.location = "/user/login"</scr' + 'ipt>')
 				{
 					window.location = "/user/login";

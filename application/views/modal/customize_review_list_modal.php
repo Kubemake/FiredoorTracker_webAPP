@@ -11,11 +11,11 @@
 					<div class="row pad15">
 						<div class="panel-group" id="accordion">
 							<div class="panel panel-default">
-								<div class="panel-heading">
+								<!-- <div class="panel-heading">
 									<h4 class="panel-title">
 										<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">STEP 1</a>
 									</h4>
-								</div>
+								</div> -->
 								<div id="collapseOne" class="panel-collapse collapse in">
 									<div class="panel-body">
 										<div class="form-group">
@@ -75,7 +75,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="panel panel-default">
+							<!-- <div class="panel panel-default">
 							    <div class="panel-heading">
 							    	<h4 class="panel-title">
 							        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">STEP 2<?//Select Criteria?></a>
@@ -124,7 +124,7 @@
 										</div>
 							    	</div>
 							    </div>
-							</div>
+							</div> -->
 							
 						</div>
 					</div>
