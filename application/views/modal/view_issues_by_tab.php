@@ -10,6 +10,8 @@
 				<button data-toggle="dropdown" class="btn btn-default dropdown-toggle" data-placeholder="false">Manage<span class="caret"></span></button>
 				<ul class="dropdown-menu noclose">
 			    	<?php foreach ($issues['issues'][$section['nextQuestionId']]['answers'] as $answer): ?>
+			    		<?php unset($issues['issues'][$section['nextQuestionId']]['answers'][$answer['idFormFields']]); ?>
+
 			    		<li<?php echo ($answer['nextQuestionId'] != $tabnextQuestionId) ? ' class="dropdown-submenu"' : ''; ?>>
 			    			<input 
 			    				type="checkbox" 
@@ -30,6 +32,7 @@
 			    			 ?>
 			    		</li>
 			    	<?php endforeach; ?>
+			    	<?php unset($issues['issues'][$section['nextQuestionId']]); ?>
 				</ul>
 			<?php endif; ?>
 			</div>

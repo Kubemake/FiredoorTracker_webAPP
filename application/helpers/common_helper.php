@@ -131,12 +131,27 @@ function make_buildings_dropdown($buildingsdata)
 function make_children_answers($root_question, $question_id, $issues)
 {
 	$output = '';
+	// if (in_array($question_id, array(204))) {
+	// 	echo '<pre>';
+	// 	print_r($root_question);
+	// 	echo '<pre>';
+	// 	print_r($question_id);
+	// 	echo '<pre>';
+	// 	print_r($issues);die();
+	// 	# code...
+	// }
 	if (isset($issues['issues'][$question_id]['answers']))
 	{
 		$output = '<ul class="dropdown-menu noclose pull-middle pull-right" data-label-placement="false"  data-placeholder="false">';
 		foreach ($issues['issues'][$question_id]['answers'] as $answer)
 		{
-			$output .= '<li' . (($answer['nextQuestionId'] != $root_question) ? ' class="dropdown-submenu"' : '') . '>';
+			unset($issues['issues'][$question_id]['answers'][$answer['idFormFields']]); //it made sure that we do not take a infinite loop
+			
+			$childdata = '';
+			if ($answer['nextQuestionId'] != $root_question)
+		       	$childdata = make_children_answers($root_question, $answer['nextQuestionId'], $issues);
+
+			$output .= '<li' . (($answer['nextQuestionId'] != $root_question && !empty($childdata)) ? ' class="dropdown-submenu"' : '') . '>';
 			$output .= '<input 
 		    				type="checkbox" 
 		    				id="id' . $answer['name'] . '" 
@@ -144,7 +159,7 @@ function make_children_answers($root_question, $question_id, $issues)
 		    				value="' . $answer['idFormFields'] . '" 
 		    				' . ((!empty($answer['selected'])) ? ' checked="checked"' : '') . '
 		    			>
-		    			<label for="id' . $answer['name'] . '">' . (($answer['nextQuestionId'] != $root_question) ? '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>': $answer['label']);
+		    			<label for="id' . $answer['name'] . '">' . (($answer['nextQuestionId'] != $root_question && !empty($childdata) ) ? '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>': $answer['label']);
 
 			if ($answer['label'] == 'Other' && $answer['nextQuestionId'] == $root_question)
 			{
@@ -153,11 +168,11 @@ function make_children_answers($root_question, $question_id, $issues)
 
 			$output .= '</label>';
 		    
-		    if ($answer['nextQuestionId'] != $root_question)
-		    	$output .= make_children_answers($root_question, $answer['nextQuestionId'], $issues);
+		    $output .= $childdata;
 
 		    $output .= '</li>';
 		}
+		unset($issues['issues'][$question_id]);
 		$output .= '</ul>';
 	}
 	

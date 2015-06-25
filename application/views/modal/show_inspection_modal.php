@@ -97,8 +97,8 @@
 				type: 'POST',
 				data: {inspection_id: <?=$inspection_id?>, door_id: <?=$aperture_id?>, tabid: $('#' + tabname).data('tabid')},
 				async: false,
-				success: function(result)
-				{
+				success: function(result) {
+					// console.log(result);
 					inside.empty().html(result);
 				}
 			});
@@ -109,7 +109,7 @@
 	$(document).ready(function(){
 		get_issues_by_tabNQid('OperationalTestReview');
 		get_issues_by_tabNQid('GlazingReview');
-		// get_issues_by_tabNQid('HardwareReview');
+		get_issues_by_tabNQid('HardwareReview');
 		get_issues_by_tabNQid('DoorReview');
 		get_issues_by_tabNQid('FrameReview');
 		readydocstate = 1;

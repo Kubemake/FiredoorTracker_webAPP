@@ -124,8 +124,8 @@ class Service extends CI_Controller {
 		if (!$_FILES)
 			$this->_show_output(array('status' => 'error', 'error' => 'empty uploaded file'));
 		
-		if (empty($postdata['file_name']))
-			$this->_show_output(array('status' => 'error', 'error' => 'empty file name'));
+		// if (empty($postdata['file_name']))
+		// 	$this->_show_output(array('status' => 'error', 'error' => 'empty file name'));
 		
 		if (
 			isset($postdata['idFormFields']) && 

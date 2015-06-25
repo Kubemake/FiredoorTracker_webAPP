@@ -36,6 +36,8 @@ html, body {
 	background-position: 15px center;
 	background-repeat: no-repeat;
 	display: block;
+	margin: 5px 0;
+	background-size: contain;
 }
 #login {
 	margin-bottom: 70px;

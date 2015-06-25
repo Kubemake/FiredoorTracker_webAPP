@@ -79,7 +79,8 @@ class Ajax extends CI_Controller {
 				$params['inspection_id'] 	= $inspection_id;
 
 				$params['oth'] = array();
-				foreach ($result['issues']['issues'] as $issue)
+				
+				foreach ($result['issues'] as $issue)
 					if (!empty($issue['answers']))
 						foreach ($issue['answers'] as $answer)
 							if (strpos($answer['name'], 'Other') !== FALSE)
@@ -191,14 +192,13 @@ class Ajax extends CI_Controller {
 
 	function ajax_load_inspection_issues_by_tab()
 	{
-		// if (!$aperture_id = $this->input->post('door_id')) return '';
-		// if (!$tab_id = $this->input->post('tabid')) return '';
-		// if (!$inspection_id = $this->input->post('inspection_id')) return '';
-// echo '<pre>';
-// print_r($tab_id);die();
-	if (!$aperture_id = $this->input->get('door_id')) return 's';
-		if (!$tab_id = $this->input->get('tabid')) return 'd';
-		if (!$inspection_id = $this->input->get('inspection_id')) return 'd';
+		if (!$aperture_id = $this->input->post('door_id')) return '';
+		if (!$tab_id = $this->input->post('tabid')) return '';
+		if (!$inspection_id = $this->input->post('inspection_id')) return '';
+		
+		// if (!$aperture_id = $this->input->get('door_id')) return '';
+		// if (!$tab_id = $this->input->get('tabid')) return '';
+		// if (!$inspection_id = $this->input->get('inspection_id')) return '';
 
 		$this->load->model('service_model');
 
@@ -207,7 +207,8 @@ class Ajax extends CI_Controller {
 		$door_settings['inspection_id'] = $inspection_id;
 		
 		$result = $this->service_model->get_aperture_issues_and_selected($door_settings);
-
+		// echo '<pre>';
+		// print_r($result);die();
 		$params['tabnextQuestionId'] = $result['tabs'][$tab_id]['nextQuestionId'];
 		$params['issues'] = $result;
 

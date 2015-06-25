@@ -1691,3 +1691,17 @@ AND `i`.`UserId` =  '5'
 ORDER BY `i`.`CreateDate` desc
 
 -----------------------------
+25.06.2015 10:09:31 : 1.1595
+SELECT *
+FROM (`FormFields`)
+WHERE `deleted` =  0
+
+-----------------------------
+25.06.2015 10:09:32 : 6.6657
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '2', `name` = 'FrameReview', `label` = 'Frame Review', `questionId` = 0, `parent` = 0, `questionOrder` = 0, `level` = 0, `autoSubmit` = '0', `deleted` = '0' WHERE `idFormFields` =  '1'
+
+-----------------------------
+25.06.2015 10:09:32 : 5.5670
+UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '323', `name` = 'Between1-4and1-2-363', `label` = 'Between 1/4\'\' and 1/2\'\'', `questionId` = 363, `parent` = 363, `questionOrder` = 1, `level` = 8, `autoSubmit` = '0', `deleted` = '0' WHERE `idFormFields` =  '419'
+
+-----------------------------
