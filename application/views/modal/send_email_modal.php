@@ -87,4 +87,12 @@
 		};
 		
 	});
+
+	$('#sendemailform').submit(function(e) {
+	    if ($('#to').val() == null)
+		{
+			alert('Please choose at least one recipient');
+			return false;
+		}
+	});
 </script>

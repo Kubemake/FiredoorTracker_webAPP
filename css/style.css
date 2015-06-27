@@ -642,3 +642,6 @@ h4.panel-title a {
 #activitytab {
     margin: 15px 9px 3px 9px;
 }
+.answers-question {
+	background-color: red;
+}

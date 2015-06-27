@@ -72,8 +72,8 @@ class Dashboard extends CI_Controller {
 					if(isset($postdata['users']) && !empty($postdata['users']) && !in_array('all', $postdata['users']))
 						$filters['users'] = $postdata['users'];
 
-					if(isset($postdata['creators']) && !empty($postdata['creators']) && !in_array('all', $postdata['creators']))
-						$filters['creators'] = $postdata['creators'];
+					if(isset($postdata['status']) && !empty($postdata['status']) && !in_array('all', $postdata['status']))
+						$filters['status'] = $postdata['status'];
 
 					if(isset($postdata['buildings']) && !empty($postdata['buildings']) && !in_array('all', $postdata['buildings']))
 						$filters['buildings'] = $postdata['buildings'];
@@ -446,8 +446,7 @@ class Dashboard extends CI_Controller {
 						
 					}
 					ksort($graphdata);
-// echo '<pre>';
-// print_r($graphdata);die();
+
 					foreach ($graphdata as $key => $val)
 					{
 						// $text = ($graph_id == 'inventorychart' or $graph_id == 'inventorychart1') ? $key . ' Minute' : $key;
@@ -999,7 +998,7 @@ class Dashboard extends CI_Controller {
 		{
 			//filter reviews by Customize button
 			if(isset($filter_data['start_date']) && !empty($filter_data['start_date']))
-				if (!empty($inspection['StartDate']) && strtotime($inspection['StartDate']) < strtotime($filter_data['start_date']))
+				if (!empty($inspection['CreateDate']) && strtotime($inspection['CreateDate']) < strtotime($filter_data['start_date']))
 					continue;
 
 			if(isset($filter_data['end_date']) && !empty($filter_data['end_date']))
@@ -1007,15 +1006,15 @@ class Dashboard extends CI_Controller {
 					continue;
 
 			if(isset($filter_data['users']) && !empty($filter_data['users']) && !in_array('all', $filter_data['users']))
-				if (!empty($inspection['Inspector']) && !in_array($inspection['Inspector'], $filter_data['users']))
+				if ((!empty($inspection['Inspector']) or !empty($inspection['Creator'])) && (!in_array($inspection['Inspector'], $filter_data['users']) && !in_array($inspection['Creator'], $filter_data['users'])))
 					continue;
 
-			if(isset($filter_data['creators']) && !empty($filter_data['creators']) && !in_array('all', $filter_data['creators']))
-				if (!empty($inspection['Inspector']) && !in_array($inspection['Inspector'], $filter_data['creators']))
+			if(isset($filter_data['status']) && !empty($filter_data['status']) && !in_array('all', $filter_data['status']))
+				if (!empty($inspection['InspectionStatus']) && !in_array($inspection['InspectionStatus'], $filter_data['status']))
 					continue;
 
 			if(isset($filter_data['buildings']) && !empty($filter_data['buildings']) && !in_array('all', $filter_data['buildings']))
-				if (!empty($inspection['building_id']) && !in_array($inspection['building_id'], $filter_data['buildings']))
+				if (!empty($inspection['Building']) && !in_array($inspection['Building'], $filter_data['buildings']))
 					continue;
 
 			if (!$skip_graph && isset($filter_data['graph']) && ($filter_data['graph']['graphpid'] == 'compliance' or $filter_data['graph']['graphpid'] == 'compliance2'))
@@ -1099,7 +1098,6 @@ class Dashboard extends CI_Controller {
 					$output[$inspection['aperture_id']] = $inspection;
 			}
 		}
-
 		return $output;
 	}
 

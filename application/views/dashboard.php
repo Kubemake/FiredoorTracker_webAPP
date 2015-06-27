@@ -133,6 +133,7 @@
 
 <?php if (has_permission('Allow modify review')): ?>
 <script type="text/javascript">
+
 	$('td').dblclick(function(){ //edit row on double clicking
 		$(this).click();
 		button_edit_action();

@@ -105,7 +105,7 @@ class Service_model  extends CI_Model
 		foreach ($results as $result)
 		{
 			$temp = $result;
-			unset($temp['deleted'], $temp['level']);
+			unset($temp['deleted']/*, $temp['level']*/);
 			
 			if (!$light)
 				unset($temp['path']);

@@ -128,30 +128,31 @@ function make_buildings_dropdown($buildingsdata)
 	return $output;
 }
 
-function make_children_answers($root_question, $question_id, $issues)
+function make_children_answers($root_question, $question_id, $issues, $inspection_id = FALSE)
 {
 	$output = '';
-	// if (in_array($question_id, array(204))) {
-	// 	echo '<pre>';
-	// 	print_r($root_question);
-	// 	echo '<pre>';
-	// 	print_r($question_id);
-	// 	echo '<pre>';
-	// 	print_r($issues);die();
-	// 	# code...
-	// }
 	if (isset($issues['issues'][$question_id]['answers']))
 	{
-		$output = '<ul class="dropdown-menu noclose pull-middle pull-right" data-label-placement="false"  data-placeholder="false">';
+		$output .= '<ul class="dropdown-menu noclose pull-middle pull-right" data-label-placement="false"  data-placeholder="false">';
+		$output .= '<li class="answers-question" id="qid' . $question_id . '">' . $issues['issues'][$question_id]['label'] . '</li>';
+		$childdata = '';
 		foreach ($issues['issues'][$question_id]['answers'] as $answer)
 		{
 			unset($issues['issues'][$question_id]['answers'][$answer['idFormFields']]); //it made sure that we do not take a infinite loop
 			
-			$childdata = '';
-			if ($answer['nextQuestionId'] != $root_question)
+			if ($answer['nextQuestionId'] != $root_question && $answer['nextQuestionId'] != 0 && $issues['issues'][$answer['nextQuestionId']]['level'] >= $issues['issues'][$question_id]['level'])
 		       	$childdata = make_children_answers($root_question, $answer['nextQuestionId'], $issues);
 
 			$output .= '<li' . (($answer['nextQuestionId'] != $root_question && !empty($childdata)) ? ' class="dropdown-submenu"' : '') . '>';
+			
+			//show or not item as link depend from level of questions
+			if ($answer['nextQuestionId'] != $root_question && $answer['nextQuestionId'] != 0 && $issues['issues'][$answer['nextQuestionId']]['level'] > $issues['issues'][$question_id]['level'])
+				$lbl = '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>';
+			elseif (in_array($answer['idFormFields'], array(789789,789790,789791)))
+				$lbl = '<a href="javascript:;" style="display:block; width:100%;height:100%;" onclick="addbtnaction('. $inspection_id . ', '. $question_id . ', ' . $answer['idFormFields'].')">' . $answer['label'] . '</a>';
+			else
+				$lbl = $answer['label'];
+
 			$output .= '<input 
 		    				type="checkbox" 
 		    				id="id' . $answer['name'] . '" 
@@ -159,24 +160,31 @@ function make_children_answers($root_question, $question_id, $issues)
 		    				value="' . $answer['idFormFields'] . '" 
 		    				' . ((!empty($answer['selected'])) ? ' checked="checked"' : '') . '
 		    			>
-		    			<label for="id' . $answer['name'] . '">' . (($answer['nextQuestionId'] != $root_question && !empty($childdata) ) ? '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>': $answer['label']);
+		    			<label for="id' . $answer['name'] . '">' . $lbl;
 
 			if ($answer['label'] == 'Other' && $answer['nextQuestionId'] == $root_question)
 			{
-				$output .= ' <input class="form-control" text" type="text" style="display: inline;width: auto;" value="' .@$answer['selected'] . '" onkeyup="$(\'#' . $answer['name'] .'tex\').val($(this).val())">';
+				$output .= ' <input class="form-control" type="text" style="display: inline;width: auto;" value="' .@$answer['selected'] . '" onkeyup="$(\'#' . $answer['name'] .'tex\').val($(this).val())">';
 			}
 
 			$output .= '</label>';
-		    
-		    $output .= $childdata;
+
+		    if ($answer['nextQuestionId'] != 0 && $issues['issues'][$answer['nextQuestionId']]['level'] > $issues['issues'][$question_id]['level'])
+		    {
+		    	$output .= $childdata;
+		    	$childdata = '';
+		    }
 
 		    $output .= '</li>';
 		}
 		unset($issues['issues'][$question_id]);
 		$output .= '</ul>';
+
+		if (!empty($childdata))
+		    $output .= preg_replace('#^<ul#', '<ul style="margin-left:100%;"', $childdata);
+
 	}
 	
-	// file_put_contents($_SERVER['DOCUMENT_ROOT'].'/out', '###'.$output);die;
 	return $output;
 }
 

@@ -11,11 +11,11 @@
 					<div class="row pad15">
 						<div class="panel-group" id="accordion">
 							<div class="panel panel-default">
-								<!-- <div class="panel-heading">
+								<div class="panel-heading">
 									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">STEP 1</a>
+										<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">Common parameters</a>
 									</h4>
-								</div> -->
+								</div>
 								<div id="collapseOne" class="panel-collapse collapse in">
 									<div class="panel-body">
 										<div class="form-group">
@@ -34,7 +34,7 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label for="users[]" class="control-label col-xs-4">Reviewers</label>
+											<label for="users[]" class="control-label col-xs-4">Select Users</label>
 											<div class="col-xs-8">
 												 <div class="input-group fullwidth" id="users">
 													<select name="users[]" class="selectpicker fullwidth" data-live-search="true" multiple>
@@ -47,20 +47,20 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label for="creators[]" class="control-label col-xs-4">Creators</label>
+											<label for="status[]" class="control-label col-xs-4">Select Statuses</label>
 											<div class="col-xs-8">
-												 <div class="input-group fullwidth" id="creators">
-													<select name="creators[]" class="selectpicker fullwidth" data-live-search="true" multiple>
-														<option value="all">All Users</option>
-														<?php foreach ($users as $user): ?>
-															<option value="<?=$user['idUsers']?>"><?=$user['firstName'] . ' ' . $user['lastName']?></option>
+												 <div class="input-group fullwidth" id="status">
+													<select name="status[]" class="selectpicker fullwidth" data-live-search="true" multiple>
+														<option value="all">All Statuses</option>
+														<?php foreach ($statuses as $status): ?>
+															<option value="<?=$status?>"><?=$status?></option>
 														<?php endforeach; ?>
 													</select>
 												</div>
 											</div>
 										</div>
 										<div class="form-group">
-											<label for="buildings[]" class="control-label col-xs-4">Buildings</label>
+											<label for="buildings[]" class="control-label col-xs-4">Select Buildings</label>
 											<div class="col-xs-8">
 												 <div class="input-group fullwidth" id="buildings">
 													<select name="buildings[]" class="selectpicker fullwidth" data-live-search="true" multiple>
@@ -75,10 +75,10 @@
 									</div>
 								</div>
 							</div>
-							<!-- <div class="panel panel-default">
+							<div class="panel panel-default">
 							    <div class="panel-heading">
 							    	<h4 class="panel-title">
-							        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">STEP 2<?//Select Criteria?></a>
+							        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">Door Info Overview</a>
 							        </h4>
 							    </div>
 							    <div id="collapseTwo" class="panel-collapse collapse">
@@ -104,7 +104,7 @@
 							<div class="panel panel-default">
 							    <div class="panel-heading">
 							    	<h4 class="panel-title">
-							        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">STEP 3<?//Select non-compliance area of review?></a>
+							        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">Frame Review</a>
 							        </h4>
 							    </div>
 							    <div id="collapseThree" class="panel-collapse collapse">
@@ -124,7 +124,7 @@
 										</div>
 							    	</div>
 							    </div>
-							</div> -->
+							</div>
 							
 						</div>
 					</div>
@@ -151,6 +151,10 @@ $(function(){
 	});
 });
 
+$(window).on('shown.bs.modal', function (e) {
+	$('.modal-backdrop').css('position', 'fixed');
+});
+
 $('.selectpicker').on('change', function() {
 	vals = $(this).val();
 
@@ -160,4 +164,5 @@ $('.selectpicker').on('change', function() {
 	};
 	
 });
+
 </script>

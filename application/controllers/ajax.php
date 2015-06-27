@@ -158,13 +158,34 @@ class Ajax extends CI_Controller {
 			case 'customize_review_list_modal':
 				$this->load->model('user_model');
 				$this->load->model('resources_model');
+
 				$params['users'] 		= $this->user_model->get_users_by_role_and_user_parent($this->session->userdata('user_role'), $this->session->userdata('user_parent'));
 				$params['buildings']	= $this->resources_model->get_user_buildings_root();
+				$params['statuses']		= $this->resources_model->get_all_inspection_statuses();
 				$params['criteria'] 	= array(
-					'Wall Rating' 	=> $this->config->item('wall_rates'),
-					'Smoke Rating' 	=> $this->config->item('rates_types'),
-					'Material' 		=> $this->config->item('door_matherial'),
-					'Rating' 		=> $this->config->item('door_rating'),
+					'Wall Rating' 				=> $this->config->item('wall_rates'),
+					'Smoke Rating' 				=> array('Yes', 'No'),
+					'Door Type'					=> $this->resources_model->get_available_values_by_parent('Doors', 'door_type'),
+					'Number Doors'				=> $this->resources_model->get_available_values_by_parent('Doors', 'number_Doors'),
+					'Material' 					=> $this->config->item('door_matherial'),
+					'Width'						=> $this->resources_model->get_available_values_by_parent('Doors', 'width'),
+					'Height'					=> $this->resources_model->get_available_values_by_parent('Doors', 'height'),
+					'Vision Light Present'		=> array('Yes', 'No'),
+					'Vision Light'				=> $this->resources_model->get_available_values_by_parent('Doors', 'vision_Light'),
+					'Singage'					=> array('Yes', 'No'),
+					'Auto Operator'				=> array('Yes', 'No'),
+					'Frame Label Type'			=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Type'),
+					'Frame Label Rating'		=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Rating'),
+					'Frame Label Testing_Lab'	=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Testing_Lab'),
+					'Frame Label Manufacturer' 	=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Manufacturer'),
+					'Frame Label serial'		=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_serial'),
+					'Door Label Type'			=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Type'),
+					'Door Label Rating' 		=> $this->config->item('door_rating'),
+					'Door Label Testing_Lab'	=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Testing_Lab'),
+					'Door Label Manufacturer'	=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Manufacturer'),
+					'Door Label serial'			=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_serial'),
+					'Door Label Min_Latch'		=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Min_Latch'),
+					'Door Label Temp_Rise'		=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Temp_Rise')
 				);
 			break;
 
@@ -207,12 +228,33 @@ class Ajax extends CI_Controller {
 		$door_settings['inspection_id'] = $inspection_id;
 		
 		$result = $this->service_model->get_aperture_issues_and_selected($door_settings);
-		// echo '<pre>';
-		// print_r($result);die();
-		$params['tabnextQuestionId'] = $result['tabs'][$tab_id]['nextQuestionId'];
-		$params['issues'] = $result;
+		if (isset($result['tabs'][$tab_id]))
+		{
+			$params['tabnextQuestionId'] = $result['tabs'][$tab_id]['nextQuestionId'];
+			$params['issues'] = $result;
+			$params['inspection_id'] = $inspection_id;
 
-		$this->load->view('modal/view_issues_by_tab', $params);
+			$this->load->view('modal/view_issues_by_tab', $params);
+		}
+	}
+
+	function ajax_addbtnaction()
+	{
+		if (!$inspection_id = $this->input->post('inspection_id')) return '';
+		if (!$question_id = $this->input->post('question_id')) return '';
+		if (!$btnid = $this->input->post('btnid')) return '';
+
+		$this->load->model('service_model');
+
+		foreach ($this->service_model->get_question_answers_by_question_id_and_inspection_id($question_id, $inspection_id) as $answer)
+		{
+		 	if (empty($answer['selected']))
+		 	{
+		 		$this->service_model->add_inspection_data($inspection_id, $answer['idFormFields'], @$this->input->post('val'));
+		 		break;
+		 	}
+		} 
+		echo 'ok';
 	}
 }
 

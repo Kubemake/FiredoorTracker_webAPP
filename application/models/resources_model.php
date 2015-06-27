@@ -657,6 +657,26 @@ class Resources_model  extends CI_Model
 			$output[$value['idField']] = $values[$value['value']];
 		return $output;
 	}
+
+	function get_available_values_by_parent($table_name, $field_name, $user_parent = FALSE)
+	{
+		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
+
+		$this->db->select($field_name);
+		$this->db->from($table_name);
+		$this->db->where('UserId', $parent);
+		$this->db->where($field_name . ' IS NOT ', 'NULL', FALSE);
+		$this->db->group_by($field_name);
+
+		$result = $this->db->get()->result_array();
+		
+		$output = array();
+		foreach ($result as $key => $value)
+			$output[] = $value[$field_name];
+
+		return $output;		
+	}
+
 }
 
 /* End of file resources_model.php */
