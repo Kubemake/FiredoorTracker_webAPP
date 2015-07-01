@@ -28,7 +28,7 @@ function verifyLogged($type='user') //can be checked exactly for admin rgihts if
 	return TRUE;
 }
 
-function addDataTable($type='css')
+function addDataTable($type='css', $col_filter_id = 0)
 {
 	if ($type=='css')
 	{
@@ -37,14 +37,16 @@ function addDataTable($type='css')
 	}
 	else
 	{
+		$filter = $col_filter_id ? '' : '';
 		return '<script type="text/javascript" src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
 			<script type="text/javascript" src="//datatables.net/release-datatables/extensions/TableTools/js/dataTables.tableTools.min.js"></script>
 			<script type="text/javascript" src="//cdn.datatables.net/responsive/1.0.3/js/dataTables.responsive.min.js"></script>
 			<script type="text/javascript" src="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
 			<script type="text/javascript">
 				$(document).ready(function() {
-					dtable = $(\'.table\').dataTable({
+					dtable = $(\'.table\').dataTable({ ' . $filter . '
 						responsive: true,
+						ordering: false,
 						paging: false,
 						info: false,
 						dom: \'T<"clear">lfrtip\',
@@ -178,6 +180,65 @@ function make_children_answers($root_question, $question_id, $issues, $inspectio
 		    $output .= '</li>';
 		}
 		unset($issues['issues'][$question_id]);
+		$output .= '</ul>';
+
+		if (!empty($childdata))
+		    $output .= preg_replace('#^<ul#', '<ul style="margin-left:100%;"', $childdata);
+
+	}
+	
+	return $output;
+}
+
+function make_children_answers_for_filter($root_question, $question_id, $issues, $tabname)
+{
+	$output = '';
+	if (isset($issues[$question_id]['answers']))
+	{
+		$output .= '<ul class="dropdown-menu noclose pull-middle pull-right" data-label-placement="false"  data-placeholder="false">';
+		$output .= '<li class="answers-question" id="qid' . $question_id . '">' . $issues[$question_id]['label'] . '</li>';
+		$childdata = '';
+		foreach ($issues[$question_id]['answers'] as $answer)
+		{
+			unset($issues[$question_id]['answers'][$answer['idFormFields']]); //it made sure that we do not take a infinite loop
+			
+			if ($answer['nextQuestionId'] != $root_question && $answer['nextQuestionId'] != 0 && $issues[$answer['nextQuestionId']]['level'] >= $issues[$question_id]['level'])
+		       	$childdata = make_children_answers_for_filter($root_question, $answer['nextQuestionId'], $issues, $tabname);
+
+			$output .= '<li' . (($answer['nextQuestionId'] != $root_question && !empty($childdata)) ? ' class="dropdown-submenu"' : '') . '>';
+			
+			//show or not item as link depend from level of questions
+			if ($answer['nextQuestionId'] != $root_question && $answer['nextQuestionId'] != 0 && $issues[$answer['nextQuestionId']]['level'] > $issues[$question_id]['level'])
+				$lbl = '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>';
+			elseif (in_array($answer['idFormFields'], array(789789,789790,789791)))
+				$lbl = '<a href="javascript:;" style="display:block; width:100%;height:100%;" onclick="addbtnaction('. $inspection_id . ', '. $question_id . ', ' . $answer['idFormFields'].')">' . $answer['label'] . '</a>';
+			else
+				$lbl = $answer['label'];
+
+			$output .= '<input 
+		    				type="checkbox" 
+		    				id="id' . $answer['name'] . '" 
+		    				name="' . $tabname . '[' . $answer['name'] . ']" 
+		    				value="' . $answer['idFormFields'] . '" 
+		    			>
+		    			<label for="id' . $answer['name'] . '">' . $lbl;
+
+			if ($answer['label'] == 'Other' && $answer['nextQuestionId'] == $root_question)
+			{
+				$output .= ' <input class="form-control" type="text" style="display: inline;width: auto;" value="" onkeyup="$(\'#' . $answer['name'] .'tex\').val($(this).val())">';
+			}
+
+			$output .= '</label>';
+
+		    if ($answer['nextQuestionId'] != 0 && $issues[$answer['nextQuestionId']]['level'] > $issues[$question_id]['level'])
+		    {
+		    	$output .= $childdata;
+		    	$childdata = '';
+		    }
+
+		    $output .= '</li>';
+		}
+		unset($issues[$question_id]);
 		$output .= '</ul>';
 
 		if (!empty($childdata))
@@ -369,6 +430,16 @@ function data_force_download($data, $name) {
     // читаем файл и отправляем его пользователю
     print($data);
 	exit();
+}
+
+function load_throbber()
+{
+	echo '$(\'#throbber\').empty().html(\'<div class="graybg"><img class="throbber" src="/images/throbber.gif" alt="Loading..." title="Loading..."></div>\');';
+}
+
+function unload_throbber()
+{
+	echo '$(\'#throbber\').empty();';
 }
 
 /* End of file common_helper.php */

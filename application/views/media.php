@@ -16,10 +16,10 @@
 			<div class="col-md-6">
 				<form method="POST" name="add_uploaded_file" id="adduploadedfile" class="form-horizontal">
 					<div class="form-group">
-						<label for="aperture" class="control-label col-xs-4"><span>Door</span></label>
+						<label for="aperture" class="control-label col-xs-4"><span>Door Id</span></label>
 						<div class="col-xs-8 apertureselect">
 							<select name="aperture" id="aperture" class="selectpicker fullwidth" data-live-search="true">
-								<option value="0">Choose door</option>
+								<option value="0">Choose door id</option>
 								<?php foreach ($user_apertures as $aperture): ?>
 									<option value="<?=$aperture['idDoors']?>"><?=$aperture['barcode']?></option>
 								<?php endforeach; ?>
@@ -77,7 +77,7 @@
 
 		makeupload('#drop-area-div', <?=$this->session->userdata('user_id')?>, function(data){
 			$('#drop-area-div').hide();
-			ftype = data.substr(-3);
+			ftype = data.substr(-3).toLowerCase();
 			if ($.inArray(ftype,['jpg','png','jpeg','gif']) > -1) {
 				$('#upload-acceptor').html('<img id="upload-result" src="' + data + '" />');
 				filetype="image";
@@ -124,19 +124,23 @@
 
 	function delete_image_action(e)
 	{
-		seldata = $(e).data('id');
-		$.ajax({
-			url: "/media/ajax_file_delete",
-			type: "POST",
-			data: {
-				id: seldata
-			},
-			success: function(msg) {
-				console.log(msg);
-				if (msg=='done')
-					$(e).closest('tr').remove();
-			}
-		});
+		if (confirm('A you sure?'))
+		{
+			seldata = $(e).data('id');
+			$.ajax({
+				url: "/media/ajax_file_delete",
+				type: "POST",
+				data: {
+					id: seldata
+				},
+				success: function(msg) {
+					console.log(msg);
+					if (msg=='done')
+						$(e).closest('tr').remove();
+				}
+			});
+		};
+		
 	}
 
 	function unselectall()
@@ -153,4 +157,13 @@
 	$('.v-file-link').on('click', function() {
 		$('#modalacceptor').empty().load("/media/ajax_load_video",{title: $(this).data('title'), url: $(this).data('remote')},function(){unselectall();$('#v-file-link').modal({show: true})});
 	});
+
+	$("#adduploadedfile").submit(function(e){
+		if ($('#aperture').val()==0)
+		{
+			alert('Please choose Door Id!');
+			e.preventDefault();
+			return false;
+		}
+	}); 
 </script>

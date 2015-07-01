@@ -35,7 +35,7 @@
 						<div class="form-group">
 							<label for="email" class="control-label col-xs-4">Email</label>
 							<div class="col-xs-8">
-								<input type="email" name="email" id="email" class="form-control" required="required" value="" pattern="[a-z0-9._%+-]+@[a-z0-9\.-]+\.[a-z]{2,4}" placeholder="Format ex.: john@yahoo.com" onchange="checkEmail()" />
+								<input type="email" name="email" id="email" class="form-control" required="required" value="" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9\.-]+\.[a-zA-Z]{2,4}" placeholder="Format ex.: john@yahoo.com" onchange="checkEmail()" />
 							</div>
 						</div>
 						<div class="form-group">

@@ -9,6 +9,7 @@
 	</div>
 </div>
 <div id="modalacceptor"></div>
+<div id="throbber"></div>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script type="text/javascript" src="/js/bootstrap.min.js"></script>
 <?=@$scripts?>

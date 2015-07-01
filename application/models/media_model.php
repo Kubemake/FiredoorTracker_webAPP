@@ -28,6 +28,7 @@ class Media_model  extends CI_Model
 			$this->db->where('f.type', $type);
 
 		$this->db->where('f.deleted', 0);
+		$this->db->order_by('idFiles', 'desc');
 		return $this->db->get()->result_array();
 	}
 

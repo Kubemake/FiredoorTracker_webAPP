@@ -163,30 +163,55 @@ class Ajax extends CI_Controller {
 				$params['buildings']	= $this->resources_model->get_user_buildings_root();
 				$params['statuses']		= $this->resources_model->get_all_inspection_statuses();
 				$params['criteria'] 	= array(
-					'Wall Rating' 				=> $this->config->item('wall_rates'),
-					'Smoke Rating' 				=> array('Yes', 'No'),
-					'Door Type'					=> $this->resources_model->get_available_values_by_parent('Doors', 'door_type'),
-					'Number Doors'				=> $this->resources_model->get_available_values_by_parent('Doors', 'number_Doors'),
-					'Material' 					=> $this->config->item('door_matherial'),
-					'Width'						=> $this->resources_model->get_available_values_by_parent('Doors', 'width'),
-					'Height'					=> $this->resources_model->get_available_values_by_parent('Doors', 'height'),
-					'Vision Light Present'		=> array('Yes', 'No'),
-					'Vision Light'				=> $this->resources_model->get_available_values_by_parent('Doors', 'vision_Light'),
-					'Singage'					=> array('Yes', 'No'),
-					'Auto Operator'				=> array('Yes', 'No'),
-					'Frame Label Type'			=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Type'),
-					'Frame Label Rating'		=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Rating'),
-					'Frame Label Testing_Lab'	=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Testing_Lab'),
-					'Frame Label Manufacturer' 	=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Manufacturer'),
-					'Frame Label serial'		=> $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_serial'),
-					'Door Label Type'			=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Type'),
-					'Door Label Rating' 		=> $this->config->item('door_rating'),
-					'Door Label Testing_Lab'	=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Testing_Lab'),
-					'Door Label Manufacturer'	=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Manufacturer'),
-					'Door Label serial'			=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_serial'),
-					'Door Label Min_Latch'		=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Min_Latch'),
-					'Door Label Temp_Rise'		=> $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Temp_Rise')
+					'wall_Rating' 				=> array('label' => 'Wall Rating', 'data' => $this->config->item('wall_rates')),
+					'smoke_Rating' 				=> array('label' => 'Smoke Rating', 'data' => array('Yes', 'No')),
+					'material' 					=> array('label' => 'Material', 'data' => $this->config->item('door_matherial')),
+					'door_type'					=> array('label' => 'Door Type', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'door_type')),
+					'width'						=> array('label' => 'Width', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'width')),
+					'height'					=> array('label' => 'Height', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'height')),
+					'number_Doors'				=> array('label' => 'Number Doors', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'number_Doors')),
+					'vision_Light_Present'		=> array('label' => 'Vision Light Present', 'data' => array('Yes', 'No')),
+					'vision_Light'				=> array('label' => 'Vision Light', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'vision_Light')),
+					'singage'					=> array('label' => 'Singage', 'data' => array('Yes', 'No')),
+					'frameLabel_Type'			=> array('label' => 'Frame Label Type', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Type')),
+					'doorLabel_Type'			=> array('label' => 'Door Label Type', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Type')),
+					'frameLabel_Rating'			=> array('label' => 'Frame Label Rating', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Rating')),
+					'rating'		 			=> array('label' => 'Door Label Rating', 'data' => $this->config->item('door_rating')),
+					'frameLabel_Testing_Lab'	=> array('label' => 'Frame Label Testing_Lab', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Testing_Lab')),
+					'doorLabel_Testing_Lab'		=> array('label' => 'Door Label Testing Lab', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Testing_Lab')),
+					'frameLabel_Manufacturer' 	=> array('label' => 'Frame Label Manufacturer', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_Manufacturer')),
+					'doorLabel_Manufacturer'	=> array('label' => 'Door Label Manufacturer', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Manufacturer')),
+					'frameLabel_serial'			=> array('label' => 'Frame Label serial', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'frameLabel_serial')),
+					'doorLabel_serial'			=> array('label' => 'Door Label serial', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_serial')),
+					'doorLabel_Min_Latch'		=> array('label' => 'Door Label Min_Latch', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Min_Latch')),
+					'doorLabel_Temp_Rise'		=> array('label' => 'Door Label Temp Rise', 'data' => $this->resources_model->get_available_values_by_parent('Doors', 'doorLabel_Temp_Rise')),
+					'auto_Operator'				=> array('label' => 'Auto Operator', 'data' => array('Yes', 'No')),
 				);
+				
+				$tabs = $issues = array();
+				foreach ($this->resources_model->get_all_issues() as $issue)
+				{
+					if ($issue['type'] == 'answer')
+					{
+						if ($issue['parent'] == 0)
+							$tabs[$issue['idFormFields']] = $issue;
+						else
+							$issues[$issue['questionId']]['answers'][$issue['idFormFields']] = $issue;
+					}
+					else
+						$issues[$issue['idFormFields']] = $issue;
+				}
+				$params['issues'] 	= $issues;
+				$params['tabs']		= $tabs;
+
+				$params['oth'] = array();
+				
+				foreach ($issues as $issue)
+					if (!empty($issue['answers']))
+						foreach ($issue['answers'] as $answer)
+							if (strpos($answer['name'], 'Other') !== FALSE)
+								$params['oth'][] = $answer;
+
 			break;
 
 			case 'send_email_modal':
@@ -216,10 +241,6 @@ class Ajax extends CI_Controller {
 		if (!$aperture_id = $this->input->post('door_id')) return '';
 		if (!$tab_id = $this->input->post('tabid')) return '';
 		if (!$inspection_id = $this->input->post('inspection_id')) return '';
-		
-		// if (!$aperture_id = $this->input->get('door_id')) return '';
-		// if (!$tab_id = $this->input->get('tabid')) return '';
-		// if (!$inspection_id = $this->input->get('inspection_id')) return '';
 
 		$this->load->model('service_model');
 

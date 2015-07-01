@@ -53,16 +53,22 @@ class Dashboard extends CI_Controller {
 				break;
 
 				case 'edit_inspection':
-					$this->history_library->saveInspections(array('line_id' => $postdata['idInspections'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
+					if ($adddata['idAperture'] > 0)
+					{
+						$this->history_library->saveInspections(array('line_id' => $postdata['idInspections'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
 
-					$this->resources_model->update_inspection($postdata['idInspections'], $adddata);
-					$header['msg'] = msg('success', 'Review successfuly updated');
+						$this->resources_model->update_inspection($postdata['idInspections'], $adddata);
+						$header['msg'] = msg('success', 'Review successfuly updated');
+					}
 				break;
 
 				case 'customize_review':
 					//filter reviews by Customize button
 					$filters = array();
-
+					
+					// echo '<pre>';
+					// print_r($postdata);die();
+					
 					if(isset($postdata['start_date']) && !empty($postdata['start_date']))
 						$filters['start_date'] = $postdata['start_date'];
 
@@ -77,6 +83,69 @@ class Dashboard extends CI_Controller {
 
 					if(isset($postdata['buildings']) && !empty($postdata['buildings']) && !in_array('all', $postdata['buildings']))
 						$filters['buildings'] = $postdata['buildings'];
+					
+					if (isset($postdata['criteria']) && !empty($postdata['criteria']))
+					{
+						foreach ($postdata['criteria'] as $key => &$value)
+						{
+							if ($key == 'wall_Rating' && !in_array('all', $postdata['criteria'][$key]))
+							{
+								$wallratungs = $this->config->item('wall_rates');
+								$wallratungs = array_flip($wallratungs);
+								foreach ($value as $k => $rts)
+									$value[$k] = $wallratungs[$rts];
+							}
+							if ($key == 'material' && !in_array('all', $postdata['criteria'][$key]))
+							{
+								$doormat = $this->config->item('door_matherial');
+								$doormat = array_flip($doormat);
+								foreach ($value as $k => $rts)
+									$value[$k] = $doormat[$rts];
+							}
+							if ($key == 'smoke_Rating' && !in_array('all', $postdata['criteria'][$key]))
+							{
+								$smokerat = $this->config->item('rates_types');
+								$smokerat = array_flip($smokerat);
+								foreach ($value as $k => $rts)
+									$value[$k] = $smokerat[$rts];
+							}
+							if ($key == 'rating' && !in_array('all', $postdata['criteria'][$key]))
+							{
+								$smokerat = $this->config->item('door_rating');
+								$smokerat = array_flip($smokerat);
+								foreach ($value as $k => $rts)
+									$value[$k] = $smokerat[$rts];
+							}
+
+							if(!in_array('all', $value))
+								$filters['criteria'][$key] = $value;
+						}
+					}
+
+					if (isset($postdata['FrameReview']) && !empty($postdata['FrameReview']))
+						foreach ($postdata['FrameReview'] as $key => &$value)
+							$filters['FrameReview'][$key] = $value;
+
+					if (isset($postdata['DoorReview']) && !empty($postdata['DoorReview']))
+						foreach ($postdata['DoorReview'] as $key => &$value)
+							$filters['DoorReview'][$key] = $value;
+
+					if (isset($postdata['HardwareReview']) && !empty($postdata['HardwareReview']))
+						foreach ($postdata['HardwareReview'] as $key => &$value)
+							$filters['HardwareReview'][$key] = $value;
+
+					if (isset($postdata['GlazingReview']) && !empty($postdata['GlazingReview']))
+						foreach ($postdata['GlazingReview'] as $key => &$value)
+							$filters['GlazingReview'][$key] = $value;
+
+					if (isset($postdata['OperationalTestReview']) && !empty($postdata['OperationalTestReview']))
+						foreach ($postdata['OperationalTestReview'] as $key => &$value)
+							$filters['OperationalTestReview'][$key] = $value;
+
+					if (isset($postdata['other']) && !empty($postdata['other']))
+						foreach ($postdata['other'] as $key => &$value)
+							if (!empty($value))
+								$filters['other'][$key] = $value;
 
 					$this->session->set_userdata('filters_array', $filters);
 				break;
@@ -243,18 +312,24 @@ class Dashboard extends CI_Controller {
 
 	function ajax_update_inspection_state()
 	{
+		$this->load->library('History_library');
 		if (!$inspection_id = $this->input->post('id')) return '';
 		if (!$inspection_state = $this->input->post('state')) return '';
 
 		if ($inspection_state == 'Reinspect')
 		{
-			$adddata = $this->resources_model->get_inspection_info_by_inspection_id($inspection_id);
-			unset($adddata['idInspections'], $adddata['name']);
+			$inspectiondata = $this->resources_model->get_inspection_info_by_inspection_id($inspection_id);
+			$adddata['idAperture'] 		 = $inspectiondata['idAperture'];
 			$adddata['InspectionStatus'] = $inspection_state;
 			$adddata['Creator'] 		 = $this->session->userdata('user_id');
-			$adddata['CreateDate'] 		 = data('Y-m-d');
-			$adddata['revision']++;
-			return $this->resources_model->add_inspection($adddata);
+			$adddata['CreateDate'] 		 = date('Y-m-d');
+			$adddata['revision']		 = $inspectiondata['revision']+1;
+			$adddata['UserId']			 = $inspectiondata['UserId'];
+
+			$iid = $this->resources_model->add_inspection($adddata);
+
+			$this->history_library->saveInspections(array('line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
+			return $iid;
 		}
 
 		return $this->resources_model->update_inspection_state($inspection_id, $inspection_state);
@@ -706,7 +781,8 @@ class Dashboard extends CI_Controller {
 				{
 					$this->load->model('user_model');
 					$dbusers = $this->user_model->get_users_by_parent($this->session->userdata('user_parent'));
-					
+					echo '<pre>';
+					print_r($dbusers);die();
 					foreach ($inspdata as $inspection)
 					{
 						foreach ($inspection as  $YearMonth => $value) {
@@ -993,9 +1069,11 @@ class Dashboard extends CI_Controller {
 		$userlocation = $buildings;
 
 		$filter_data = $this->session->userdata('filters_array');
-
+// echo '<pre>';
+// print_r($filter_data);
 		foreach ($inspections as $inspection)
 		{
+			unset($inspdata, $dff);
 			//filter reviews by Customize button
 			if(isset($filter_data['start_date']) && !empty($filter_data['start_date']))
 				if (!empty($inspection['CreateDate']) && strtotime($inspection['CreateDate']) < strtotime($filter_data['start_date']))
@@ -1016,6 +1094,97 @@ class Dashboard extends CI_Controller {
 			if(isset($filter_data['buildings']) && !empty($filter_data['buildings']) && !in_array('all', $filter_data['buildings']))
 				if (!empty($inspection['Building']) && !in_array($inspection['Building'], $filter_data['buildings']))
 					continue;
+
+			if(isset($filter_data['criteria']) && !empty($filter_data['criteria']))
+			{
+				$inspdata = $this->resources_model->get_aperture_info_by_inspection_id($inspection['id']);
+
+				foreach ($filter_data['criteria'] as $aperture_param => $values)
+				{
+					if (empty($inspdata[$aperture_param]) or !in_array($inspdata[$aperture_param], $values))
+					continue 2;
+				}
+			}
+
+
+			if(isset($filter_data['FrameReview']) && !empty($filter_data['FrameReview']))
+			{
+				if (!isset($dff))
+					$dff = $this->resources_model->get_door_form_fields($inspection['id']);
+				// echo '<pre>';
+				// print_r($filter_data);
+				// echo '<pre>';
+				// print_r($dff);
+				foreach ($filter_data['FrameReview'] as $fieldname => $fieldid)
+				{
+					if (!isset($dff[$fieldid]))
+						continue 2;
+					if (preg_match('#^Other\-#si', $fieldname) && (!isset($filter_data['other'][$fieldname . 'tex']) or $filter_data['other'][$fieldname . 'tex'] != $fieldid)) 
+						continue 2;
+						
+				}
+			}
+
+			if(isset($filter_data['DoorReview']) && !empty($filter_data['DoorReview']))
+			{
+				if (!isset($dff))
+					$dff = $this->resources_model->get_door_form_fields($inspection['id']);
+
+				foreach ($filter_data['DoorReview'] as $fieldname => $fieldid)
+				{
+					if (!isset($dff[$fieldid]))
+						continue 2;
+					if (preg_match('#^Other\-#si', $fieldname) && (!isset($filter_data['other'][$fieldname . 'tex']) or $filter_data['other'][$fieldname . 'tex'] != $fieldid)) 
+						continue 2;
+						
+				}
+			}
+
+			if(isset($filter_data['HardwareReview']) && !empty($filter_data['HardwareReview']))
+			{
+				if (!isset($dff))
+					$dff = $this->resources_model->get_door_form_fields($inspection['id']);
+
+				foreach ($filter_data['HardwareReview'] as $fieldname => $fieldid)
+				{
+					if (!isset($dff[$fieldid]))
+						continue 2;
+					if (preg_match('#^Other\-#si', $fieldname) && (!isset($filter_data['other'][$fieldname . 'tex']) or $filter_data['other'][$fieldname . 'tex'] != $fieldid)) 
+						continue 2;
+						
+				}
+			}
+
+			if(isset($filter_data['GlazingReview']) && !empty($filter_data['GlazingReview']))
+			{
+				if (!isset($dff))
+					$dff = $this->resources_model->get_door_form_fields($inspection['id']);
+
+				foreach ($filter_data['GlazingReview'] as $fieldname => $fieldid)
+				{
+					if (!isset($dff[$fieldid]))
+						continue 2;
+					if (preg_match('#^Other\-#si', $fieldname) && (!isset($filter_data['other'][$fieldname . 'tex']) or $filter_data['other'][$fieldname . 'tex'] != $fieldid)) 
+						continue 2;
+						
+				}
+			}
+
+			if(isset($filter_data['OperationalTestReview']) && !empty($filter_data['OperationalTestReview']))
+			{
+				if (!isset($dff))
+					$dff = $this->resources_model->get_door_form_fields($inspection['id']);
+
+				foreach ($filter_data['OperationalTestReview'] as $fieldname => $fieldid)
+				{
+					if (!isset($dff[$fieldid]))
+						continue 2;
+					if (preg_match('#^Other\-#si', $fieldname) && (!isset($filter_data['other'][$fieldname . 'tex']) or $filter_data['other'][$fieldname . 'tex'] != $fieldid)) 
+						continue 2;
+						
+				}
+			}
+
 
 			if (!$skip_graph && isset($filter_data['graph']) && ($filter_data['graph']['graphpid'] == 'compliance' or $filter_data['graph']['graphpid'] == 'compliance2'))
 			{
@@ -1047,7 +1216,8 @@ class Dashboard extends CI_Controller {
 			}
 			if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('inventorychart', 'inventorychart1', 'inventorychart2', 'inventorychart3', 'inventorychart4')))
 			{
-				$inspdata = $this->resources_model->get_aperture_info_by_inspection_id($inspection['id']);
+				if (!isset($inspdata) or empty($inspdata))
+					$inspdata = $this->resources_model->get_aperture_info_by_inspection_id($inspection['id']);
 				switch ($filter_data['graph']['graphpid']) {
 					case 'inventorychart':
 					case 'inventorychart1':
@@ -1088,7 +1258,7 @@ class Dashboard extends CI_Controller {
 			else
 				$inspection['location'] = '';
 
-			if (!$revision_no_filter)
+			if ($revision_no_filter)
 				$output[$inspection['aperture_id']] = $inspection;
 			else
 			{
@@ -1097,7 +1267,7 @@ class Dashboard extends CI_Controller {
 				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
 					$output[$inspection['aperture_id']] = $inspection;
 			}
-		}
+		}/*die();*/
 		return $output;
 	}
 

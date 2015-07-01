@@ -645,3 +645,22 @@ h4.panel-title a {
 .answers-question {
 	background-color: red;
 }
+
+.graybg {
+	opacity: 0.5;
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	left: 0px;
+	height: 100%;
+	background-color: #000;
+	box-sizing: border-box;
+	transition: opacity 0.15s linear 0s;
+	z-index: 10;
+}
+.throbber {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    opacity: 1;
+}

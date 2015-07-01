@@ -78,7 +78,9 @@
 <script type="text/javascript">
 	function confirmation_review(door_id, insp_id)
 	{
-		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'show_inspection_modal', door_id: door_id, insp_id: insp_id},function(){$('#ShowInspectionModal').modal({show: true})});
+		<?php load_throbber(); ?>
+		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'show_inspection_modal', door_id: door_id, insp_id: insp_id},function(){$('#ShowInspectionModal').modal({show: true});<?php unload_throbber(); ?>});
+		
 	}
 
 	$('#emailing').on('click', function() {
@@ -126,8 +128,8 @@
 	});
 
 	$('#customizing').on('click', function() {
-		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'customize_review_list_modal'},function(){$('#CustomizeReviewListModal').modal({show: true})});
-		
+		<?php load_throbber(); ?>
+		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'customize_review_list_modal'},function(){$('#CustomizeReviewListModal').modal({show: true});<?php unload_throbber(); ?>});
 	});
 </script>
 
@@ -208,6 +210,17 @@
 	$('.graphacceptor').on('click', function(){
 		id = $(this).attr('id');
 		makegraph(id);
+		// if (id =='activityreport' || id =='activityreport1' || id =='activityreport2' || id =='activityreport3')
+		// {
+		// 	$.jqplot.postDrawHooks.push(function() {       
+		//         var lagendtable = $('table.jqplot-table-legend tbody');
+		//         var labels = $('table.jqplot-table-legend tr td.jqplot-table-legend-label');
+		//         labels.each(function(index) {
+		//             $(this).html($(this).html() + ' - test');
+		//         });
+		//         lagendtable.prepend('<tr class="jqplot-table-legend"><td colspan="2">Total</td></tr>');
+		//     });
+		// };
 	});
 
 	function makegraph(id)

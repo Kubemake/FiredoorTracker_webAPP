@@ -677,6 +677,19 @@ class Resources_model  extends CI_Model
 		return $output;		
 	}
 
+	function get_door_form_fields($inspection_id)
+	{
+		$this->db->where('Inspections_idInspections', $inspection_id);
+		$result = $this->db->get('DoorsFormFields')->result_array();
+		// echo '<pre>';
+		// print_r($this->db->last_query());
+		$output = array();
+		foreach ($result as $value)
+			$output[$value['FormFields_idFormFields']] = $value;
+
+		return $output;
+	}
+
 }
 
 /* End of file resources_model.php */

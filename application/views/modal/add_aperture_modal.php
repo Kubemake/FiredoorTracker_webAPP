@@ -12,7 +12,7 @@
 						<div class="form-group">
 							<label for="barcode" class="control-label col-xs-4">Door Id</label>
 							<div class="col-xs-8">
-								<input name="barcode" required pattern="[\d]+" placeholder="digits only" id="barcode" class="form-control" value="" />
+								<input name="barcode" required pattern="[\d]{6}" placeholder="6 digits only" id="barcode" class="form-control" value="" />
 							</div>
 						</div>
 						<div class="form-group">
@@ -136,9 +136,24 @@
 					});
 
 					$("#addbtnform").submit(function(e){
+						$.ajax({
+							url: '/user/ajax_check_barcode',
+							method: 'POST',
+							data:{barcode: $('#barcode').val(), doorid: '-'},
+							async: false,
+							success: function(result) {
+								if (result == 'exist')
+								{
+									alert('Door Id allready exist!');
+									e.preventDefault();
+									return false;
+								}
+							}
+						});
 						if ($('#building').val()==0)
 						{
 							alert('Please choose Building!');
+							e.preventDefault();
 							return false;
 						}
 					}); 

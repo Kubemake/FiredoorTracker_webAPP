@@ -257,6 +257,10 @@ class User extends CI_Controller {
 						$this->history_library->saveBuildings(array('line_id' => $bid, 'new_val' => json_encode($postdata), 'type' => 'add'));
 
 						$data['msg'] = msg('success', 'Element successfully added');
+		
+						echo '<script type="text/javascript">location.replace("/user/buildings");</script>
+							<noscript><meta http-equiv="refresh" content="0; url=/user/buildings"></noscript>';
+						exit;
 					break;
 				}
 			}
@@ -353,7 +357,12 @@ class User extends CI_Controller {
 
 				case 'edit_aperture':
 					
-
+					$exist = array();
+					$exist = $this->resources_model->get_aperture_info_by_barcode($adddata['barcode']);
+					if (!empty($exist) && $exist['idDoors'] != $postdata['aperture_id']) {
+						$header['msg'] = msg('warning', 'Door allready exist!');
+						break;
+					}
 
 					$this->history_library->saveDoors(array('line_id' => $postdata['aperture_id'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
 
@@ -487,6 +496,9 @@ class User extends CI_Controller {
 					break;
 				}
 
+				echo '<script type="text/javascript">location.replace("/user/employees");</script>
+					<noscript><meta http-equiv="refresh" content="0; url=/user/employees"></noscript>';
+				exit;
 			}
 		}
 
@@ -552,10 +564,13 @@ class User extends CI_Controller {
 		verifyLogged();
 
 		$this->load->model('resources_model');
+		$this->load->model('service_model');
 
 		if (!$employeer_id = $this->input->post('id')) return print('empty id');
 
 		if (!$this->resources_model->delete_employeer_by_id($employeer_id))  return print('can\'t delete employee by id');
+
+		$this->service_model->delete_user_token($employeer_id);
 
 		return print('done');
 	}
@@ -743,6 +758,20 @@ class User extends CI_Controller {
 			$out .= '<option' . $sel . ' value="' . $key . '">' . $value['name'] . '</option>';
 		}
 		echo $out;
+	}
+
+	function ajax_check_barcode()
+	{
+		if (!$barcode = $this->input->post('barcode')) return print('empty barcode');
+		if (!$doorid = $this->input->post('doorid')) return print('empty doorid');
+
+		$this->load->model('resources_model');
+		$exist = array();
+		$exist = $this->resources_model->get_aperture_info_by_barcode($barcode);
+		if (!empty($exist) && ($doorid == '-' or $exist['idDoors'] != $doorid)) {
+			echo 'exist';die();
+		}
+		echo 'ok'; die();
 	}
 }
 
