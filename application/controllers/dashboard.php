@@ -206,6 +206,19 @@ class Dashboard extends CI_Controller {
 			}
 		}
 		
+		$this->load->model('user_model');
+		$data['totalinspections'] = $this->resources_model->get_all_inspections_by_parent($this->session->userdata('user_parent'));
+		$data['totalinspections'] = $data['totalinspections'][0]['total'];
+		
+		$dbusers = $this->user_model->get_users_by_parent($this->session->userdata('user_parent'));
+		$data['totalusers'] = $data['activeusers'] = 0;
+		foreach ($dbusers as $user)
+		{
+			$data['totalusers']++;
+			if ($user['deleted'] == 0)
+				$data['activeusers']++;
+		}
+
 		$this->table->set_heading(
 			array('data' => ''   , 'style' => 'display: none !important;'),
 			'Door Id',
@@ -781,8 +794,7 @@ class Dashboard extends CI_Controller {
 				{
 					$this->load->model('user_model');
 					$dbusers = $this->user_model->get_users_by_parent($this->session->userdata('user_parent'));
-					echo '<pre>';
-					print_r($dbusers);die();
+					
 					foreach ($inspdata as $inspection)
 					{
 						foreach ($inspection as  $YearMonth => $value) {
@@ -813,18 +825,30 @@ class Dashboard extends CI_Controller {
 					}
 
 					$tempdata = array();
+					$total = array();
+
 					foreach ($graphdata as $user => $datas)
 					{
 						foreach ($datas as $dat => $value)
+						{
+							if (!isset($total[$user]))
+								$total[$user] = $value;
+							else
+								$total[$user] += $value;
 							$temp[]   = '[\'' . $dat . '\', ' . $value . ']';
+						}
 
 						$tempdata[] = '[' . implode(', ', $temp) . ']';
 						
 						$tempseries[] = "{label: '{$user}'}";
 					}
 
+					$templegend = array();
+					foreach ($total as $user => $value)
+						$templegend[] = $user . ' (' . $value . ')';
+
 					$output = "[" . implode(', ', $tempdata) . "], {
-						legend: {show: true},
+						legend: {show: true, labels:['" . implode("', '", $templegend) . "']},
 					  	axes: {xaxis:{renderer:$.jqplot.DateAxisRenderer,tickOptions:{formatString:'$graphformat'}}},
 					  	series: [".implode(',', $tempseries)."],
 					  	cursor:{show: true, zoom: true, showTooltip: true,followMouse: true} 

@@ -176,7 +176,7 @@ class User_model  extends CI_Model
 
 	function get_users_by_parent($parent_id)
 	{
-		$this->db->select('idUsers, firstName, lastName');
+		$this->db->select('idUsers, firstName, lastName, deleted');
 		$this->db->where('parent', $parent_id);
 		$result = $this->db->get('Users')->result_array();
 		

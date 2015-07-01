@@ -690,6 +690,15 @@ class Resources_model  extends CI_Model
 		return $output;
 	}
 
+	function get_all_inspections_by_parent($user_parent = FALSE)
+	{
+		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
+		$this->db->select('COUNT(idInspections) as total');
+		$this->db->where('UserId', $parent);
+		$result = $this->db->get('Inspections')->result_array();
+
+		return $result;
+	}
 }
 
 /* End of file resources_model.php */

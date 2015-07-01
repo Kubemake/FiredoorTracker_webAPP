@@ -210,17 +210,17 @@
 	$('.graphacceptor').on('click', function(){
 		id = $(this).attr('id');
 		makegraph(id);
-		// if (id =='activityreport' || id =='activityreport1' || id =='activityreport2' || id =='activityreport3')
-		// {
-		// 	$.jqplot.postDrawHooks.push(function() {       
-		//         var lagendtable = $('table.jqplot-table-legend tbody');
-		//         var labels = $('table.jqplot-table-legend tr td.jqplot-table-legend-label');
-		//         labels.each(function(index) {
-		//             $(this).html($(this).html() + ' - test');
-		//         });
-		//         lagendtable.prepend('<tr class="jqplot-table-legend"><td colspan="2">Total</td></tr>');
-		//     });
-		// };
+		if (id =='activityreport' || id =='activityreport1' || id =='activityreport2' || id =='activityreport3')
+		{
+			$.jqplot.postDrawHooks.push(function() {       
+				newlegendtable = $('table.jqplot-table-legend tbody');
+				newlegendtable.find('.jqplot-table-legend-addon').each(function(){
+					$(this).remove();
+				});
+		        newlegendtable.prepend('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Users: <?=$totalusers?> / <?=$activeusers?></td></tr>');
+		        newlegendtable.append('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Total reviews: <?=$totalinspections?></td></tr>');
+		    });
+		};
 	});
 
 	function makegraph(id)
