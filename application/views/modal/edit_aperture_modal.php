@@ -73,45 +73,45 @@
 						wing  = $('#wing').html();
 						area  = $('#area').html();
 						level = $('#level').html();
-						
-						<?php if ($aperture['Floor']): ?>
+
+						<?php //if ($aperture['Floor']): ?>
 							$.ajax({
 								url: '/user/ajax_get_building_childs/<?=$aperture['Building']?>/<?=$aperture['Floor']?>',
 								success: function(result)
 								{
 									$('#floor').html(floor+result);
 									
-									<?php if ($aperture['Wing']): ?>
+									<?php //if ($aperture['Wing']): ?>
 										$.ajax({
 											url: '/user/ajax_get_building_childs/<?=$aperture['Floor']?>/<?=$aperture['Wing']?>',
 											success: function(resul)
 											{
 												$('#wing').html(wing+resul);
 
-												<?php if ($aperture['Area']): ?>
+												<?php //if ($aperture['Area']): ?>
 													$.ajax({
 														url: '/user/ajax_get_building_childs/<?=$aperture['Wing']?>/<?=$aperture['Area']?>',
 														success: function(resultt)
 														{
 															$('#area').html(area+resultt);
 
-															<?php if ($aperture['Level']): ?>
+															<?php //if ($aperture['Level']): ?>
 																$.ajax({
-																	url: '/user/ajax_get_building_childs/' + $(this).val(),
+																	url: '/user/ajax_get_building_childs/<?=$aperture['Area']?>/<?=$aperture['Level']?>',
 																	success: function(resultz){
 																		$('#level').html(level+resultz);
 																	}
 																})
-															<?php endif; ?>
+															<?php //endif; ?>
 														}
 													})
-												<?php endif; ?>
+												<?php //endif; ?>
 											}
 										})
-									<?php endif; ?>
+									<?php //endif; ?>
 								}
 							})
-						<?php endif; ?>
+						<?php //endif; ?>
 					});
 
 					$('#building').on('change', function(){
@@ -123,7 +123,7 @@
 							$.ajax({
 								url: '/user/ajax_get_building_childs/' + $(this).val(),
 								success: function(result){
-									console.log(result);
+									// console.log(result);
 									$('#floor').html(floor+result);
 								}
 							})
@@ -139,7 +139,7 @@
 							$.ajax({
 								url: '/user/ajax_get_building_childs/' + $(this).val(),
 								success: function(result){
-									console.log(result);
+									// console.log(result);
 									$('#wing').html(wing+result);
 								}
 							})
@@ -154,7 +154,7 @@
 							$.ajax({
 								url: '/user/ajax_get_building_childs/' + $(this).val(),
 								success: function(result){
-									console.log(result);
+									// console.log(result);
 									$('#area').html(area+result);
 								}
 							})
@@ -168,7 +168,7 @@
 							$.ajax({
 								url: '/user/ajax_get_building_childs/' + $(this).val(),
 								success: function(result){
-									console.log(result);
+									// console.log(result);
 									$('#level').html(level+result);
 								}
 							})

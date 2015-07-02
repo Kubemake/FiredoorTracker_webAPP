@@ -100,6 +100,18 @@ class Ajax extends CI_Controller {
 				$params['employeer']  			= $this->resources_model->get_employeer_info_by_employeer_id($employeer_id);
 			break;
 
+			case 'add_client_modal':
+				$params['user_roles'] 			= $this->resources_model->get_all_employeers_roles();
+			break;
+
+			case 'edit_client_modal':
+				if (!$employeer_id = $this->input->post('id')) return '';
+				$this->load->model('licensing_model');
+				$params['user_roles'] 			= $this->resources_model->get_all_employeers_roles();
+				$params['client']  				= $this->resources_model->get_employeer_info_by_employeer_id($employeer_id);
+				$params['licensing']			= $this->licensing_model->get_lic_info_by_client_id($employeer_id);
+			break;
+
 			case 'add_aperture_modal':
 				$this->load->model('user_model');
 

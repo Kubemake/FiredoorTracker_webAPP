@@ -204,5 +204,21 @@ class History_library {
 
 		$this->saveHistory();
 	}
+	
+	public function saveLic($params)
+	{
+		$this->entity 	= 'lic';
+		$this->line_id 	= $params['line_id'];
+		$this->new_val 	= $params['new_val'];
+		$this->type 	= $params['type'];
+	
+		if (isset($params['user_id']))
+			$this->user = $params['user_id'];
+
+		if ($this->type != 'add')
+			$this->current_data = json_encode($this->CI->history_model->get_licensing_by_user_id($this->line_id));
+
+		$this->saveHistory();
+	}
 
 }

@@ -494,9 +494,11 @@ class Resources_model  extends CI_Model
 		} 
 		else
 			$this->db->where('i.UserId', $user_parent);
-
-		$result = $this->db->get()->result_array();
 		
+		$this->db->where('cc.value IS NOT ', 'NULL', FALSE);
+		
+		$result = $this->db->get()->result_array();
+
 		return $result;
 	}
 
@@ -693,8 +695,10 @@ class Resources_model  extends CI_Model
 	function get_all_inspections_by_parent($user_parent = FALSE)
 	{
 		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
-		$this->db->select('COUNT(idInspections) as total');
+		$this->db->select('idInspections');
 		$this->db->where('UserId', $parent);
+		$this->db->where('deleted', 0);
+		$this->db->group_by('idAperture');
 		$result = $this->db->get('Inspections')->result_array();
 
 		return $result;

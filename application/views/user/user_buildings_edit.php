@@ -9,7 +9,7 @@
 			    <div class="col-xs-9"> 
 			    <p class="form-control-static"><?=$building['idBuildings']?></p>
 			    	<input type="hidden" class="form-control" name="idBuildings" id="idBuildings" value="<?=$building['idBuildings']?>" />
-			    	<input type="hidden" class="form-control" name="idBuildings" id="idBuildings" value="<?=$building['root']?>" />
+			    	<input type="hidden" class="form-control" name="root" id="root" value="<?=$building['root']?>" />
 			    </div>
 		  	</div>
 		  	<div class="form-group">
@@ -23,7 +23,8 @@
 				<div class="form-group">
 			    	<label class="control-label col-xs-4" for="parent">parent id:</label>
 				    <div class="col-xs-8">
-				      <input required="required" type="text" class="form-control input-xs" name="parent" id="parent" value="<?=@$building['parent']?>" />
+				      <p class="form-control-static"><?=@$building['parent']?></p>
+				      <input type="hidden" class="form-control input-xs" name="parent" id="parent" value="<?=@$building['parent']?>" />
 				    </div>
 			  	</div>
 			<div class="form-group">

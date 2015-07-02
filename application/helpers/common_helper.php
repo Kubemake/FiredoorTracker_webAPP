@@ -60,13 +60,56 @@ function addDataTable($type='css', $col_filter_id = 0)
 	}
 }
 
-function send_mail($to, $subj='', $body='', $from='')
+function send_mail($to, $subject = '', $text_message = '', $from = '', $file_path = FALSE)
 {
 	 $from = empty($from) ? $_SERVER['HTTP_HOST'] :  $from;
 	 if (is_array($to))
-	 	$to = implode(',', $to);
+	 	$recipient = implode(',', $to);
 
-	return mail($to, $subj, $body, "From: Mailing system <" . $from . ">" . "\r\n" . "Content-type: text/html; charset=UTF-8" . "\r\n");
+	 //генерируем уникальный разделитель
+	$bound = "--".md5(uniqid(time()));
+
+	$mail_header= "MIME-Version: 1.0;\r\n";
+	$mail_header.= "Content-Type: multipart/mixed; boundary=\"$bound\"\r\n";
+	$mail_header.= "From: $from\r\n";
+	// $mail_header.= "Reply-to: Reply to Name <reply@domain.com>\r\n";
+
+	//прикрепляем файл
+	//если файл найден, прикрепляем его к сообщению
+	if (file_exists($file_path)){
+	$file_name = basename($file_path);
+	$fa = fopen($file_path,"rb");
+	if($fa){
+	$multipart_message = "\r\n--$bound\r\n";
+	$multipart_message.= "Content-Type: text/html; charset=UTF-8\r\n";
+	$multipart_message.= "Content-Transfer-Encoding: base64\r\n";
+	$multipart_message.= "\r\n";
+	$multipart_message.= chunk_split(base64_encode($text_message));
+
+	$multipart_message.= "\r\n\r\n--$bound\r\n";
+	$multipart_message.= "Content-Type: application/octet-stream; name=\"$file_name\"\r\n";
+	$multipart_message.= "Content-Transfer-Encoding: base64\r\n";
+	$multipart_message.= "Content-Disposition: attachment; filename=\"$file_name\"\r\n";
+	$multipart_message.= "\r\n";
+	$multipart_message.= chunk_split(base64_encode(fread($fa, filesize($file_path))));
+
+	fclose($fa);
+
+	//передаем текст сообщения и прикрепленный файл в переменную
+	$message = $multipart_message;
+	}
+
+	//не удалось прикрепить файл , передаем текстовое сообщение
+	else $message = $text_message;
+	}
+	else {
+	//если файл не существует передаем текстовое сообщение
+	$message = $text_message;
+	}
+
+	//отправка письма
+	return mail($recipient, $subject, $message, $mail_header);
+	// return mail($to, $subj, $body, "From: Mailing system <" . $from . ">" . "\r\n" . "Content-type: text/html; charset=UTF-8" . "\r\n");
 }
 
 

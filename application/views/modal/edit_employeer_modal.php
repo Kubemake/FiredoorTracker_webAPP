@@ -39,21 +39,6 @@
 								<input type="email" name="email" id="email" class="form-control" value="<?=@$employeer['email']?>" pattern="[a-z0-9._%+-]+@[a-z0-9\.-]+\.[a-z]{2,4}" placeholder="Format ex.: john@yahoo.com" />
 							</div>
 						</div>
-						<div class="form-group">
-							<label for="expiration_date" class="control-label col-xs-4">Expiration Date</label>
-							<div class="col-xs-8">
-								 <div class="input-group date" id="expiration_date">
-									<input name="expiration_date" class="form-control" value="<?=@$employeer['expired']?>" />
-									<span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
-								</div>
-							</div>
-						</div>
-						<div class="form-group">
-							<label for="license_number" class="control-label col-xs-4">License Number</label>
-							<div class="col-xs-8">
-								<input name="license_number" id="license_number" class="form-control" value="<?=@$employeer['license']?>" />
-							</div>
-						</div>
 					</div>
 					<div class="row">
 						<div class="panel panel-primary">
@@ -112,9 +97,6 @@
 				</div>
 				<script type="text/javascript">
 					$(function () {
-						$('#expiration_date').datepicker({format:'yyyy-mm-dd'}).on('changeDate', function(){
-							$('#expiration_date').datepicker('hide');
-						});
 						$('#new_password,#repeat_password').password();
 					});
 				</script>

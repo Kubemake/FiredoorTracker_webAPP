@@ -41,6 +41,11 @@ class History_model  extends CI_Model
 	{
 		return $this->db->where('idUsers', $line_id)->get('Users')->row_array();
 	}
+	
+	function get_licensing_by_user_id($line_id)
+	{
+		return $this->db->where('idUsers', $line_id)->get('Users')->row_array();
+	}
 
 	function get_location_by_location_id($line_id)
 	{

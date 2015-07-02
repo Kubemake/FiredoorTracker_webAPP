@@ -26,12 +26,12 @@
 		var oTT = TableTools.fnGetInstance('DataTables_Table_0');
 		if (oTT.fnGetSelectedIndexes().length < 1) return false;
 		seldata = oTT.fnGetSelectedData();
-		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'edit_employeer_modal', id: seldata[0][0]},function(){$('#EditEmployeerModal').modal({show: true})});
+		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'edit_client_modal', id: seldata[0][0]},function(){$('#EditClientModal').modal({show: true})});
 	}
 
 	function button_add_action()
 	{
-		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'add_employeer_modal'},function(){$('#AddEmployeerModal').modal({show: true})});
+		$('#modalacceptor').empty().load("/ajax/ajax_load_modal",{page: 'add_client_modal'},function(){$('#AddClientModal').modal({show: true})});
 		
 	}
 

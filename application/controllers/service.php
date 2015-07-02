@@ -279,6 +279,15 @@ class Service extends CI_Controller {
 		if (empty($userdata))
 			$this->_show_output(array('status' => 'error', 'error' => 'wrong login or password'));
 
+		
+		/*LICENSING CHECK!*/
+		$this->load->model('licensing_model');
+		$licensing = $this->licensing_model->get_lic_info_by_client_id($userdata['parent']);
+
+		if (strtotime($licensing['expired'] . ' 23:59:59') < time())
+			$this->_show_output(array('status' => 'error', 'error' => 'Your license term has expired; please <a target="_blank" href="https://firedoortracker.com/pricing/">RENEW NOW</a> in order to continue using the app. <br>If there are any questions, please call us at 844.524.1212 or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a>'));
+		/*END LICENSING CHECK!*/
+
 		$token = md5(uniqid($data['login'], true));
 
 		$this->service_model->delete_user_token($userdata['idUsers']);

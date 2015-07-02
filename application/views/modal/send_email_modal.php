@@ -27,6 +27,12 @@
 							</div>
 						</div>
 						<div class="form-group">
+							<label for="extra" class="control-label col-xs-4">Extra recipients</label>
+							<div class="col-xs-8">
+								<input name="extra" id="extra" class="form-control" value="" placeholder="example: mail1@yahoo.com, mail2@yahoo.com,..." />
+							</div>
+						</div>
+						<div class="form-group">
 							<label for="subject" class="control-label col-xs-4">Subject</label>
 							<div class="col-xs-8">
 								<input name="subject" id="subject" class="form-control" value="New report from info@firedoortracker.org" />
@@ -89,10 +95,11 @@
 	});
 
 	$('#sendemailform').submit(function(e) {
-	    if ($('#to').val() == null)
+	    if ($('#to').val() == null && ($('#extra').val() == '' ||  $('#extra').val() == 'example: mail1@yahoo.com, mail2@yahoo.com,...'))
 		{
 			alert('Please choose at least one recipient');
 			return false;
+			e.preventDefault();
 		}
 	});
 </script>

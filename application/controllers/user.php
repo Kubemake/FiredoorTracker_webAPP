@@ -117,6 +117,7 @@ class User extends CI_Controller {
 		$this->form_validation->set_rules('username', 'Login', 'required|xss_clean');
 		$this->form_validation->set_rules('password', 'Password', 'required|xss_clean|callback__check_in_database');
 		$this->form_validation->set_message('required', 'Field %s is required');
+		
 		if($this->form_validation->run() == FALSE)
 		{
 			
@@ -150,6 +151,7 @@ class User extends CI_Controller {
 				$this->input->set_cookie($cookie); 
 
 			}
+
 			if ($this->session->flashdata('refferer') && strpos($this->session->flashdata('refferer'), 'ajax') === FALSE)
 				redirect($this->session->flashdata('refferer'));
 			redirect('/');
@@ -168,6 +170,15 @@ class User extends CI_Controller {
 			return FALSE;
 		}
 
+		$this->load->model('licensing_model');
+		$licensing = $this->licensing_model->get_lic_info_by_client_id($valid_login['parent']);
+
+		if (strtotime($licensing['expired'] . ' 23:59:59') < time())
+		{
+			$this->form_validation->set_message('_check_in_database', '<div class="alert alert-danger">Your license term has expired; please <a target="_blank" href="https://firedoortracker.com/pricing/">RENEW NOW</a> in order to continue using the app. <br>If there are any questions, please call us at 844.524.1212 or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a></div>');
+			return FALSE;
+		}
+
 		//записываем данные авторизации
 		$sessiondata = array( 
 			'isadmin' 		=> ($valid_login['role']==4) ? 1 : 0,
@@ -180,7 +191,13 @@ class User extends CI_Controller {
 			'lastlogin'		=> $valid_login['lastLogin'],
 			'logoFilePath'	=> $valid_login['logoFilePath'],
 		);
-		
+
+		$days = floor((strtotime($licensing['expired'] . ' 23:59:59') - time()) / (60*60*24));
+
+		if ($days < 8)
+			$this->session->set_flashdata('showlicwarn', $days);
+
+
 		$this->session->set_userdata($sessiondata);
 		$this->user_model->update_user_data($valid_login['idUsers'], array('LastLogin' => date('Y-m-d H:i:s')));
 
@@ -270,19 +287,18 @@ class User extends CI_Controller {
 
 		if (has_permission('Allow view buildings tree tab'))
 		{
-			$user_buildings = $this->user_model->get_user_buildings($this->session->userdata('user_parent'));
-
+			$user_buildings = $this->user_model->get_all_buildings($this->session->userdata('user_parent'));
+// echo '<pre>';
+// print_r($user_buildings);die();
 			$data['buildings'] = '';
-
 
 			$result = '<ol class="dd-list">' . "\n";
 			if (!empty($user_buildings))
 			{
-				
-				foreach ($user_buildings as $building)
+				foreach ($user_buildings as $buildingdata)
 				{
-					$buildingdata = $this->user_model->get_building_data($building['Buildings_idBuildings']);
-					if (empty($buildingdata) or $buildingdata['parent'] > 0) //this part only for parent=0
+					// $buildingdata = $this->user_model->get_building_data($building['Buildings_idBuildings']);
+					if (empty($buildingdata) or $buildingdata['level'] > 0) //this part only for parent=0
 						continue;
 
 					$result .= '<li class="dd-item" data-id="' . $buildingdata['idBuildings'] . '">' . "\n";
@@ -294,6 +310,7 @@ class User extends CI_Controller {
 					$result .= '</li>' . "\n";
 				}
 			}
+
 			$result .= '</ol>' . "\n";
 
 			$data['buildings'] = $result;
@@ -322,21 +339,14 @@ class User extends CI_Controller {
 			$adddata = array(
 			    'Building'		=> $postdata['building'],
 			    'barcode'		=> $postdata['barcode'],
-			    /*'wall_Rating'	=> $postdata['wallRating'],
-			    'smoke_Rating' 	=> $postdata['smokeRating'],
-			    'material'		=> $postdata['material'],
-			    'rating'		=> $postdata['rating'],*/
 			    'UserId'		=> $this->session->userdata('user_parent'),
 			);
 			
-			if ($postdata['floor'] && $postdata['floor'] > 0)
-				$adddata['Floor'] = $postdata['floor'];
-			if ($postdata['wing'] && $postdata['wing'] > 0)
-				$adddata['Wing'] = $postdata['wing'];
-			if ($postdata['area'] && $postdata['area'] > 0)
-				$adddata['Area'] = $postdata['area'];
-			if ($postdata['level'] && $postdata['level'] > 0)
-				$adddata['Level'] = $postdata['level'];
+			
+			$adddata['Floor'] = ($postdata['floor'] && $postdata['floor'] > 0) ? $postdata['floor'] : 0;
+			$adddata['Wing']  = ($postdata['wing'] && $postdata['wing'] > 0)   ? $postdata['wing']  : 0;
+			$adddata['Area']  = ($postdata['area'] && $postdata['area'] > 0)   ? $postdata['area']  : 0;
+			$adddata['Level'] = ($postdata['level'] && $postdata['level'] > 0) ? $postdata['level'] : 0;
 
 			switch ($postdata['form_type'])
 			{
@@ -447,8 +457,6 @@ class User extends CI_Controller {
 				    'officePhone'	=> $postdata['officePhone'], 
 				    'mobilePhone'	=> $postdata['mobilePhone'], 
 				    'role'			=> $postdata['user_role'],
-				    'license'		=> $postdata['license_number'],
-				    'expired'		=> $postdata['expiration_date'],
 				    'parent'		=> $this->session->userdata('user_parent')
 				);
 
@@ -746,7 +754,7 @@ class User extends CI_Controller {
 		echo json_encode($result);die;
 	}
 
-	function ajax_get_building_childs($parent_id, $selected)
+	function ajax_get_building_childs($parent_id, $selected = FALSE)
 	{
 		$this->load->model('resources_model');
 		$builds = $this->resources_model->get_user_buildings_by_building_parent($parent_id);
@@ -772,6 +780,53 @@ class User extends CI_Controller {
 			echo 'exist';die();
 		}
 		echo 'ok'; die();
+	}
+
+	function ajax_check_lic_limit()
+	{
+		if (!$role = $this->input->post('role')) return print('empty role');
+
+		$roles = array(
+			1 => 'dir',
+			2 => 'sv',
+			3 => 'mech'
+		);
+		$messageroles = array(
+			1 => 'Directors',
+			2 => 'Supervisors',			///ПРОВЕРИТЬ НА НЕАКТИВНЫХ И ДОБАВИТЬ ПРОВЕРКУ ПРИ АКТИВАЦИ!! ПОТОМ ПРОДУБЛИРОВАТЬ ПРИ ПОСТЕ!!!
+			3 => 'Mechanics'
+		);
+
+		$this->load->model('licensing_model');
+		$licensing = $this->licensing_model->get_lic_info_by_client_id($this->session->userdata('user_parent'));
+
+		$role_users = $this->user_model->get_all_users_by_role($role);
+		$role_users = count($role_users);
+		
+		if (($role_users + 1) > $licensing[$roles[$role]]) 
+		{
+			echo '<!-- Show Warn Modal -->
+				<div class="modal fade" id="ShowWarnModal" tabindex="-1" role="dialog" aria-labelledby="ShowWarnModal" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title text-center" id="myModalLabel">Important message about your license limitation</h4>
+							</div>
+							<div class="modal-body">
+								Please note you\'ve exceeded the maximum number of ' . $messageroles[$role] . '  for your account.<br>
+		 					  In order to add more users to your account, please call us at 844.524.1212, or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a> for assistance.
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+							</div>
+						</div>
+					</div>
+				</div>';
+		}
+		else
+			echo 'ok';
+		exit;
 	}
 }
 

@@ -9,7 +9,7 @@
 					<button type="button" class="btn btn-default button-expand" data-action="expand-all">Expand All</button>
 					<button type="button" class="btn btn-default button-collapse"  data-action="collapse-all">Collapse All</button>
 					<?//<button type="button" onclick="button_add_building_action();return false;" class="btn btn-default button-add">Add Building</button>?>
-					<button type="button" onclick="button_add_element_action(0);return false;" class="btn btn-default button-add">Add Building</button>
+					<button type="button" onclick="button_add_element_action(0,0);return false;" class="btn btn-default button-add">Add Building</button>
 				</div>
 			</div>
 		</div>

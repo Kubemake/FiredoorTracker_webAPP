@@ -24,6 +24,9 @@ class Clients extends CI_Controller {
 				$this->load->model('resources_model');
 				
 				$postdata = $this->input->post();
+
+				// echo '<pre>';
+				// print_r($postdata);die();
 				$adddata = array(
 					'email'			=> $postdata['email'],
 				    'FirstName'		=> $postdata['first_name'],
@@ -31,10 +34,21 @@ class Clients extends CI_Controller {
 				    'officePhone'	=> $postdata['officePhone'], 
 				    'mobilePhone'	=> $postdata['mobilePhone'], 
 				    'role'			=> $postdata['user_role'],
-				    'license'		=> $postdata['license_number'],
-				    'expired'		=> $postdata['expiration_date'],
 				    'parent'		=> $this->session->userdata('user_parent')
 				);
+
+				$addlicdata = FALSE;
+				if ($this->session->userdata('user_role') == 4 && $postdata['user_role'] == 1) //if add client(director) and admin do it
+				{
+					$this->load->model('licensing_model');
+					$addlicdata = array(
+					    'expired'		=> $postdata['license_expiration_date'],
+						'dir'			=> $postdata['license_dir'],
+						'sv'			=> $postdata['license_sv'],
+						'mech'			=> $postdata['license_mech'],
+						'inspections'	=> $postdata['license_inspections']
+					);
+				}
 
 				if ($postdata['user_role'] == 4)
 					$adddata['parent'] = 0;
@@ -53,7 +67,7 @@ class Clients extends CI_Controller {
 
 				switch ($postdata['form_type'])
 				{
-					case 'add_employeer':
+					case 'add_client':
 						$user = $this->resources_model->get_user_by_email($adddata['email']); //check if it email used
 						if (!empty($user)) {
 							$data['msg'] = '<div class="alert alert-warning alert-dismissable">This email allready used</div>';
@@ -68,6 +82,14 @@ class Clients extends CI_Controller {
 						}
 
 						$this->history_library->saveUsers(array('line_id' => $newemp, 'new_val' => json_encode($adddata), 'type' => 'add'));
+
+						if ($this->session->userdata('user_role') == 4 && $postdata['user_role'] == 1)
+						{
+							$addlicdata['idUsers'] = $newemp;
+							$licid = $this->licensing_model->add_licensing_data($addlicdata);
+
+							$this->history_library->saveLic(array('line_id' => $licid, 'new_val' => json_encode($addlicdata), 'type' => 'add'));
+						}
 						
 						$mail 	= TRUE;
 				
@@ -77,13 +99,20 @@ class Clients extends CI_Controller {
 							$data['msg'] = '<div class="alert alert-success alert-dismissable">User successfully added</div>';
 					break;
 
-					case 'edit_employeer':
+					case 'edit_client':
 						if ($postdata['user_role']==1)
 							$adddata['parent'] = $postdata['user_id'];
 
 						$this->history_library->saveUsers(array('line_id' => $postdata['user_id'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
 						
 						$this->resources_model->update_employer_data($postdata['user_id'], $adddata);
+						
+						if ($this->session->userdata('user_role') == 4 && $postdata['user_role'] == 1)
+						{
+							$this->history_library->saveLic(array('line_id' => $postdata['user_id'], 'new_val' => json_encode($addlicdata), 'type' => 'edit'));
+
+							$this->licensing_model->update_licensing_data($postdata['user_id'], $addlicdata);
+						}
 
 						$data['msg'] = '<div class="alert alert-success alert-dismissable">User successfully updated</div>';
 					break;
@@ -111,7 +140,12 @@ class Clients extends CI_Controller {
 			if (!empty($users))
 			{
 				foreach ($users as $user)
+				{
+					if ($user['parent'] != $user['idUsers'])
+						continue;
+
 					$this->table->add_row($user['idUsers'], $user['firstName'], $user['lastName'], $user['officePhone'], $user['mobilePhone'], $user['email'], $user['role_name']);
+				}
 			}
 			
 

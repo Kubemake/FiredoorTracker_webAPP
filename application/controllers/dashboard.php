@@ -12,7 +12,6 @@ class Dashboard extends CI_Controller {
 
 	function index($clear = FALSE)
 	{
-		// printdbg(array());
 		if ($clear)
 			$this->session->unset_userdata('filters_array');
 
@@ -33,8 +32,27 @@ class Dashboard extends CI_Controller {
 			switch ($postdata['form_type'])
 			{
 				case 'send_email':
-					send_mail($postdata['to'], $postdata['subject'], $postdata['body'], $postdata['from']);
-					$header['msg'] = msg('success', 'Mail successfuly sent');
+					if (!isset($postdata['to']) && empty($postdata['extra']))
+						$header['msg'] = msg('warning', 'Please set at least one recipient!');
+					else
+					{
+						if (!empty($postdata['extra']))
+						{
+							if (!isset($postdata['to']))
+								$postdata['to'] = array();
+
+							$extra = explode(',', $postdata['extra']);
+							$extra = array_map('trim', $extra);
+							foreach ($extra as $email)
+								$postdata['to'][] = $email;
+						}
+
+						$filepath = FCPATH . 'upload/' . $this->session->userdata('user_id') . '/pdf_export.pdf';
+
+						send_mail($postdata['to'], $postdata['subject'], $postdata['body'], $postdata['from'], $filepath);
+						
+						$header['msg'] = msg('success', 'Mail successfully sent');
+					}
 				break;
 
 				case 'add_inspection':
@@ -164,18 +182,18 @@ class Dashboard extends CI_Controller {
 
 					$this->resources_model->delete_inspectiod_data($Pinspection_id);
 
-					foreach ($postdata as $key => $value)
+					foreach ($postdata as $key => $field_id)
 					{
 						if (strpos($key, 'Other') !== FALSE && strpos($key, 'tex') !== FALSE) //skip text field cause it save to 'Other' field
 							continue;
 
-						$val = 'YES';
+						$val = 'Yes';
 						if (strpos($key, 'Other') !== FALSE && strpos($key, 'tex') === FALSE && isset($postdata[$key.'tex']) && strlen($postdata[$key.'tex']) > 0)
 						{
 							$val = $postdata[$key.'tex'];
 						}
 
-						$this->service_model->add_inspection_data($Pinspection_id, $value, $Puser, $val);
+						$this->service_model->add_inspection_data($Pinspection_id, $field_id, $val);
 					}
 					$new_dff = $this->resources_model->get_inspection_data($Pinspection_id);
 
@@ -208,7 +226,7 @@ class Dashboard extends CI_Controller {
 		
 		$this->load->model('user_model');
 		$data['totalinspections'] = $this->resources_model->get_all_inspections_by_parent($this->session->userdata('user_parent'));
-		$data['totalinspections'] = $data['totalinspections'][0]['total'];
+		$data['totalinspections'] = count($data['totalinspections']);
 		
 		$dbusers = $this->user_model->get_users_by_parent($this->session->userdata('user_parent'));
 		$data['totalusers'] = $data['activeusers'] = 0;
@@ -261,8 +279,9 @@ class Dashboard extends CI_Controller {
 				else
 					$loca = '';
 
+				$item = ($inspection['wall_Rating'] > 0 && $inspection['smoke_Rating'] > 0 && $inspection['material'] > 0 && $inspection['rating'] > 0) ? '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>' : $inspection['barcode'];
 				// $item = (in_array($inspection['InspectionStatus'], array('In Progress', 'Complete'))) ? '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>' : $inspection['barcode'];
-				$item = '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>';
+				// $item = '<a href="javascript:;" onclick="confirmation_review(' . $inspection['aperture_id'] . ', ' . $inspection['id'] . ')">' . $inspection['barcode'] . '</a>';
 				// $item = $inspection['barcode'];
 				$cell = array('data' => $inspection['id'], 'style' => 'display: none !important;');
 				$this->table->add_row($cell, $item, $loca, $inspection['CreatorfirstName'].' '.$inspection['CreatorlastName'], $inspection['CreateDate'], $inspection['StartDate'], $inspection['Completion'], $inspection['firstName'].' '.$inspection['lastName'], $inspection['InspectionStatus']);
@@ -372,7 +391,6 @@ class Dashboard extends CI_Controller {
 				{
 					$insp[] = $inspection['id'];
 				}
-
 				$inspections = $this->resources_model->get_inspections_statuses($this->session->userdata('user_parent'), $insp);
 
 				if (!empty($inspections))
@@ -388,11 +406,6 @@ class Dashboard extends CI_Controller {
 							$graphdata[9][$inspection['inspection_id']] = 1; //Non-Compliant
 					}
 
-					foreach ($inspections as $inspection)
-					{
-						if (!isset($graphdata[1][$inspection['inspection_id']]) && !isset($graphdata[9][$inspection['inspection_id']]))
-							$graphdata[1][$inspection['inspection_id']] = 1;
-					}
 
 					$total = 0;
 
@@ -401,7 +414,13 @@ class Dashboard extends CI_Controller {
 						unset($graphdata[1][$insp_id]);
 						$total++;
 					}
-					
+
+					foreach ($insp as $inspect)
+					{
+						if (!isset($graphdata[1][$inspect]) && !isset($graphdata[9][$inspect]))
+							$graphdata[1][$inspect] = 1;
+					}
+
 					foreach ($graphdata[1] as $comp)
 						$total++;
 
@@ -506,9 +525,8 @@ class Dashboard extends CI_Controller {
 
 					foreach ($apertdata as $doorinfo)
 					{
-						
-
-						switch ($graph_id) {
+						switch ($graph_id)
+						{
 							case 'inventorychart':
 							case 'inventorychart1':
 								if ($doorinfo['rating'] == 0)
@@ -531,8 +549,33 @@ class Dashboard extends CI_Controller {
 								$graphdata[$doorinfo['material']] = isset($graphdata[$doorinfo['material']]) ? ++$graphdata[$doorinfo['material']] : 1;		
 							break;
 						}
-						
 					}
+
+					switch ($graph_id)
+					{
+						case 'inventorychart':
+						case 'inventorychart1':
+							for ($i=1; $i < 7; $i++)
+								if (!isset($graphdata[$i]))
+									$graphdata[$i] = 0;
+						break;
+						case 'inventorychart2':
+							for ($i=1; $i < 5; $i++)
+								if (!isset($graphdata[$i]))
+									$graphdata[$i] = 0;
+						break;
+						case 'inventorychart3':
+							for ($i=1; $i < 3; $i++)
+								if (!isset($graphdata[$i]))
+									$graphdata[$i] = 0;
+						break;
+						case 'inventorychart4':
+							for ($i=1; $i < 7; $i++)
+								if (!isset($graphdata[$i]))
+									$graphdata[$i] = 0;
+						break;
+					}
+
 					ksort($graphdata);
 
 					foreach ($graphdata as $key => $val)
@@ -562,7 +605,8 @@ class Dashboard extends CI_Controller {
 							renderer:$.jqplot.BarRenderer,
 							rendererOptions: {
 								varyBarColor: true
-							}
+							},
+							pointLabels: {show:true}
 						},
 						axes: {
 						  xaxis: {
@@ -578,7 +622,7 @@ class Dashboard extends CI_Controller {
 							  labelPosition: 'start'
 							}
 						  }
-						}
+						},
 					}";
 				}
 			break;
@@ -593,7 +637,8 @@ class Dashboard extends CI_Controller {
 				{
 					foreach ($inspdata as $inspection)
 					{
-						foreach ($inspection as  $YearMonth => $value) {
+						foreach ($inspection as  $YearMonth => $value)
+						{
 							if (!empty($value['value']))
 							{
 								$colorcodes = json_decode($value['value']);
@@ -1098,6 +1143,12 @@ class Dashboard extends CI_Controller {
 		foreach ($inspections as $inspection)
 		{
 			unset($inspdata, $dff);
+
+			$inspdata = $this->resources_model->get_aperture_info_by_inspection_id($inspection['id']);
+			$inspection['wall_Rating'] 	= $inspdata['wall_Rating'];
+			$inspection['smoke_Rating'] = $inspdata['smoke_Rating'];
+			$inspection['material'] 	= $inspdata['material'];
+			$inspection['rating'] 		= $inspdata['rating'];
 			//filter reviews by Customize button
 			if(isset($filter_data['start_date']) && !empty($filter_data['start_date']))
 				if (!empty($inspection['CreateDate']) && strtotime($inspection['CreateDate']) < strtotime($filter_data['start_date']))
@@ -1121,7 +1172,8 @@ class Dashboard extends CI_Controller {
 
 			if(isset($filter_data['criteria']) && !empty($filter_data['criteria']))
 			{
-				$inspdata = $this->resources_model->get_aperture_info_by_inspection_id($inspection['id']);
+				if (!isset($inspdata) or empty($inspdata))
+					$inspdata = $this->resources_model->get_aperture_info_by_inspection_id($inspection['id']);
 
 				foreach ($filter_data['criteria'] as $aperture_param => $values)
 				{
@@ -1235,7 +1287,7 @@ class Dashboard extends CI_Controller {
 				if (count($inspstats) > 1 && isset($inspstats[1]))
 					unset($inspstats[1]);
 
-				if (!isset($inspstats[$statuss[$filter_data['graph']['graphdata']]]))
+				if ($filter_data['graph']['graphdata'] != 'Non-Compliant Doors' && !isset($inspstats[$statuss[$filter_data['graph']['graphdata']]]))
 					continue;
 			}
 			if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('inventorychart', 'inventorychart1', 'inventorychart2', 'inventorychart3', 'inventorychart4')))
@@ -1314,6 +1366,7 @@ class Dashboard extends CI_Controller {
 						if (!isset($cached_data[$inspec_id][date('Y') . '-' . $m])) //CALC AND MAKE CACHE IF ABSENT
 						{
 							$histdata = $this->history_model->get_data_by_date_and_type('dff', $inspec_id, strtotime(date('Y') . '-' . $m . '-' . idate('t',strtotime(date('Y') . '-' . $m)) . ' 23:59:59'));
+
 							if (empty($histdata))
 								$val = '';
 							else
@@ -1325,9 +1378,9 @@ class Dashboard extends CI_Controller {
 								foreach ($histdata as $element)															//concat all colorcoded values
 								{
 									$fieldinfo = json_decode($element['new_val']);
-									if (empty($fieldinfo->value))
+									if (empty($fieldinfo->value) && isset($fieldinfo->FormFields_idFormFields))
 										unset($val[$fieldinfo->FormFields_idFormFields]);
-									elseif (isset($cc[$fieldinfo->FormFields_idFormFields]))
+									elseif (isset($fieldinfo->FormFields_idFormFields) && isset($cc[$fieldinfo->FormFields_idFormFields]))
 										$val[$fieldinfo->FormFields_idFormFields]=$cc[$fieldinfo->FormFields_idFormFields];
 								}
 
@@ -1393,7 +1446,7 @@ class Dashboard extends CI_Controller {
 								foreach ($histdata as $element)															//concat all colorcoded values
 								{
 									$fieldinfo = json_decode($element['new_val']);
-									if (empty($fieldinfo->value))
+									if (empty($fieldinfo->value) && isset($fieldinfo->FormFields_idFormFields))
 										unset($val[$fieldinfo->FormFields_idFormFields]);
 									elseif (isset($cc[$fieldinfo->FormFields_idFormFields]))
 										$val[$fieldinfo->FormFields_idFormFields]=$cc[$fieldinfo->FormFields_idFormFields];
@@ -1431,9 +1484,9 @@ class Dashboard extends CI_Controller {
 								foreach ($histdata as $element)															//concat all colorcoded values
 								{
 									$fieldinfo = json_decode($element['new_val']);
-									if (empty($fieldinfo->value))
+									if (empty($fieldinfo->value) && isset($fieldinfo->FormFields_idFormFields))
 										unset($val[$fieldinfo->FormFields_idFormFields]);
-									elseif (isset($cc[$fieldinfo->FormFields_idFormFields]))
+									elseif (isset($fieldinfo->FormFields_idFormFields) && isset($cc[$fieldinfo->FormFields_idFormFields]))
 										$val[$fieldinfo->FormFields_idFormFields]=$cc[$fieldinfo->FormFields_idFormFields];
 								}
 

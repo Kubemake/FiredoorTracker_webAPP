@@ -207,25 +207,33 @@
 		makegraph('<?=$selected_graph?>');
 	});
 
-	$('.graphacceptor').on('click', function(){
-		id = $(this).attr('id');
-		makegraph(id);
-		if (id =='activityreport' || id =='activityreport1' || id =='activityreport2' || id =='activityreport3')
-		{
-			$.jqplot.postDrawHooks.push(function() {       
+	$('.graphacceptor').on('click', function(e){
+		gid = $(this).prop('id');
+		makegraph(gid);
+		
+		$.jqplot.postDrawHooks.push(function() {
+			if (gid =='activityreport' || gid =='activityreport1' || gid =='activityreport2' || gid =='activityreport3')
+			{
 				newlegendtable = $('table.jqplot-table-legend tbody');
 				newlegendtable.find('.jqplot-table-legend-addon').each(function(){
 					$(this).remove();
 				});
-		        newlegendtable.prepend('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Users: <?=$totalusers?> / <?=$activeusers?></td></tr>');
+		        newlegendtable.prepend('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Users: <?=$activeusers?> / <?=$totalusers?></td></tr>');
 		        newlegendtable.append('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Total reviews: <?=$totalinspections?></td></tr>');
-		    });
-		};
+			}
+			else
+			{
+				newlegendtable = $('table.jqplot-table-legend tbody');
+				newlegendtable.find('.jqplot-table-legend-addon').each(function(){
+					$(this).remove();
+				});
+			}
+		});
 	});
 
-	function makegraph(id)
+	function makegraph(graph_id)
 	{
-		switch (id)
+		switch (graph_id)
 		{
 			case 'compliance':
 				title = 'Compliance Report';
@@ -325,31 +333,32 @@
 		}
 
 		$('#charttitle').html(title);
-		showgraph(id);
+		showgraph(graph_id);
 		$('.graphacceptor').show();
 
 		
 		$('#chartacceptor').bind('jqplotDataClick', function (ev, seriesIndex, pointIndex, data)
 		{
-			if (id == 'compliance' && data[0] == 'Non-Compliant Doors')
+			graph_id = $('#graphpid').val();
+
+			if (graph_id == 'compliance' && data[0] == 'Non-Compliant Doors')
 			{
 				showgraph('compliance2');
-				// id = 'compliance2';
+				// graph_id = 'compliance2';
 			}
-			else if (id == 'compliance' && data[0] != 'Non-Compliant Doors')
+			else if (graph_id == 'compliance' && data[0] != 'Non-Compliant Doors')
 			{
 				$('#graphdata').val(data[0]);
 				$('#graphform').submit();
 			}
 
-			else if (id == 'compliance2')
+			else if (graph_id == 'compliance2')
 			{
 		   		$('#graphdata').val(data[0]);
 				$('#graphform').submit();
 			}
-			else if (id == 'inventorychart' || id == 'inventorychart1' || id == 'inventorychart2' || id == 'inventorychart3' || id == 'inventorychart4')
+			else if (graph_id == 'inventorychart' || graph_id == 'inventorychart1' || graph_id == 'inventorychart2' || graph_id == 'inventorychart3' || graph_id == 'inventorychart4')
 			{
-
 		   		$('#graphdata').val(data[0]);
 				$('#graphform').submit();
 			}
@@ -360,13 +369,13 @@
 		});
 	}
 
-	function showgraph(graph_id)
+	function showgraph(show_graph_id)
 	{
-		$('#graphpid').val(graph_id);
+		$('#graphpid').val(show_graph_id);
 		$.ajax({
 			url: '/dashboard/ajax_make_graph',
 			type: 'POST',
-			data: {graph_id: graph_id},
+			data: {graph_id: show_graph_id},
 			success: function(result) {
 				// console.log(result);
 				if (result == '<scr' + 'ipt type="text/javascript">window.location = "/user/login"</scr' + 'ipt>')

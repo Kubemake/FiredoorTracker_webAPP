@@ -142,12 +142,14 @@ class User_model  extends CI_Model
 		return $bid;
 	}
 
-	function get_all_buildings()
+	function get_all_buildings($user_parent = FALSE)
 	{
+		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
+		
 		$this->db->select('b.*');
 		$this->db->from('UserBuildings ub');
 		$this->db->join('Buildings b', 'b.idBuildings = ub.Buildings_idBuildings');
-		$this->db->where('ub.Users_idUsers', $this->session->userdata('user_parent'));
+		$this->db->where('ub.Users_idUsers', $parent);
 		$this->db->where('b.deleted', 0);
 		$result = $this->db->get()->result_array();
 
@@ -185,6 +187,17 @@ class User_model  extends CI_Model
 			$output[$value['idUsers']] = $value;
 
 		return $output;
+	}
+
+	function get_all_users_by_role($role_id, $user_parent = FALSE)
+	{
+		$parent = $user_parent ? $user_parent : $this->session->userdata('user_parent'); //use director id
+
+		$this->db->where('role', $role_id);
+		$this->db->where('parent', $parent);
+		$result = $this->db->get('Users')->result_array();
+
+		return $result;
 	}
 
 }

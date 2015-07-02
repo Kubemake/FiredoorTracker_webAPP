@@ -29,7 +29,8 @@ class Tests extends CI_Controller {
 		$this->_show('3. empty password', 						array('type' => 'auth', 'login' => 'any@login@err',		'password' => ''));
 		$this->_show('4. wrong login', 							array('type' => 'auth', 'login' => 'any@login@err',		'password' => '124'));
 		$this->_show('5. wrong password', 						array('type' => 'auth', 'login' => 'm@test.nor',		'password' => '1241'));
-		$out = $this->_show('6. normal login', 					array('type' => 'auth', 'login' => 'm@pb.nor',		'password' => 'pb'));
+		$this->_show('6. expired', 								array('type' => 'auth', 'login' => 'lic@test.nor',		'password' => '124'));
+		$out = $this->_show('7. normal login', 					array('type' => 'auth', 'login' => 'm@test.nor',		'password' => '124'));
 
 		$token = $out->token;
 
