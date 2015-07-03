@@ -22,22 +22,15 @@
 }(this, function () {
 
 (function ($) {
-  $.fn.selectpicker.defaults = {
-    noneSelectedText: 'Nothing selected',
-    noneResultsText: 'No results match {0}',
-    countSelectedText: function (numSelected, numTotal) {
-      return (numSelected == 1) ? "{0} item selected" : "{0} items selected";
-    },
-    maxOptionsText: function (numAll, numGroup) {
-      return [
-        (numAll == 1) ? 'Limit reached ({n} item max)' : 'Limit reached ({n} items max)',
-        (numGroup == 1) ? 'Group limit reached ({n} item max)' : 'Group limit reached ({n} items max)'
-      ];
-    },
-    selectAllText: 'Select All',
-    deselectAllText: 'Deselect All',
-    multipleSeparator: ', '
-  };
+    $.fn.selectpicker.defaults = {
+        noneSelectedText: 'چیزی انتخاب نشده است',
+        noneResultsText: 'هیج مشابهی برای {0} پیدا نشد',
+        countSelectedText: "{0} از {1} مورد انتخاب شده",
+        maxOptionsText: ['بیشتر ممکن نیست {حداکثر {n} عدد}', 'بیشتر ممکن نیست {حداکثر {n} عدد}'],
+        selectAllText: 'انتخاب همه',
+        deselectAllText: 'انتخاب هیچ کدام',
+        multipleSeparator: ', '
+    };
 })(jQuery);
 
 

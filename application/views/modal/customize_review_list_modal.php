@@ -1,6 +1,8 @@
 <!-- Customize Review List Modal -->
 <link rel="stylesheet" type="text/css" href="/js/bootstrap-dropdowns_enhancement/dropdowns-enhancement.min.css">
 <script type="text/javascript" src="/js/bootstrap-dropdowns_enhancement/dropdowns-enhancement.js"></script>
+<link href="/js/bootstrap-datepicker/datepicker.css" rel="stylesheet">
+<script type="text/javascript" src="/js/bootstrap-datepicker/bootstrap-datepicker.js"></script>
 <div class="modal fade" id="CustomizeReviewListModal" tabindex="-1" role="dialog" aria-labelledby="CustomizeReviewListModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">

@@ -74,12 +74,6 @@
 <script type="text/javascript">
 	$(function () {
 		$('.selectpicker').selectpicker();
-		$('#start_date').datepicker({format:'yyyy-mm-dd'}).on('changeDate', function(){
-			$('#start_date').datepicker('hide');
-		});
-		$('#completion_date').datepicker({format:'yyyy-mm-dd'}).on('changeDate', function(){
-			$('#completion_date').datepicker('hide');
-		});
 	});
 
 	$('.locationselect ul li a').on('click', function(){

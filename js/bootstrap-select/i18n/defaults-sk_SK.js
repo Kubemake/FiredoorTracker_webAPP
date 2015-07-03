@@ -23,19 +23,12 @@
 
 (function ($) {
   $.fn.selectpicker.defaults = {
-    noneSelectedText: 'Nothing selected',
-    noneResultsText: 'No results match {0}',
-    countSelectedText: function (numSelected, numTotal) {
-      return (numSelected == 1) ? "{0} item selected" : "{0} items selected";
-    },
-    maxOptionsText: function (numAll, numGroup) {
-      return [
-        (numAll == 1) ? 'Limit reached ({n} item max)' : 'Limit reached ({n} items max)',
-        (numGroup == 1) ? 'Group limit reached ({n} item max)' : 'Group limit reached ({n} items max)'
-      ];
-    },
-    selectAllText: 'Select All',
-    deselectAllText: 'Deselect All',
+    noneSelectedText: 'Vyberte zo zoznamu',
+    noneResultsText: 'Pre výraz {0} neboli nájdené žiadne výsledky',
+    countSelectedText: 'Vybrané {0} z {1}',
+    maxOptionsText: ['Limit prekročený ({n} {var} max)', 'Limit skupiny prekročený ({n} {var} max)', ['položiek', 'položka']],
+    selectAllText: 'Vybrať všetky',
+    deselectAllText: 'Zrušiť výber',
     multipleSeparator: ', '
   };
 })(jQuery);

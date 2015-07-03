@@ -11,8 +11,11 @@
 		<?/*<link rel="stylesheet" type="text/css" href="/css/font-awesome.min.css">*/?>
 		<link rel="stylesheet" type="text/css" href="/css/style.css">
 
+		
+		<link rel="stylesheet" type="text/css" href="/js/bootstrap-select/css/bootstrap-select.css">
+		
 		<?=@$styles?>
-
+		
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 

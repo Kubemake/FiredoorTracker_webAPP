@@ -301,14 +301,6 @@ class Dashboard extends CI_Controller {
 		$header['styles']  = addDataTable('css');
 		$footer['scripts'] = addDataTable('js');
 
-		//nice select
-		$header['styles']  .= '<link rel="stylesheet" type="text/css" href="/js/bootstrap-select/css/bootstrap-select.css">';
-		$footer['scripts'] .= '<script type="text/javascript" src="/js/bootstrap-select/bootstrap-select.js"></script>';
-
-		//datepicker
-		$header['styles']  .= '<link href="/js/bootstrap-datepicker/datepicker.css" rel="stylesheet">';
-		$footer['scripts'] .= '<script type="text/javascript" src="/js/bootstrap-datepicker/bootstrap-datepicker.js"></script>';
-		
 		//jqplot
 		$header['styles']  .= '<link rel="stylesheet" type="text/css" href="/js/jqplot/jquery.jqplot.css" />';
 		$footer['scripts'] .= '<script type="text/javascript" src="/js/jqplot/jquery.jqplot.min.js"></script>';

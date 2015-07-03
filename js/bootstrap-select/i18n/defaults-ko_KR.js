@@ -23,19 +23,19 @@
 
 (function ($) {
   $.fn.selectpicker.defaults = {
-    noneSelectedText: 'Nothing selected',
-    noneResultsText: 'No results match {0}',
+    noneSelectedText: '항목을 선택해주세요',
+    noneResultsText: '{0} 검색 결과가 없습니다',
     countSelectedText: function (numSelected, numTotal) {
-      return (numSelected == 1) ? "{0} item selected" : "{0} items selected";
+      return "{0}개를 선택하였습니다";
     },
     maxOptionsText: function (numAll, numGroup) {
       return [
-        (numAll == 1) ? 'Limit reached ({n} item max)' : 'Limit reached ({n} items max)',
-        (numGroup == 1) ? 'Group limit reached ({n} item max)' : 'Group limit reached ({n} items max)'
+        '{n}개까지 선택 가능합니다',
+        '해당 그룹은 {n}개까지 선택 가능합니다'
       ];
     },
-    selectAllText: 'Select All',
-    deselectAllText: 'Deselect All',
+    selectAllText: '전체선택',
+    deselectAllText: '전체해제',
     multipleSeparator: ', '
   };
 })(jQuery);

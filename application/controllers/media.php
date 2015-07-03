@@ -87,9 +87,6 @@ class Media extends CI_Controller {
 		$header['styles']  .= '<link rel="stylesheet" type="text/css" href="/js/lightbox/dist/ekko-lightbox.min.css">' . "\n";
 		$footer['scripts'] .= '<script type="text/javascript" src="/js/lightbox/dist/ekko-lightbox.min.js"></script>' . "\n";
 		
-		//nice select
-		$header['styles']  .= '<link rel="stylesheet" type="text/css" href="/js/bootstrap-select/css/bootstrap-select.css">' . "\n";
-		$footer['scripts'] .= '<script type="text/javascript" src="/js/bootstrap-select/bootstrap-select.js"></script>' . "\n";
 		
 		//video player
 		$footer['scripts'] .= '<script type="text/javascript" src="/js/flowplayer/flowplayer-3.2.2.min.js"></script>' . "\n";

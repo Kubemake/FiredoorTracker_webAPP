@@ -13,7 +13,10 @@
 <div id="throbber"></div>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap-select/bootstrap-select.js"></script>
+
 <?=@$scripts?>
+
 <script type="text/javascript">
 	$(document).ready(function() {
 		ttl = location.href.replace('http://'+location.host,'');

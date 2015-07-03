@@ -1,5 +1,4 @@
 <!-- Show Inspection Modal -->
-<link rel="stylesheet" type="text/css" href="/js/bootstrap-dropdowns_enhancement/dropdowns-enhancement.min.css">
 <script type="text/javascript" src="/js/bootstrap-dropdowns_enhancement/dropdowns-enhancement.js"></script>
 <div class="modal fade" id="ShowInspectionModal" tabindex="-1" role="dialog" aria-labelledby="ShowInspectionModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-md">
