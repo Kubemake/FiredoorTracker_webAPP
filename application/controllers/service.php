@@ -460,13 +460,13 @@ class Service extends CI_Controller {
 					continue;
 				}
 				//show only last revision
-				if (empty($output[$inspection['aperture_id']]))
+				// if (empty($output[$inspection['aperture_id']]))
 					$output[$inspection['aperture_id']] = $inspection;
-				else
-				{
-					if ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
-						$output[$inspection['aperture_id']] = $inspection;
-				}
+				// else
+				// {
+					// if ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
+						// $output[$inspection['aperture_id']] = $inspection;
+				// }
 			}
 			$userData['inspections'] = $output;
 
@@ -1598,7 +1598,7 @@ class Service extends CI_Controller {
 		if (!empty($available_review))
 		{
 			$available_review['id'] = $available_review['idInspections'];
-			unset($available_review['Completion'], $available_review['StartDate'], $available_review['revision'], $available_review['Buildings_idBuildings'], $available_review['idInspections'], $available_review['deleted']);
+			unset($available_review['Completion'], $available_review['StartDate'], $available_review['Buildings_idBuildings'], $available_review['idInspections'], $available_review['deleted']);
 
 			$available_review['building_name'] = $building_name;
 			$available_review['location_name'] = $location_name;

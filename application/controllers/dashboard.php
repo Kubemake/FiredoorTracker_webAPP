@@ -59,7 +59,10 @@ class Dashboard extends CI_Controller {
 					$avail = $this->resources_model->get_inspection_by_aperture_id($postdata['aperture']);
 
 					if (!empty($avail))
-						$adddata['revision'] = $avail['revision'] + 1;
+					{
+						$header['msg'] = msg('warning', 'Review with selected Door Id allready exist!');
+						break;
+					}
 
 					$adddata['Creator'] = $this->session->userdata('user_id');
 					$adddata['InspectionStatus'] = 'New';
@@ -348,23 +351,25 @@ class Dashboard extends CI_Controller {
 		if (!$inspection_id = $this->input->post('id')) return '';
 		if (!$inspection_state = $this->input->post('state')) return '';
 
-		if ($inspection_state == 'Reinspect')
+		switch ($inspection_state)
 		{
-			$inspectiondata = $this->resources_model->get_inspection_info_by_inspection_id($inspection_id);
-			$adddata['idAperture'] 		 = $inspectiondata['idAperture'];
-			$adddata['InspectionStatus'] = $inspection_state;
-			$adddata['Creator'] 		 = $this->session->userdata('user_id');
-			$adddata['CreateDate'] 		 = date('Y-m-d');
-			$adddata['revision']		 = $inspectiondata['revision']+1;
-			$adddata['UserId']			 = $inspectiondata['UserId'];
+		 	case 'Complete':
+		 		$upddata['Completion'] 		 = date('Y-m-d');
+		 	break;
+	 	
+		 	default:
+	 		break;
+		 }
 
-			$iid = $this->resources_model->add_inspection($adddata);
+		$upddata = array();
 
-			$this->history_library->saveInspections(array('line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
-			return $iid;
-		}
+		$upddata['InspectionStatus'] = $inspection_state;
+		
+		$this->load->library('History_library');
+		
+		$this->history_library->saveInspections(array('line_id' =>$inspection_id, 'new_val' => json_encode($upddata), 'type' => 'edit'));
 
-		return $this->resources_model->update_inspection_state($inspection_id, $inspection_state);
+		return $this->resources_model->update_inspection($inspection_id, $upddata);
 	}
 
 	function ajax_review_delete()
@@ -385,7 +390,7 @@ class Dashboard extends CI_Controller {
 		switch ($graph_id)
 		{
 			case 'compliance':
-				$inspections 	= $this->_build_reviews_list(FALSE, TRUE);
+				$inspections 	= $this->_build_reviews_list(TRUE);
 				$insp = array();
 				foreach ($inspections as $inspection)
 				{
@@ -449,7 +454,8 @@ class Dashboard extends CI_Controller {
 			break;
 
 			case 'compliance2':
-				$inspections 	= $this->_build_reviews_list(FALSE, TRUE);
+				$inspections 	= $this->_build_reviews_list(TRUE);
+
 				$insp = array();
 				foreach ($inspections as $inspection)
 				{
@@ -508,7 +514,7 @@ class Dashboard extends CI_Controller {
 			case 'inventorychart3':
 			case 'inventorychart4':
 
-				$inspections 	= $this->_build_reviews_list(FALSE, TRUE);
+				$inspections 	= $this->_build_reviews_list(TRUE);
 				
 				$apertures = array();
 				foreach ($inspections as $inspection)
@@ -1125,7 +1131,7 @@ class Dashboard extends CI_Controller {
 		exit;
 	}
 
-	function _build_reviews_list($revision_no_filter = FALSE, $skip_graph = FALSE)
+	function _build_reviews_list($skip_graph = FALSE)
 	{
 		$output = array();
 
@@ -1138,7 +1144,8 @@ class Dashboard extends CI_Controller {
 		$userlocation = $buildings;
 
 		$filter_data = $this->session->userdata('filters_array');
-
+// echo '<pre>';
+// print_r($filter_data);die();
 		//prepare filter for AHJ+ UAR report
 		if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('ahjreport', 'ahjreport1')))
 		{
@@ -1282,7 +1289,7 @@ class Dashboard extends CI_Controller {
 			}
 		}
 		//end prepare
-		
+
 		foreach ($inspections as $inspection)
 		{
 			unset($inspdata, $dff);
@@ -1298,7 +1305,7 @@ class Dashboard extends CI_Controller {
 					continue;
 
 			if(isset($filter_data['end_date']) && !empty($filter_data['end_date']))
-				if (!empty($inspection['Completion']) && strtotime($inspection['Completion']) < strtotime($filter_data['end_date']))
+				if (empty($inspection['Completion']) or strtotime($inspection['Completion']) < strtotime($filter_data['end_date']))
 					continue;
 
 			if(isset($filter_data['users']) && !empty($filter_data['users']) && !in_array('all', $filter_data['users']))
@@ -1330,10 +1337,7 @@ class Dashboard extends CI_Controller {
 			{
 				if (!isset($dff))
 					$dff = $this->resources_model->get_door_form_fields($inspection['id']);
-				// echo '<pre>';
-				// print_r($filter_data);
-				// echo '<pre>';
-				// print_r($dff);
+
 				foreach ($filter_data['FrameReview'] as $fieldname => $fieldid)
 				{
 					if (!isset($dff[$fieldid]))
@@ -1404,7 +1408,7 @@ class Dashboard extends CI_Controller {
 				}
 			}
 
-			if (!$skip_graph && isset($filter_data['graph']) && ($filter_data['graph']['graphpid'] == 'compliance' or $filter_data['graph']['graphpid'] == 'compliance2'))
+			if (!$skip_graph && isset($filter_data['graph']) && ($filter_data['graph']['graphpid'] == 'compliance' or $filter_data['graph']['graphpid'] == 'compliance2') && $filter_data['graph']['graphdata'] != 'Non-Compliant Doors')
 			{
 				$ins = $this->resources_model->get_inspections_statuses($this->session->userdata('user_parent'), $inspection['id']);
 
@@ -1426,7 +1430,7 @@ class Dashboard extends CI_Controller {
 				if (count($inspstats) > 1 && isset($inspstats[1]))
 					unset($inspstats[1]);
 
-				if ($filter_data['graph']['graphdata'] != 'Non-Compliant Doors' && !isset($inspstats[$statuss[$filter_data['graph']['graphdata']]]))
+				if (!isset($inspstats[$statuss[$filter_data['graph']['graphdata']]]))
 					continue;
 			}
 			
@@ -1515,15 +1519,15 @@ class Dashboard extends CI_Controller {
 			else
 				$inspection['location'] = '';
 
-			if ($revision_no_filter)
+			// if ($revision_no_filter)
 				$output[$inspection['aperture_id']] = $inspection;
-			else
-			{
-				if (!isset($output[$inspection['aperture_id']]))
-					$output[$inspection['aperture_id']] = $inspection;
-				elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
-					$output[$inspection['aperture_id']] = $inspection;
-			}
+			// else
+			// {
+			// 	if (!isset($output[$inspection['aperture_id']]))
+			// 		$output[$inspection['aperture_id']] = $inspection;
+			// 	elseif ($output[$inspection['aperture_id']]['revision'] < $inspection['revision'])
+			// 		$output[$inspection['aperture_id']] = $inspection;
+			// }
 		}/*die();*/
 		return $output;
 	}

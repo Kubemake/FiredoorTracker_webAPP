@@ -409,7 +409,7 @@
 			type: 'POST',
 			data: {graph_id: show_graph_id},
 			success: function(result) {
-				// console.log(result);
+				console.log(result);
 				if (result == '<scr' + 'ipt type="text/javascript">window.location = "/user/login"</scr' + 'ipt>')
 				{
 					window.location = "/user/login";
