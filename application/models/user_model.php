@@ -195,6 +195,7 @@ class User_model  extends CI_Model
 
 		$this->db->where('role', $role_id);
 		$this->db->where('parent', $parent);
+		$this->db->where('deleted', 0);
 		$result = $this->db->get('Users')->result_array();
 
 		return $result;

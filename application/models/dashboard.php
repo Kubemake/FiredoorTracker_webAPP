@@ -1139,150 +1139,6 @@ class Dashboard extends CI_Controller {
 
 		$filter_data = $this->session->userdata('filters_array');
 
-		//prepare filter for AHJ+ UAR report
-		if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('ahjreport', 'ahjreport1')))
-		{
-			$codes = $this->config->item('door_state');
-
-			$query['type'] = 'ahjreport1';
-			$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-			$inspectionsdata = $this->_get_report_cache($query); //take or make and take data for report using params above
-
-			if (!empty($inspectionsdata))
-			{
-				foreach ($inspectionsdata as $insp_id => $inspection)
-				{
-					foreach ($inspection as  $YearMonth => $value)
-					{
-						if (!empty($value['value']))
-						{
-							$colorcodes = json_decode($value['value']);
-							foreach ($colorcodes as $code)
-								$graphdata_ahjreport[$code][date('F', strtotime($YearMonth))][] = $insp_id;
-						}
-					}
-				}
-			}
-		}
-
-		if (!$skip_graph && isset($filter_data['graph']) && $filter_data['graph']['graphpid'] == 'ahjreport2')
-		{
-			$codes = $this->config->item('door_state');
-
-			$query['type'] = 'ahjreport2';
-			$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-			$inspectionsdata = $this->_get_report_cache($query); //take or make and take data for report using params above
-
-			if (!empty($inspectionsdata))
-			{
-				foreach ($inspectionsdata as $insp_id => $inspection)
-				{
-					foreach ($inspection as  $YearMonth => $value)
-					{
-						if (!empty($value['value']))
-						{
-							$colorcodes = json_decode($value['value']);
-							foreach ($colorcodes as $code)
-								$graphdata_ahjreport[$code][$YearMonth][] = $insp_id;
-						}
-					}
-				}
-				$ticks = array();
-				for ($i=1; $i <= 4; $i++)
-					$ticks[] = 'Q' . $i . ' - ' . (date('Y')-1) ;
-				for ($i=1; $i <= ceil(date('m')/3); $i++)
-					$ticks[] = 'Q' . $i . ' - ' . date('Y');
-			}
-		}
-
-		if (!$skip_graph && isset($filter_data['graph']) && $filter_data['graph']['graphpid'] == 'ahjreport3')
-		{
-			$codes = $this->config->item('door_state');
-
-			$query['type'] = 'ahjreport3';
-			$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-			$inspectionsdata = $this->_get_report_cache($query); //take or make and take data for report using params above
-
-			if (!empty($inspectionsdata))
-			{
-				foreach ($inspectionsdata as $insp_id => $inspection)
-				{
-					$minyear = date('Y');
-					foreach ($inspection as  $YearMonth => $value) {
-						// echo $YearMonth . "\r\n";
-						$minyear = ($YearMonth < $minyear) ? $YearMonth : $minyear;
-						// $minyear--;
-						if (!empty($value['value']))
-						{
-							$colorcodes = json_decode($value['value']);
-							foreach ($colorcodes as $code)
-								$graphdata_ahjreport[$code][$YearMonth][] = $insp_id;
-						}
-					}
-				}
-
-				$ticks = array();
-				for ($i=$minyear; $i <= date('Y'); $i++)
-					$ticks[] = $i;
-			}
-		}
-
-		if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('activityreport', 'activityreport1', 'activityreport2', 'activityreport3')))
-		{
-			$query['type'] = 'activityreport';
-			$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-			$inspectionsdata = $this->_get_report_cache($query); //take or make and take data for report using params above
-			$graph_id = $filter_data['graph']['graphpid'];
-
-			if (!empty($inspectionsdata))
-			{
-				$this->load->model('user_model');
-					$dbusers = $this->user_model->get_users_by_parent($this->session->userdata('user_parent'));
-
-				foreach ($inspectionsdata as $insp_id => $inspection)
-				{
-					foreach ($inspection as  $YearMonth => $value)
-					{
-						if (!empty($value['value']))
-						{
-							$cdate = date('Y-m-d', $YearMonth);
-							$graphformat = '%v';
-							
-							if ($graph_id == 'activityreport2')
-							{
-								$cdate = date('Y-m', $YearMonth);
-								$graphformat = '%b-%Y';
-							}
-							if ($graph_id == 'activityreport3')
-							{
-								$cdate = date('Y', $YearMonth);
-								$graphformat = '%Y';
-							}
-
-							$users = json_decode($value['value']);
-							foreach ($users as $user)
-							{
-								$curuser = $dbusers[$user]['firstName'] .' ' . $dbusers[$user]['lastName'];
-								$graphdata_activityreport[$curuser][$cdate][] = $insp_id;
-							}
-						}
-					}
-				}
-
-				$ticks = array();
-				foreach ($graphdata_activityreport as $key => &$daysz)
-				{
-					ksort($daysz);
-					$dayticks = array();
-					foreach ($daysz as $datkey => $value)
-						$dayticks[] = $value;
-					$ticks[] = $dayticks;
-				}
-				$graphdata_activityreport = $ticks;
-			}
-		}
-		//end prepare
-		
 		foreach ($inspections as $inspection)
 		{
 			unset($inspdata, $dff);
@@ -1292,6 +1148,7 @@ class Dashboard extends CI_Controller {
 			$inspection['smoke_Rating'] = $inspdata['smoke_Rating'];
 			$inspection['material'] 	= $inspdata['material'];
 			$inspection['rating'] 		= $inspdata['rating'];
+
 			//filter reviews by Customize button
 			if(isset($filter_data['start_date']) && !empty($filter_data['start_date']))
 				if (!empty($inspection['CreateDate']) && strtotime($inspection['CreateDate']) < strtotime($filter_data['start_date']))
@@ -1404,6 +1261,7 @@ class Dashboard extends CI_Controller {
 				}
 			}
 
+
 			if (!$skip_graph && isset($filter_data['graph']) && ($filter_data['graph']['graphpid'] == 'compliance' or $filter_data['graph']['graphpid'] == 'compliance2'))
 			{
 				$ins = $this->resources_model->get_inspections_statuses($this->session->userdata('user_parent'), $inspection['id']);
@@ -1412,7 +1270,7 @@ class Dashboard extends CI_Controller {
 				$statuss = array_flip($statuss);
 
 				if (empty($ins))
-					$ins[0]['status'] = 1;//continue;
+					$ins[0]['status'] = 1;
 
 				$inspstats = array();
 				foreach ($ins as $in)
@@ -1423,13 +1281,15 @@ class Dashboard extends CI_Controller {
 					$inspstats[$in['status']] = 1;
 				}
 
+				if (empty($inspstats))
+					$inspstats[1] = 1;
+
 				if (count($inspstats) > 1 && isset($inspstats[1]))
 					unset($inspstats[1]);
 
 				if ($filter_data['graph']['graphdata'] != 'Non-Compliant Doors' && !isset($inspstats[$statuss[$filter_data['graph']['graphdata']]]))
 					continue;
 			}
-			
 			if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('inventorychart', 'inventorychart1', 'inventorychart2', 'inventorychart3', 'inventorychart4')))
 			{
 				if (!isset($inspdata) or empty($inspdata))
@@ -1453,47 +1313,6 @@ class Dashboard extends CI_Controller {
 							continue 2;
 					break;
 				}
-			}
-			
-			if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('ahjreport', 'ahjreport1')))
-			{
-				$month  = explode(':',$filter_data['graph']['graphdata']);
-				$status = $month[0]+1;
-				$month  = $month[1]+1;
-				$month  = (strlen($month) < 2) ? '0' . $month : $month;
-
-				if (!in_array($inspection['id'], $graphdata_ahjreport[$codes[$status]][date('F', strtotime(date('Y') . '-' . $month . '-02 23:59:59'))]))
-					continue;
-			}
-
-			if (!$skip_graph && isset($filter_data['graph']) && $filter_data['graph']['graphpid'] == 'ahjreport2')
-			{
-				$quart  = explode(':',$filter_data['graph']['graphdata']);
-				$status = $quart[0]+1;
-				$quart  = $quart[1];
-
-				if (!in_array($inspection['id'], $graphdata_ahjreport[$codes[$status]][$ticks[$quart]]))
-					continue;
-			}
-			
-			if (!$skip_graph && isset($filter_data['graph']) && $filter_data['graph']['graphpid'] == 'ahjreport3')
-			{
-				$year  = explode(':',$filter_data['graph']['graphdata']);
-				$status = $year[0]+1;
-				$year  = $year[1];
-
-				if (!in_array($inspection['id'], $graphdata_ahjreport[$codes[$status]][$ticks[$year]]))
-					continue;
-			}
-
-			if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('activityreport', 'activityreport1', 'activityreport2', 'activityreport3')))
-			{
-				$tick  = explode(':',$filter_data['graph']['graphdata']);
-				$userbyorder = $tick[0];
-				$tick  = $tick[1];				
-
-				if (!in_array($inspection['id'], $graphdata_activityreport[$userbyorder][$tick]))
-					continue;
 			}
 			//end filter
 
@@ -1629,7 +1448,7 @@ class Dashboard extends CI_Controller {
 									$fieldinfo = json_decode($element['new_val']);
 									if (empty($fieldinfo->value) && isset($fieldinfo->FormFields_idFormFields))
 										unset($val[$fieldinfo->FormFields_idFormFields]);
-									elseif (isset($fieldinfo->FormFields_idFormFields) && isset($cc[$fieldinfo->FormFields_idFormFields]))
+									elseif (isset($cc[$fieldinfo->FormFields_idFormFields]))
 										$val[$fieldinfo->FormFields_idFormFields]=$cc[$fieldinfo->FormFields_idFormFields];
 								}
 

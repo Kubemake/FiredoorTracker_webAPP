@@ -78,7 +78,8 @@
 		makeupload('#drop-area-div', <?=$this->session->userdata('user_id')?>, function(data){
 			$('#drop-area-div').hide();
 			ftype = data.substr(-3).toLowerCase();
-			if ($.inArray(ftype,['jpg','png','jpeg','gif']) > -1) {
+			console.log(ftype);
+			if ($.inArray(ftype,['jpg','png','peg','gif', 'ico']) > -1) {
 				$('#upload-acceptor').html('<img id="upload-result" src="' + data + '" />');
 				filetype="image";
 			} else {

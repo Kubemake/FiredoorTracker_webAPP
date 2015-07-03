@@ -51,10 +51,15 @@
 				id: seldata[0][0]
 			},
 			success: function(msg) {
-				console.log(msg);
+				// console.log(msg);
 				if (msg=='done')
 					window.location.reload(true);
-					// $('#DataTables_Table_0 tr.active').remove();
+				else
+				{
+					$('#warnacceptor').html(msg);
+					$('#ShowWarnModal').modal({show: true});
+					return false;
+				}
 			}
 		});
 	}

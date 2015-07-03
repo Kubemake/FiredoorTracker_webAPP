@@ -54,7 +54,7 @@
 										</div>
 										<div class="col-xs-8">
 											<label class="radio-inline">
-												<input type="radio" value="generate" name="password_generator">
+												<input id="generatepass" type="radio" value="generate" name="password_generator">
 												Generate and send by email
 											</label>
 										</div>
@@ -78,10 +78,10 @@
 					<div class="row">
 						<div class="form-group">
 							<label class="control-label col-xs-4 text-right">Role</label>
-							<div class="col-xs-8">
+							<div class="col-xs-8" id="user_role">
 								<?php foreach ($user_roles as $role_id => $role_name): ?>
 									<label class="radio-inline">
-										<input type="radio" name="user_role" id="user_role" value="<?=$role_id?>" <?php if (@$employeer['role']==$role_id) echo ' checked';?>/>
+										<input type="radio" name="user_role" id="user_role<?=$role_id?>" value="<?=$role_id?>" <?php if (@$employeer['role']==$role_id) echo ' checked';?>/>
 										<?=$role_name?>
 									</label>
 								<?php endforeach; ?>
@@ -95,16 +95,33 @@
 					<button type="submit" class="btn btn-primary">Accept chages</button>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel changes</button>
 				</div>
-				<script type="text/javascript">
-					$(function () {
-						$('#new_password,#repeat_password').password();
-					});
-				</script>
 			</form>
 		</div>
 	</div>
 </div>
+
 <script type="text/javascript">
+	$(function () {
+		$('#new_password,#repeat_password').password();
+
+		$('#generatepass').on('click', function(){
+			pass=str_rand();
+			$('#new_password, #repeat_password').val(pass);
+		});
+	});
+</script>
+<script type="text/javascript">
+	function str_rand() {
+		var result	   		= '';
+		var words			= '0123456789qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM';
+		var max_position 	= words.length - 1;
+			for( i = 0; i < 12; ++i ) {
+				position = Math.floor ( Math.random() * max_position );
+				result = result + words.substring(position, position + 1);
+			}
+		return result;
+	}
+
 	function checkPasswords() {
 		var passl = document.getElementById('new_password');
 		var pass2 = document.getElementById('repeat_password');
@@ -113,4 +130,25 @@
 		else
 			passl.setCustomValidity("");
 	}
+
+	$('#editbtnform').submit(function(e){
+		role = $('#user_role input[type=radio]:checked').val();
+		$.ajax({
+			url: '/user/ajax_check_lic_limit',
+			method: 'POST',
+			data:{role: role},
+			async: false,
+			success: function(result) {
+				// console.log(result);
+				if (result != 'ok')
+				{
+					$('#warnacceptor').html(result);
+					$('#ShowWarnModal').modal({show: true});
+					e.preventDefault();
+					return false;
+				}
+			}
+		});
+	});
+
 </script>

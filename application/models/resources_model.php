@@ -44,12 +44,8 @@ class Resources_model  extends CI_Model
 		return $this->db->where('idUsers', $employer_id)->update('Users', $upddata);
 	}
 
-	function delete_employeer_by_id($employeer_id)
+	function delete_employeer_by_id($employeer_id, $delnumber)
 	{
-		$user = $this->db->where('idUsers', $employeer_id)->get('Users')->row_array();
-
-		$delnumber = ($user['deleted'] > 0) ? '0' : $this->session->userdata('user_id');
-
 		$this->db->where('idUsers', $employeer_id);
 		return $this->db->update('Users', array('deleted' => $delnumber));
 	}
@@ -312,6 +308,7 @@ class Resources_model  extends CI_Model
 		$this->db->where('UserId', $parent);
 		if ($location_id)
 			$this->db->where('Buildings_idBuildings', $location_id);
+		$this->db->where('deleted', 0);
 		
 		return $this->db->get('Doors')->result_array();
 	}

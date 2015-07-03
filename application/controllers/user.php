@@ -172,13 +172,7 @@ class User extends CI_Controller {
 
 		$this->load->model('licensing_model');
 		$licensing = $this->licensing_model->get_lic_info_by_client_id($valid_login['parent']);
-
-		if (strtotime($licensing['expired'] . ' 23:59:59') < time())
-		{
-			$this->form_validation->set_message('_check_in_database', '<div class="alert alert-danger">Your license term has expired; please <a target="_blank" href="https://firedoortracker.com/pricing/">RENEW NOW</a> in order to continue using the app. <br>If there are any questions, please call us at 844.524.1212 or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a></div>');
-			return FALSE;
-		}
-
+		
 		//записываем данные авторизации
 		$sessiondata = array( 
 			'isadmin' 		=> ($valid_login['role']==4) ? 1 : 0,
@@ -192,10 +186,19 @@ class User extends CI_Controller {
 			'logoFilePath'	=> $valid_login['logoFilePath'],
 		);
 
-		$days = floor((strtotime($licensing['expired'] . ' 23:59:59') - time()) / (60*60*24));
+		if (!empty($licensing))
+		{
+			if (strtotime($licensing['expired'] . ' 23:59:59') < time())
+			{
+				$this->form_validation->set_message('_check_in_database', '<div class="alert alert-danger">Your license term has expired; please <a target="_blank" href="https://firedoortracker.com/pricing/">RENEW NOW</a> in order to continue using the app. <br>If there are any questions, please call us at 844.524.1212 or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a></div>');
+				return FALSE;
+			}
 
-		if ($days < 8)
-			$this->session->set_flashdata('showlicwarn', $days);
+			$days = floor((strtotime($licensing['expired'] . ' 23:59:59') - time()) / (60*60*24));
+
+			if ($days < 8)
+				$this->session->set_flashdata('showlicwarn', array(1=>$days));
+		}
 
 
 		$this->session->set_userdata($sessiondata);
@@ -288,8 +291,7 @@ class User extends CI_Controller {
 		if (has_permission('Allow view buildings tree tab'))
 		{
 			$user_buildings = $this->user_model->get_all_buildings($this->session->userdata('user_parent'));
-// echo '<pre>';
-// print_r($user_buildings);die();
+
 			$data['buildings'] = '';
 
 			$result = '<ol class="dd-list">' . "\n";
@@ -297,7 +299,6 @@ class User extends CI_Controller {
 			{
 				foreach ($user_buildings as $buildingdata)
 				{
-					// $buildingdata = $this->user_model->get_building_data($building['Buildings_idBuildings']);
 					if (empty($buildingdata) or $buildingdata['level'] > 0) //this part only for parent=0
 						continue;
 
@@ -441,72 +442,100 @@ class User extends CI_Controller {
 		$this->lang->load('resources');
 		$this->load->library('table');
 		$this->load->model('resources_model');
+		
 		$data = array();
+
 		if ($this->input->post())
 		{
 			if ($this->input->post('form_type'))
 			{
 				$postdata = $this->input->post();
-
-				$this->load->library('History_library');
-
-				$adddata = array(
-					'email'			=> $postdata['email'],
-				    'FirstName'		=> $postdata['first_name'],
-				    'LastName'		=> $postdata['last_name'],
-				    'officePhone'	=> $postdata['officePhone'], 
-				    'mobilePhone'	=> $postdata['mobilePhone'], 
-				    'role'			=> $postdata['user_role'],
-				    'parent'		=> $this->session->userdata('user_parent')
+				
+				$roles = array(
+					1 => 'dir',
+					2 => 'sv',
+					3 => 'mech'
+				);
+				$messageroles = array(
+					1 => 'Directors',
+					2 => 'Supervisors',			///ПРОВЕРИТЬ НА НЕАКТИВНЫХ И ДОБАВИТЬ ПРОВЕРКУ ПРИ АКТИВАЦИ!! ПОТОМ ПРОДУБЛИРОВАТЬ ПРИ ПОСТЕ!!!
+					3 => 'Mechanics'
 				);
 
-				if ($postdata['user_role'] == 4)
-					$adddata['parent'] = 0;
+				$this->load->model('licensing_model');
+				$licensing = $this->licensing_model->get_lic_info_by_client_id($this->session->userdata('user_parent'));
 
-				if (isset($postdata['new_password']) && !empty($postdata['new_password']))
-					$adddata['password'] = pass_crypt($postdata['new_password']);
+				$role_users = $this->user_model->get_all_users_by_role($postdata['user_role']);
+				$role_users = count($role_users);
 
-				if (isset($postdata['password_generator']) && $postdata['password_generator']=='generate')			//if selected generate password - send it by email
+				if (($role_users + 1) > $licensing[$roles[$postdata['user_role']]]) /*LICENSING CHECKS*/
+					$header['msg'] = msg('danger', 'Important message about your license limitation<br>
+										Please note you\'ve exceeded the maximum number of ' . $messageroles[$postdata['user_role']] . '  for your account.<br>
+						 				In order to add more users to your account, please call us at 844.524.1212, or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a> for assistance.');
+				else
 				{
-					$mail = send_mail(
-						$adddata['email'],
-						$this->lang->line('email_add_employeer_subject'),
-						sprintf($this->lang->line('email_add_employeer_body'),  $_SERVER['HTTP_HOST'], $adddata['email'], $postdata['new_password'])
+					$this->load->library('History_library');
+
+					$adddata = array(
+						'email'			=> $postdata['email'],
+					    'FirstName'		=> $postdata['first_name'],
+					    'LastName'		=> $postdata['last_name'],
+					    'officePhone'	=> $postdata['officePhone'], 
+					    'mobilePhone'	=> $postdata['mobilePhone'], 
+					    'role'			=> $postdata['user_role'],
+					    'parent'		=> $this->session->userdata('user_parent')
 					);
+
+					if ($postdata['user_role'] == 4)
+						$adddata['parent'] = 0;
+
+					if (isset($postdata['new_password']) && !empty($postdata['new_password']))
+						$adddata['password'] = pass_crypt($postdata['new_password']);
+
+					if (isset($postdata['password_generator']) && $postdata['password_generator']=='generate')			//if selected generate password - send it by email
+					{
+						$mail = send_mail(
+							$adddata['email'], //to
+							$this->lang->line('email_add_employeer_subject'), //subj
+							sprintf($this->lang->line('email_add_employeer_body'),  $_SERVER['HTTP_HOST'], @$adddata['email'], @$postdata['new_password'])//body
+						);
+					}
+
+					switch ($postdata['form_type'])
+					{
+						case 'add_employeer':
+							$user = $this->resources_model->get_user_by_email($adddata['email']); //check if it email used
+							if (!empty($user)) {
+								$header['msg'] = msg('warning', 'This email allready used');
+								break;
+							}
+							$newemp = $this->resources_model->add_employer($adddata);	//add new user
+							$mail 	= TRUE;
+							
+							$this->history_library->saveUsers(array('line_id' => $newemp, 'new_val' => json_encode($adddata), 'type' => 'add'));
+
+							$header['msg'] = msg('warning', 'Something wrong!');
+							if ($newemp && $mail)
+								$header['msg'] = msg('success', 'User successfully added');
+						break;
+
+						case 'edit_employeer':
+							$this->history_library->saveUsers(array('line_id' => $postdata['user_id'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
+
+							$this->resources_model->update_employer_data($postdata['user_id'], $adddata);
+
+							$header['msg'] = '<div class="alert alert-success alert-dismissable">User successfully updated</div>';
+						break;
+						default:
+						break;
+					}
+
+					echo '<script type="text/javascript">location.replace("/user/employees");</script>
+						<noscript><meta http-equiv="refresh" content="0; url=/user/employees"></noscript>';
+					exit;
 				}
 
-				switch ($postdata['form_type'])
-				{
-					case 'add_employeer':
-						$user = $this->resources_model->get_user_by_email($adddata['email']); //check if it email used
-						if (!empty($user)) {
-							$data['msg'] = msg('warning', 'This email allready used');
-							break;
-						}
-						$newemp = $this->resources_model->add_employer($adddata);	//add new user
-						$mail 	= TRUE;
-						
-						$this->history_library->saveUsers(array('line_id' => $newemp, 'new_val' => json_encode($adddata), 'type' => 'add'));
 
-						$data['msg'] = msg('warning', 'Something wrong!');
-						if ($newemp && $mail)
-							$data['msg'] = msg('success', 'User successfully added');
-					break;
-
-					case 'edit_employeer':
-						$this->history_library->saveUsers(array('line_id' => $postdata['user_id'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
-
-						$this->resources_model->update_employer_data($postdata['user_id'], $adddata);
-
-						$data['msg'] = '<div class="alert alert-success alert-dismissable">User successfully updated</div>';
-					break;
-					default:
-					break;
-				}
-
-				echo '<script type="text/javascript">location.replace("/user/employees");</script>
-					<noscript><meta http-equiv="refresh" content="0; url=/user/employees"></noscript>';
-				exit;
 			}
 		}
 
@@ -575,8 +604,57 @@ class User extends CI_Controller {
 		$this->load->model('service_model');
 
 		if (!$employeer_id = $this->input->post('id')) return print('empty id');
+		
+		$user = $this->resources_model->get_employeer_info_by_employeer_id($employeer_id);
 
-		if (!$this->resources_model->delete_employeer_by_id($employeer_id))  return print('can\'t delete employee by id');
+		$this->load->model('licensing_model');
+		$licensing = $this->licensing_model->get_lic_info_by_client_id($user['parent']);
+
+		$role_users = $this->user_model->get_all_users_by_role($user['role']);
+		$role_users = count($role_users);
+		
+		$roles = array(
+			1 => 'dir',
+			2 => 'sv',
+			3 => 'mech'
+		);
+		$messageroles = array(
+			1 => 'Directors',
+			2 => 'Supervisors',
+			3 => 'Mechanics'
+		);
+
+		if ($user['deleted'] > 0)
+		{
+			if (!empty($licensing) && ($role_users + 1) > $licensing[$roles[$user['role']]])
+			{
+				echo '<!-- Show Warn Modal -->
+				<div class="modal fade" id="ShowWarnModal" tabindex="-1" role="dialog" aria-labelledby="ShowWarnModal" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title text-center" id="myModalLabel">Important message about your license limitation</h4>
+							</div>
+							<div class="modal-body">
+								Please note you\'ve exceeded the maximum number of ' . $messageroles[$user['role']] . '  for your account.<br>
+		 					  In order to add more users to your account, please call us at 844.524.1212, or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a> for assistance.
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+							</div>
+						</div>
+					</div>
+				</div>';
+				exit;
+			}
+			else
+				$delnumber = '0';
+		}
+		else
+			$delnumber = $this->session->userdata('user_id');
+
+		if (!$this->resources_model->delete_employeer_by_id($employeer_id, $delnumber))  return print('can not delete employee by id');
 
 		$this->service_model->delete_user_token($employeer_id);
 
@@ -793,7 +871,7 @@ class User extends CI_Controller {
 		);
 		$messageroles = array(
 			1 => 'Directors',
-			2 => 'Supervisors',			///ПРОВЕРИТЬ НА НЕАКТИВНЫХ И ДОБАВИТЬ ПРОВЕРКУ ПРИ АКТИВАЦИ!! ПОТОМ ПРОДУБЛИРОВАТЬ ПРИ ПОСТЕ!!!
+			2 => 'Supervisors',
 			3 => 'Mechanics'
 		);
 

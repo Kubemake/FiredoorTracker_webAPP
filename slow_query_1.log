@@ -1705,3 +1705,7 @@ UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '2', `name` = 'Fra
 UPDATE `FormFields` SET `type` = 'answer', `nextQuestionId` = '323', `name` = 'Between1-4and1-2-363', `label` = 'Between 1/4\'\' and 1/2\'\'', `questionId` = 363, `parent` = 363, `questionOrder` = 1, `level` = 8, `autoSubmit` = '0', `deleted` = '0' WHERE `idFormFields` =  '419'
 
 -----------------------------
+2.07.2015 22:59:24 : 2.2852
+INSERT INTO `Files` (`Users_idUsers`, `path`, `type`, `FileUploadDate`) VALUES ('13', 'http://firedoortracker.org/upload/13/door-jpeg_1435877954jpeg', 'video', '2015-07-02 22:59:14')
+
+-----------------------------

@@ -279,22 +279,45 @@ class Service extends CI_Controller {
 		if (empty($userdata))
 			$this->_show_output(array('status' => 'error', 'error' => 'wrong login or password'));
 
-		
+		$token = md5(uniqid($data['login'], true));
+
+		$output = array('status' => 'ok', 'token' => $token);
+
 		/*LICENSING CHECK!*/
 		$this->load->model('licensing_model');
 		$licensing = $this->licensing_model->get_lic_info_by_client_id($userdata['parent']);
 
-		if (strtotime($licensing['expired'] . ' 23:59:59') < time())
-			$this->_show_output(array('status' => 'error', 'error' => 'Your license term has expired; please <a target="_blank" href="https://firedoortracker.com/pricing/">RENEW NOW</a> in order to continue using the app. <br>If there are any questions, please call us at 844.524.1212 or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a>'));
+		if (!empty($licensing))
+		{
+			if (strtotime($licensing['expired'] . ' 23:59:59') < time())
+				$this->_show_output(array('status' => 'error', 'error' => 'Your license term has expired; please <a target="_blank" href="https://firedoortracker.com/pricing/">RENEW NOW</a> in order to continue using the app. <br>If there are any questions, please call us at 844.524.1212 or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a>'));
+
+			
+			$days = floor((strtotime($licensing['expired'] . ' 23:59:59') - time()) / (60*60*24));
+			
+			if ($days < 8 && $userdata['role'] == 1)
+			{
+				$day = ' days';
+				if ($days == 1)
+					$day = ' day';
+				
+				$output['warning_message'] = 'Important message about your license expiration' . "\r\n" .
+										 	 'Please note your license expires on ' . $days . $day . '.' . "\r\n" .
+							  				 'Please click "Renew Now" to renew your license for same terms and conditions' . "\r\n" .
+							  				 'If you have any questions, please call us at 844.524.1212, or visit our website at www.firedoortracker.com for more assistance' . "\r\n" .
+							  				 'Thank you';
+				$output['warning_link'] = 	 'https://www.firedoortracker.com/pricing';
+			}
+		}
 		/*END LICENSING CHECK!*/
 
-		$token = md5(uniqid($data['login'], true));
+		
 
 		$this->service_model->delete_user_token($userdata['idUsers']);
 
 		$this->service_model->set_user_token($userdata['idUsers'], $token);
 
-		$this->_show_output(array('status' => 'ok', 'token' => $token));
+		$this->_show_output($output);
 	}
 
 	/*

@@ -8,7 +8,7 @@
 					<div class="clearfix"></div>
 					<div class="col-md-5 expert-img"><img title="<?=$expert['name']?>" alt="<?=$expert['name']?>" src="<?=$expert['logo']?>" /></div>
 					<div class="col-md-7 expert-text"><?=$expert['description']?></div>
-					<div class="col-md-12 text-right expert-link"><a href="<?=$expert['link']?>"><?=preg_replace('#(http://|https://)?([^/]+)/?(.*?)#', '$2', $expert['link'])?></a></div>
+					<div class="col-md-12 text-right expert-link"><a target="_blank" href="<?=$expert['link']?>"><?=preg_replace('#(http://|https://)?([^/]+)/?(.*?)#', '$2', $expert['link'])?></a></div>
 					<div class="clearfix"></div>
 				</div>
 			</div>

@@ -155,8 +155,6 @@
 								}
 							}
 						});
-						// e.preventDefault();
-						// return false;
 					});
 				</script>
 			</form>

@@ -204,7 +204,27 @@
 <?/* CHARTS STARTER */?>
 <script type="text/javascript">
 	$(function(){ //Load graph after full page load.
-		makegraph('<?=$selected_graph?>');
+		guid = '<?=$selected_graph?>';
+		makegraph(guid);
+
+		$.jqplot.postDrawHooks.push(function() {
+			if (guid =='activityreport' || guid =='activityreport1' || guid =='activityreport2' || guid =='activityreport3')
+			{
+				newlegendtable = $('table.jqplot-table-legend tbody');
+				newlegendtable.find('.jqplot-table-legend-addon').each(function(){
+					$(this).remove();
+				});
+		        newlegendtable.prepend('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Users: <?=$activeusers?> / <?=$totalusers?></td></tr>');
+		        newlegendtable.append('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Total reviews: <?=$totalinspections?></td></tr>');
+			}
+			else
+			{
+				newlegendtable = $('table.jqplot-table-legend tbody');
+				newlegendtable.find('.jqplot-table-legend-addon').each(function(){
+					$(this).remove();
+				});
+			}
+		});
 	});
 
 	$('.graphacceptor').on('click', function(e){
@@ -360,6 +380,18 @@
 			else if (graph_id == 'inventorychart' || graph_id == 'inventorychart1' || graph_id == 'inventorychart2' || graph_id == 'inventorychart3' || graph_id == 'inventorychart4')
 			{
 		   		$('#graphdata').val(data[0]);
+				$('#graphform').submit();
+			}
+			else if (graph_id == 'ahjreport' || graph_id == 'ahjreport1' || graph_id == 'ahjreport2' || graph_id == 'ahjreport3')
+			{
+		   							//status			//month
+		   		$('#graphdata').val(seriesIndex + ':' + pointIndex);
+				$('#graphform').submit();
+			}
+			else if (graph_id == 'activityreport' || graph_id == 'activityreport1' || graph_id == 'activityreport2' || graph_id == 'activityreport3')
+			{
+		   							//status			//month
+		   		$('#graphdata').val(seriesIndex + ':' + pointIndex);
 				$('#graphform').submit();
 			}
 			else

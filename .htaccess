@@ -1,6 +1,9 @@
 AddDefaultCharset UTF-8
 
 SetEnv TZ America/New_York
+#SetEnv TZ us/eastern
+php_value date.timezone America/New_York
+#php_value date.timezone us/eastern
 
 <IfModule mod_php5.c>
 	php_value memory_limit -1

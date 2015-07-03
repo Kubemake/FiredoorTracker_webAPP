@@ -37,15 +37,17 @@
 </script>
 
 <?php
-$licwarn = $this->session->flashdata('showlicwarn');
-if (!empty($licwarn) && $this->session->userdata('user_role') == 1)
+	$licwarn = $this->session->flashdata('showlicwarn');
+
+	if (!empty($licwarn) && $this->session->userdata('user_role') == 1)
 	{
+		
 		$day = ' days';
 		if ($licwarn == 1)
 			$day = ' day';
 
 		$warn['title'] = 'Important message about your license expiration';
-		$warn['text']  = 'Please note your license expires on ' . $licwarn . $day . '. <br>
+		$warn['text']  = 'Please note your license expires on ' . $licwarn[1] . $day . '. <br>
 						  Please click "Renew Now" to renew your license for same terms and conditions<br>
 						  If you have any questions, please call us at 844.524.1212, or visit our website at <a href="https://www.firedoortracker.com">www.firedoortracker.com</a> for more assistance<br>
 						  Thank you';
