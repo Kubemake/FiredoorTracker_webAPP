@@ -58,6 +58,22 @@ class Dashboard extends CI_Controller {
 				case 'add_inspection':
 					$avail = $this->resources_model->get_inspection_by_aperture_id($postdata['aperture']);
 
+					/*LICENSING CHECK!*/
+					$this->load->model('licensing_model');
+					$licensing = $this->licensing_model->get_lic_info_by_client_id($this->session->userdata('user_parent'));
+
+					$client_inspections = $this->resources_model->get_all_inspections_by_parent($this->session->userdata('user_parent'));
+					$client_inspections = count($client_inspections);
+
+					if (($client_inspections + 1) > $licensing['inspections']) 
+					{
+						$header['msg'] = msg('danger', 'Important message about your license limitation<br>
+										Please note you\'ve exceeded the maximum number of reviews for your account.<br>
+						 				In order to add more users to your account, please call us at 844.524.1212, or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a> for assistance.');
+						break;
+					}
+					/*END LICENSING CHECK!*/
+
 					if (!empty($avail))
 					{
 						$header['msg'] = msg('warning', 'Review with selected Door Id allready exist!');
@@ -76,10 +92,16 @@ class Dashboard extends CI_Controller {
 				case 'edit_inspection':
 					if ($adddata['idAperture'] > 0)
 					{
-						$this->history_library->saveInspections(array('line_id' => $postdata['idInspections'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
+						$existisp = $this->resources_model->get_inspection_by_aperture_id($adddata['idAperture']);
+						if (!empty($existisp) && $existisp['idInspections'] != $postdata['idInspections'])
+							$header['msg'] = msg('warning', 'Review with selected Door Id allready exist');
+						else
+						{
+							$this->history_library->saveInspections(array('line_id' => $postdata['idInspections'], 'new_val' => json_encode($adddata), 'type' => 'edit'));
 
-						$this->resources_model->update_inspection($postdata['idInspections'], $adddata);
-						$header['msg'] = msg('success', 'Review successfuly updated');
+							$this->resources_model->update_inspection($postdata['idInspections'], $adddata);
+							$header['msg'] = msg('success', 'Review successfuly updated');
+						}
 					}
 				break;
 
@@ -231,11 +253,14 @@ class Dashboard extends CI_Controller {
 		$data['totalinspections'] = $this->resources_model->get_all_inspections_by_parent($this->session->userdata('user_parent'));
 		$data['totalinspections'] = count($data['totalinspections']);
 		
+		$this->load->model('licensing_model');
+		$licinfo = $this->licensing_model->get_lic_info_by_client_id($this->session->userdata('user_parent'));
+		$data['totalusers'] = $licinfo['dir'] + $licinfo['sv'] + $licinfo['mech'];
+		
+		$data['activeusers'] = 0;
 		$dbusers = $this->user_model->get_users_by_parent($this->session->userdata('user_parent'));
-		$data['totalusers'] = $data['activeusers'] = 0;
 		foreach ($dbusers as $user)
 		{
-			$data['totalusers']++;
 			if ($user['deleted'] == 0)
 				$data['activeusers']++;
 		}
@@ -1468,7 +1493,7 @@ class Dashboard extends CI_Controller {
 				$status = $quart[0]+1;
 				$quart  = $quart[1];
 
-				if (!in_array($inspection['id'], $graphdata_ahjreport[$codes[$status]][$ticks[$quart]]))
+				if (isset($graphdata_ahjreport[$codes[$status]][$ticks[$quart]]) && !in_array($inspection['id'], $graphdata_ahjreport[$codes[$status]][$ticks[$quart]]))
 					continue;
 			}
 			
@@ -1478,7 +1503,7 @@ class Dashboard extends CI_Controller {
 				$status = $year[0]+1;
 				$year  = $year[1];
 
-				if (!in_array($inspection['id'], $graphdata_ahjreport[$codes[$status]][$ticks[$year]]))
+				if (isset($graphdata_ahjreport[$codes[$status]][$ticks[$year]]) && !in_array($inspection['id'], $graphdata_ahjreport[$codes[$status]][$ticks[$year]]))
 					continue;
 			}
 
@@ -1488,7 +1513,7 @@ class Dashboard extends CI_Controller {
 				$userbyorder = $tick[0];
 				$tick  = $tick[1];				
 
-				if (!in_array($inspection['id'], $graphdata_activityreport[$userbyorder][$tick]))
+				if (isset($graphdata_activityreport[$userbyorder][$tick]) && !in_array($inspection['id'], $graphdata_activityreport[$userbyorder][$tick]))
 					continue;
 			}
 			//end filter
@@ -1706,6 +1731,39 @@ class Dashboard extends CI_Controller {
 		return $cached_data;
 	}
 
+	function ajax_check_lic_limit()
+	{
+		$this->load->model('licensing_model');
+		$licensing = $this->licensing_model->get_lic_info_by_client_id($this->session->userdata('user_parent'));
+
+		$client_inspections = $this->resources_model->get_all_inspections_by_parent($this->session->userdata('user_parent'));
+		$client_inspections = count($client_inspections);
+
+		if (($client_inspections + 1) > $licensing['inspections']) 
+		{
+			echo '<!-- Show Warn Modal -->
+				<div class="modal fade" id="ShowWarnModal" tabindex="-1" role="dialog" aria-labelledby="ShowWarnModal" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title text-center" id="myModalLabel">Important message about your license limitation</h4>
+							</div>
+							<div class="modal-body">
+								Please note you\'ve exceeded the maximum number of reviews  for your account.<br>
+		 					  	In order to add more users to your account, please call us at 844.524.1212, or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a> for assistance.
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+							</div>
+						</div>
+					</div>
+				</div>';
+		}
+		else
+			echo 'ok';
+		exit;
+	}
 }
 
 /* End of file dashboard.php */

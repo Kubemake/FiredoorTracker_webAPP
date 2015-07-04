@@ -15,7 +15,7 @@
 								<div class="dropdown locationselect">
 									<button type="button" role="button" data-toggle="dropdown" class="btn btn-primary fullwidth" data-target="#"><?php echo empty($inspection['name']) ? 'Select location' : $inspection['name']; ?> <span class="caret"></span></button>
 									<?php echo make_buildings_dropdown($user_buildings); ?>
-									<input name="location" type="hidden" value="<?=$inspection['Buildings_idBuildings']?>" />
+									<input name="location" type="hidden" value="<?=$current_location?>" />
 								</div>
 							</div>
 						</div>

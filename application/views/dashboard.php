@@ -214,7 +214,7 @@
 				newlegendtable.find('.jqplot-table-legend-addon').each(function(){
 					$(this).remove();
 				});
-		        newlegendtable.prepend('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Users: <?=$activeusers?> / <?=$totalusers?></td></tr>');
+		        newlegendtable.prepend('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Active Users: <?=$activeusers?> / <?=$totalusers?></td></tr>');
 		        newlegendtable.append('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Total reviews: <?=$totalinspections?></td></tr>');
 			}
 			else
@@ -238,7 +238,7 @@
 				newlegendtable.find('.jqplot-table-legend-addon').each(function(){
 					$(this).remove();
 				});
-		        newlegendtable.prepend('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Users: <?=$activeusers?> / <?=$totalusers?></td></tr>');
+		        newlegendtable.prepend('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Active Users: <?=$activeusers?> / <?=$totalusers?></td></tr>');
 		        newlegendtable.append('<tr class="jqplot-table-legend jqplot-table-legend-addon"><td colspan="2">Total reviews: <?=$totalinspections?></td></tr>');
 			}
 			else

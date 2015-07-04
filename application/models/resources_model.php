@@ -497,6 +497,9 @@ class Resources_model  extends CI_Model
 		
 		$result = $this->db->get()->result_array();
 
+		// echo '<pre>';
+		// print_r($this->db->last_query());die();
+		
 		return $result;
 	}
 

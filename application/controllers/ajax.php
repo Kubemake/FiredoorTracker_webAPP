@@ -53,9 +53,22 @@ class Ajax extends CI_Controller {
 				if (!$inspection_id = $this->input->post('id')) return '';
 				$this->load->model('user_model');
 				$params['inspection']  			= $this->resources_model->get_inspection_info_by_inspection_id($inspection_id);
-				
+
+				$bid = ($params['inspection']['Level'] > 0 ) ? $params['inspection']['Level'] : $params['inspection']['Area']; //find location of inspection door
+				if ($params['inspection']['Area'] < 1)
+				{
+					$bid = $params['inspection']['Wing'];
+					if ($params['inspection']['Wing'] < 1)
+					{
+						$bid = $params['inspection']['Floor'];
+						if ($params['inspection']['Floor'] < 1)
+							$bid = $params['inspection']['Building'];
+					}
+				}
 				$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
-				$params['user_apertures'] 		= $this->resources_model->get_user_apertures();
+				$params['current_location']		= $bid;
+				$params['user_apertures'] 		= $this->resources_model->get_user_apertures_without_review($bid);
+				$params['user_apertures'][] 	= array('idDoors' => $params['inspection']['idAperture'], 'barcode' => $params['inspection']['barcode']);
 				$params['inspection_statuses'] 	= $this->resources_model->get_all_inspection_statuses();
 
 				$params['users_reviewer'] = $this->session->userdata('user_id');

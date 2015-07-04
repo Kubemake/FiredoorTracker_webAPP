@@ -24,9 +24,6 @@
 							<div class="col-xs-8 apertureselect">
 								<select name="aperture" id="aperture" class="selectpicker fullwidth" data-live-search="true">
 									<option value="0">Choose door</option>
-									<?php foreach ($user_apertures as $aperture): ?>
-										<option value="<?=$aperture['idDoors']?>"><?=$aperture['barcode']?></option>
-									<?php endforeach; ?>
 								</select>
 							</div>
 						</div>
@@ -71,12 +68,6 @@
 <script type="text/javascript">
 	$(function () {
 		$('.selectpicker').selectpicker();
-		$('#start_date').datepicker({format:'yyyy-mm-dd'}).on('changeDate', function(){
-			$('#start_date').datepicker('hide');
-		});
-		$('#completion_date').datepicker({format:'yyyy-mm-dd'}).on('changeDate', function(){
-			$('#completion_date').datepicker('hide');
-		});
 	});
 
 	$('.locationselect ul li a').on('click', function(){
@@ -96,16 +87,33 @@
 	});
 
 	$("#addbtnform").submit(function(e){
+		$.ajax({
+			url: '/dashboard/ajax_check_lic_limit',
+			method: 'GET',
+			async: false,
+			success: function(result) {
+				// console.log(result);
+				if (result != 'ok')
+				{
+					$('#warnacceptor').html(result);
+					$('#ShowWarnModal').modal({show: true});
+					e.preventDefault();
+					return false;
+				}
+			}
+		});
+
 	    if ($('.apertureselect select').val()==0)
 		{
 			alert('Please choose door!');
 			return false;
 		}
+
 		 if ($('#location').val()=='')
 		{
 			alert('Please select door location!');
 			return false;
 		}
-
 	});
+
 </script>
