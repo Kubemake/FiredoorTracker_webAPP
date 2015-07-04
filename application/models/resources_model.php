@@ -496,9 +496,6 @@ class Resources_model  extends CI_Model
 		$this->db->where('cc.value IS NOT ', 'NULL', FALSE);
 		
 		$result = $this->db->get()->result_array();
-
-		// echo '<pre>';
-		// print_r($this->db->last_query());die();
 		
 		return $result;
 	}
@@ -537,12 +534,13 @@ class Resources_model  extends CI_Model
 				$this->db->like('Completion', date('Y'), 'after');
 				$this->db->or_like('Completion', (date('Y')-1), 'after');
 			break;
-			case 'ahjreport2':
-				$this->db->like('Completion', date('Y'), 'after');
-				$this->db->or_like('Completion', (date('Y')-1), 'after');
-				$this->db->or_like('Completion', (date('Y')-2), 'after');
-				$this->db->or_like('Completion', (date('Y')-3), 'after');
-				$this->db->or_like('Completion', (date('Y')-4), 'after');
+			case 'ahjreport3':
+				// $this->db->like('Completion', date('Y'), 'after');
+				// $this->db->or_like('Completion', (date('Y')-1), 'after');
+				// $this->db->or_like('Completion', (date('Y')-2), 'after');
+				// $this->db->or_like('Completion', (date('Y')-3), 'after');
+				// $this->db->or_like('Completion', (date('Y')-4), 'after');
+				$this->db->where('Completion IS NOT ', 'NULL', FALSE);
 			break;
 			case 'activityreport':
 				$this->db->where('Completion IS NOT ', 'NULL', FALSE);
@@ -553,8 +551,7 @@ class Resources_model  extends CI_Model
 		$output = array();
 		foreach ($result as $value)
 			$output[] = $value['idInspections'];
-// echo '<pre>';
-// print_r($this->db->last_query());die();
+
 		return $output;
 	}
 
@@ -684,8 +681,7 @@ class Resources_model  extends CI_Model
 	{
 		$this->db->where('Inspections_idInspections', $inspection_id);
 		$result = $this->db->get('DoorsFormFields')->result_array();
-		// echo '<pre>';
-		// print_r($this->db->last_query());
+
 		$output = array();
 		foreach ($result as $value)
 			$output[$value['FormFields_idFormFields']] = $value;

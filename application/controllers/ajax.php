@@ -242,7 +242,7 @@ class Ajax extends CI_Controller {
 
 			case 'send_email_modal':
 				$this->load->model('user_model');
-				$params['users'] 		= $this->user_model->get_users_by_role_and_user_parent($this->session->userdata('user_role'), $this->session->userdata('user_parent'));
+				$params['users'] 		= $this->user_model->get_users_by_parent($this->session->userdata('user_parent'));
 			break;
 
 			default:

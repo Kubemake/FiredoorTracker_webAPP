@@ -720,7 +720,7 @@ class Dashboard extends CI_Controller {
 			case 'ahjreport2':
 				$query['type'] = 'ahjreport2';
 				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-				
+
 				if (!empty($query['inspections']))
 					$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
 
@@ -788,7 +788,7 @@ class Dashboard extends CI_Controller {
 			case 'ahjreport3':
 				$query['type'] = 'ahjreport3';
 				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-				
+
 				if (!empty($query['inspections']))
 					$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
 
@@ -1169,8 +1169,7 @@ class Dashboard extends CI_Controller {
 		$userlocation = $buildings;
 
 		$filter_data = $this->session->userdata('filters_array');
-// echo '<pre>';
-// print_r($filter_data);die();
+
 		//prepare filter for AHJ+ UAR report
 		if (!$skip_graph && isset($filter_data['graph']) && in_array($filter_data['graph']['graphpid'], array('ahjreport', 'ahjreport1')))
 		{
@@ -1576,7 +1575,6 @@ class Dashboard extends CI_Controller {
 						if (!isset($cached_data[$inspec_id][date('Y') . '-' . $m])) //CALC AND MAKE CACHE IF ABSENT
 						{
 							$histdata = $this->history_model->get_data_by_date_and_type('dff', $inspec_id, strtotime(date('Y') . '-' . $m . '-' . idate('t',strtotime(date('Y') . '-' . $m)) . ' 23:59:59'));
-
 							if (empty($histdata))
 								$val = '';
 							else
@@ -1683,6 +1681,7 @@ class Dashboard extends CI_Controller {
 						if (!isset($cached_data[$inspec_id][$m])) //CALC AND MAKE CACHE IF ABSENT
 						{
 							$histdata = $this->history_model->get_data_by_date_and_type('dff', $inspec_id, strtotime($m . '-12-' . idate('t',strtotime($m . '-12')) . ' 23:59:59'));
+							
 							if (empty($histdata))
 								$val = '';
 							else

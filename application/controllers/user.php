@@ -652,12 +652,13 @@ class User extends CI_Controller {
 				$delnumber = '0';
 		}
 		else
-			$delnumber = $this->session->userdata('user_id');
+			$delnumber = $employeer_id;
 
 		if ($delnumber != $user['parent'])
+		{
 			if (!$this->resources_model->delete_employeer_by_id($employeer_id, $delnumber))  return print('can not delete employee by id');
-
-		$this->service_model->delete_user_token($employeer_id);
+			$this->service_model->delete_user_token($employeer_id);
+		}
 
 		return print('done');
 	}
