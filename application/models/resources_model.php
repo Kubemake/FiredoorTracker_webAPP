@@ -322,7 +322,7 @@ class Resources_model  extends CI_Model
 
 		$output = array();
 		foreach ($result as $door)
-			if (empty($door['idInspections']) or $door['inspdeluser'] > 0)
+			if (empty($door['idInspections']) && $door['inspdeluser'] == 0)
 				$output[] = $door;
 
 		return $output;

@@ -1,6 +1,6 @@
 /* ========================================================================
- * Bootstrap Dropdowns Enhancement: dropdowns-enhancement.js v3.1.1 (Beta 1)
- * http://behigh.github.io/bootstrap_dropdowns_enhancement/
+ * Bootstrap Dwopdowns Enhancement: dwopdowns-enhancement.js v3.1.1 (Beta 1)
+ * http://behigh.github.io/bootstrap_dwopdowns_enhancement/
  * ========================================================================
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  * ======================================================================== */
@@ -8,23 +8,23 @@
 (function($) {
     "use strict";
 
-    var toggle   = '[data-toggle="dropdown"]',
+    var toggle   = '[data-toggle="dwopdown"]',
         disabled = '.disabled, :disabled',
-        backdrop = '.dropdown-backdrop',
-        menuClass = 'dropdown-menu',
-        subMenuClass = 'dropdown-submenu',
-        namespace = '.bs.dropdown.data-api',
-        eventNamespace = '.bs.dropdown',
+        backdrop = '.dwopdown-backdrop',
+        menuClass = 'dwopdown-menu',
+        subMenuClass = 'dwopdown-submenu',
+        namespace = '.bs.dwopdown.data-api',
+        eventNamespace = '.bs.dwopdown',
         openClass = 'open',
         touchSupport = 'ontouchstart' in document.documentElement,
         opened;
 
 
-    function Dropdown(element) {
+    function Dwopdown(element) {
         $(element).on('click' + eventNamespace, this.toggle)
     }
 
-    var proto = Dropdown.prototype;
+    var proto = Dwopdown.prototype;
 
     proto.toggle = function(event) {
         var $element = $(this);
@@ -216,24 +216,24 @@
         return $parent && $parent.length ? $parent : $this.parent()
     }
 
-    // DROPDOWN PLUGIN DEFINITION
+    // DWOPDOWN PLUGIN DEFINITION
     // ==========================
 
-    var old = $.fn.dropdown;
+    var old = $.fn.dwopdown;
 
-    $.fn.dropdown = function (option) {
+    $.fn.dwopdown = function (option) {
         return this.each(function () {
             var $this = $(this);
-            var data = $this.data('bs.dropdown');
+            var data = $this.data('bs.dwopdown');
 
-            if (!data) $this.data('bs.dropdown', (data = new Dropdown(this)));
+            if (!data) $this.data('bs.dwopdown', (data = new Dwopdown(this)));
             if (typeof option == 'string') data[option].call($this);
         })
     };
 
-    $.fn.dropdown.Constructor = Dropdown;
+    $.fn.dwopdown.Constructor = Dwopdown;
 
-    $.fn.dropdown.clearMenus = function(e) {
+    $.fn.dwopdown.clearMenus = function(e) {
         $(backdrop).remove();
         $('.' + openClass + ' ' + toggle).each(function () {
             var $parent = getParent($(this));
@@ -247,11 +247,11 @@
     };
 
 
-    // DROPDOWN NO CONFLICT
+    // DWOPDOWN NO CONFLICT
     // ====================
 
-    $.fn.dropdown.noConflict = function () {
-        $.fn.dropdown = old;
+    $.fn.dwopdown.noConflict = function () {
+        $.fn.dwopdown = old;
         return this
     };
 
@@ -259,9 +259,9 @@
     $(document).off(namespace)
         .on('click' + namespace, closeOpened)
         .on('click' + namespace, toggle, proto.toggle)
-        .on('click' + namespace, '.dropdown-menu > li > input[type="checkbox"] ~ label, .dropdown-menu > li > input[type="checkbox"], .dropdown-menu.noclose > li', function (e) {
+        .on('click' + namespace, '.dwopdown-menu > li > input[type="checkbox"] ~ label, .dwopdown-menu > li > input[type="checkbox"], .dwopdown-menu.noclose > li', function (e) {
             e.stopPropagation()
         })
-        .on('change' + namespace, '.dropdown-menu > li > input[type="checkbox"], .dropdown-menu > li > input[type="radio"]', proto.change)
+        .on('change' + namespace, '.dwopdown-menu > li > input[type="checkbox"], .dwopdown-menu > li > input[type="radio"]', proto.change)
         .on('keydown' + namespace, toggle + ', [role="menu"], [role="listbox"]', proto.keydown)
 }(jQuery));

@@ -8,11 +8,11 @@
 				<input class="form-control" type="text" style="display: inline;width: auto;" value="<?=@$section['selected']?>" onkeyup="$('#<?=$section['name']?>tex').val($(this).val());if(this.value.length > 0){$('#id<?=$section['name']?>').prop('checked','checked');}else{$('#id<?=$section['name']?>').prop('checked','');};">
 			<?php else: ?>
 				<button data-toggle="dropdown" class="btn btn-default dropdown-toggle" data-placeholder="false">Manage<span class="caret"></span></button>
-				<ul class="dropdown-menu noclose">
+				<ul class="dropdown-menu dwopdown-menu noclose">
 			    	<?php  foreach ($issues['issues'][$section['nextQuestionId']]['answers'] as $answer): ?>
 			    		<?php unset($issues['issues'][$section['nextQuestionId']]['answers'][$answer['idFormFields']]); ?>
 
-			    		<li<?php echo ($answer['nextQuestionId'] != $tabnextQuestionId && $answer['nextQuestionId'] != 179) ? ' class="dropdown-submenu"' : ''; ?>>
+			    		<li<?php echo ($answer['nextQuestionId'] != $tabnextQuestionId && $answer['nextQuestionId'] != 179) ? ' class="dropdown-submenu dwopdown-submenu"' : ''; ?>>
 			    			<input 
 			    				type="checkbox" 
 			    				id="id<?=$answer['name']?>" 
@@ -21,7 +21,7 @@
 			    				<?php echo (!empty($answer['selected'])) ? ' checked="checked"' : ''; ?>
 			    			>
 			    			<label for="id<?=$answer['name']?>">
-			    				<?php echo ($answer['nextQuestionId'] != $tabnextQuestionId && $answer['nextQuestionId'] != 179) ? '<a href="#" tabindex="-1" data-toggle="dropdown">' . $answer['label'] . '</a>': $answer['label'];?>
+			    				<?php echo ($answer['nextQuestionId'] != $tabnextQuestionId && $answer['nextQuestionId'] != 179) ? '<a href="#" tabindex="-1" data-toggle="dwopdown">' . $answer['label'] . '</a>': $answer['label'];?>
 			    				<?php if ($answer['label'] == 'Other' && $answer['nextQuestionId'] == $tabnextQuestionId && $answer['nextQuestionId'] != 179): ?>
 			    					<input class="form-control" type="text" style="display: inline;width: auto;" value="<?=@$answer['selected']?>" onkeyup="$('#<?=$answer['name']?>tex').val($(this).val())">
 			    				<?php endif; ?>

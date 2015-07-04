@@ -255,7 +255,7 @@ class Dashboard extends CI_Controller {
 		
 		$this->load->model('licensing_model');
 		$licinfo = $this->licensing_model->get_lic_info_by_client_id($this->session->userdata('user_parent'));
-		$data['totalusers'] = $licinfo['dir'] + $licinfo['sv'] + $licinfo['mech'];
+		$data['totalusers'] = (!empty($licinfo)) ? $licinfo['dir'] + $licinfo['sv'] + $licinfo['mech'] : 1;
 		
 		$data['activeusers'] = 0;
 		$dbusers = $this->user_model->get_users_by_parent($this->session->userdata('user_parent'));
@@ -402,7 +402,7 @@ class Dashboard extends CI_Controller {
 
 		$points = array('diamond', 'circle', 'square', 'x', 'plus', 'dash', 'filledDiamond', 'filledCircle', 'filledSquare');
 		$output = '';
-
+		$inspdata = '';
 		$graphdata = array();
 		switch ($graph_id)
 		{
@@ -654,7 +654,9 @@ class Dashboard extends CI_Controller {
 			case 'ahjreport1':
 				$query['type'] = 'ahjreport1';
 				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-				$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
+
+				if (!empty($query['inspections']))
+					$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
 
 				if (!empty($inspdata))
 				{
@@ -718,7 +720,9 @@ class Dashboard extends CI_Controller {
 			case 'ahjreport2':
 				$query['type'] = 'ahjreport2';
 				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-				$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
+				
+				if (!empty($query['inspections']))
+					$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
 
 				if (!empty($inspdata))
 				{
@@ -784,7 +788,9 @@ class Dashboard extends CI_Controller {
 			case 'ahjreport3':
 				$query['type'] = 'ahjreport3';
 				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-				$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
+				
+				if (!empty($query['inspections']))
+					$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
 
 				if (!empty($inspdata))
 				{
@@ -856,7 +862,9 @@ class Dashboard extends CI_Controller {
 			case 'activityreport3':
 				$query['type'] = 'activityreport';
 				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-				$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
+				
+				if (!empty($query['inspections']))
+					$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
 
 				if (!empty($inspdata))
 				{

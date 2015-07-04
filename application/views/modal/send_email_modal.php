@@ -64,14 +64,6 @@
 <script type="text/javascript">
 	$(function(){
 		$('.selectpicker').selectpicker();
-
-		$('#start_date').datepicker({format:'yyyy-mm-dd'}).on('changeDate', function(){
-			$('#start_date').datepicker('hide');
-		});
-
-		$('#end_date').datepicker({format:'yyyy-mm-dd'}).on('changeDate', function(){
-			$('#end_date').datepicker('hide');
-		});
 	});
 
 	$('.selectpicker').on('change', function() {

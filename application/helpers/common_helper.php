@@ -190,7 +190,7 @@ function make_children_answers($root_question, $question_id, $issues, $inspectio
 	$output = '';
 	if (isset($issues['issues'][$question_id]['answers']))
 	{
-		$output .= '<ul class="dropdown-menu noclose pull-middle pull-right" data-label-placement="false"  data-placeholder="false">';
+		$output .= '<ul class="dropdown-menu dwopdown-menu noclose pull-middle pull-right" data-label-placement="false"  data-placeholder="false">';
 		$output .= '<li class="answers-question" id="qid' . $question_id . '">' . $issues['issues'][$question_id]['label'] . '</li>';
 		$childdata = '';
 		foreach ($issues['issues'][$question_id]['answers'] as $answer)
@@ -200,11 +200,11 @@ function make_children_answers($root_question, $question_id, $issues, $inspectio
 			if ($answer['nextQuestionId'] != $root_question && $answer['nextQuestionId'] != 0 && $issues['issues'][$answer['nextQuestionId']]['level'] >= $issues['issues'][$question_id]['level'])
 		       	$childdata = make_children_answers($root_question, $answer['nextQuestionId'], $issues);
 
-			$output .= '<li' . (($answer['nextQuestionId'] != $root_question && !empty($childdata)) ? ' class="dropdown-submenu"' : '') . '>';
+			$output .= '<li' . (($answer['nextQuestionId'] != $root_question && !empty($childdata)) ? ' class="dropdown-submenu dwopdown-submenu"' : '') . '>';
 			
 			//show or not item as link depend from level of questions
 			if ($answer['nextQuestionId'] != $root_question && $answer['nextQuestionId'] != 0 && $issues['issues'][$answer['nextQuestionId']]['level'] > $issues['issues'][$question_id]['level'])
-				$lbl = '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>';
+				$lbl = '<a href="#" tabindex="-2" data-toggle="dwopdown">' . $answer['label'] . '</a>';
 			elseif (in_array($answer['idFormFields'], array(789789,789790,789791)))
 				$lbl = '<a href="javascript:;" style="display:block; width:100%;height:100%;" onclick="addbtnaction('. $inspection_id . ', '. $question_id . ', ' . $answer['idFormFields'].')">' . $answer['label'] . '</a>';
 			else
@@ -250,7 +250,7 @@ function make_children_answers_for_filter($root_question, $question_id, $issues,
 	$output = '';
 	if (isset($issues[$question_id]['answers']))
 	{
-		$output .= '<ul class="dropdown-menu noclose pull-middle pull-right" data-label-placement="false"  data-placeholder="false">';
+		$output .= '<ul class="dropdown-menu dwopdown-menu noclose pull-middle pull-right" data-label-placement="false"  data-placeholder="false">';
 		$output .= '<li class="answers-question" id="qid' . $question_id . '">' . $issues[$question_id]['label'] . '</li>';
 		$childdata = '';
 		foreach ($issues[$question_id]['answers'] as $answer)
@@ -260,11 +260,11 @@ function make_children_answers_for_filter($root_question, $question_id, $issues,
 			if ($answer['nextQuestionId'] != $root_question && $answer['nextQuestionId'] != 0 && $issues[$answer['nextQuestionId']]['level'] >= $issues[$question_id]['level'])
 		       	$childdata = make_children_answers_for_filter($root_question, $answer['nextQuestionId'], $issues, $tabname);
 
-			$output .= '<li' . (($answer['nextQuestionId'] != $root_question && !empty($childdata)) ? ' class="dropdown-submenu"' : '') . '>';
+			$output .= '<li' . (($answer['nextQuestionId'] != $root_question && !empty($childdata)) ? ' class="dropdown-submenu dwopdown-submenu"' : '') . '>';
 			
 			//show or not item as link depend from level of questions
 			if ($answer['nextQuestionId'] != $root_question && $answer['nextQuestionId'] != 0 && $issues[$answer['nextQuestionId']]['level'] > $issues[$question_id]['level'])
-				$lbl = '<a href="#" tabindex="-2" data-toggle="dropdown">' . $answer['label'] . '</a>';
+				$lbl = '<a href="#" tabindex="-2" data-toggle="dwopdown">' . $answer['label'] . '</a>';
 			elseif (in_array($answer['idFormFields'], array(789789,789790,789791)))
 				$lbl = '<a href="javascript:;" style="display:block; width:100%;height:100%;" onclick="addbtnaction('. $inspection_id . ', '. $question_id . ', ' . $answer['idFormFields'].')">' . $answer['label'] . '</a>';
 			else

@@ -119,7 +119,7 @@
 			type: "POST",
 			data: {img: picture},
 			success: function(result) {
-				console.log(result);
+				// console.log(result);
 				if (result == 'done') {
 					window.location = "/dashboard/getexport/html";
 				};
@@ -404,6 +404,7 @@
 	function showgraph(show_graph_id)
 	{
 		<?php load_throbber(); ?>
+		$('#chartacceptor').empty();
 		$('#graphpid').val(show_graph_id);
 		$.ajax({
 			url: '/dashboard/ajax_make_graph',
@@ -415,9 +416,10 @@
 				{
 					window.location = "/user/login";
 				}
-				$('#chartacceptor').empty();
-				$('#chartwrapper').show();
-				eval("$.jqplot('chartacceptor'," + result + ")");
+				if (result != '') {
+					$('#chartwrapper').show();
+					eval("$.jqplot('chartacceptor'," + result + ")");
+				};
 				<?php unload_throbber(); ?>
 			}
 		})
