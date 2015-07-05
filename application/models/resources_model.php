@@ -306,7 +306,7 @@ class Resources_model  extends CI_Model
 		return $this->db->get('Doors')->result_array();
 	}
 
-	function get_user_apertures_without_review($location_id = FALSE)
+	function get_user_apertures_without_review($location_id, $selected_aperture_id = FALSE)
 	{
 		$this->db->select('d.*, i.idInspections, i.deleted as inspdeluser');
 		$this->db->from('Doors d');
@@ -314,16 +314,27 @@ class Resources_model  extends CI_Model
 		$this->db->where('d.UserId', $this->session->userdata('user_parent'));
 
 		if ($location_id)
+		{
 			$this->db->where('d.Building', $location_id);
+			$this->db->or_where('d.Floor', $location_id);
+			$this->db->or_where('d.Wing', $location_id);
+			$this->db->or_where('d.Area', $location_id);
+			$this->db->or_where('d.Level', $location_id);
+		}
 
 		$this->db->where('d.deleted', 0);
 
 		$result = $this->db->get()->result_array();
 
 		$output = array();
+		
 		foreach ($result as $door)
-			if (empty($door['idInspections']) && $door['inspdeluser'] == 0)
+		{
+			if (!empty($door) && $door['inspdeluser'] == 0)
 				$output[] = $door;
+			if (!empty($doo) && $selected_aperture_id && $door['idDoors'] == $selected_aperture_id)
+				$output[] = $door;
+		}
 
 		return $output;
 	}
@@ -525,6 +536,7 @@ class Resources_model  extends CI_Model
 		$this->db->select('idInspections');
 		$this->db->where('deleted', 0);
 		$this->db->where('UserId', $parent);
+		
 		switch ($datetype)
 		{
 			case 'ahjreport1':
@@ -546,8 +558,9 @@ class Resources_model  extends CI_Model
 				$this->db->where('Completion IS NOT ', 'NULL', FALSE);
 			break;
 		}
-		$result = $this->db->get('Inspections')->result_array();
 		
+		$result = $this->db->get('Inspections')->result_array();
+
 		$output = array();
 		foreach ($result as $value)
 			$output[] = $value['idInspections'];

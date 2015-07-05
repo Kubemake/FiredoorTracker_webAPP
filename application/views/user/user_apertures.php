@@ -45,9 +45,7 @@
 		$.ajax({
 			url: "/user/ajax_delete_aperture",
 			type: "POST",
-			data: {
-				id: seldata[0][0]
-			},
+			data: {id: seldata[0][0]},
 			success: function(msg) {
 				// console.log(msg);
 				if (msg=='done')

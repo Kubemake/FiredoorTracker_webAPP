@@ -82,7 +82,7 @@
 		$.ajax({
 			url: '/dashboard/ajax_get_apertures',
 			type: 'POST',
-			data: {locid: $(this).data('id')},
+			data: {locid: $(this).data('id'),aperture: <?=$inspection['idAperture']?>},
 			success: function(result) {
 				$('.apertureselect .dropdown-menu').remove();
 				$('.apertureselect').html(result);

@@ -3,6 +3,7 @@
 		<div class="col-lg-push-3 col-lg-6 overviz col-md-12">
 			<div class="col-md-6">
 				<div id="drop-area-div" class="text-center"><?//container for d&d upload?>
+					<div class="cloud"><img src="/images/cloud.png"></div>
 					<div class="line-1">Upload your media files here</div>
 					<div class="line-2">drag and drop files to upload</div>
 					<div class="line-3">or <span class="upbtnwrap"><input type="file" name="files[]" multiple="multiple" title="Click to add Files" /></span></div>
@@ -77,9 +78,9 @@
 
 		makeupload('#drop-area-div', <?=$this->session->userdata('user_id')?>, function(data){
 			$('#drop-area-div').hide();
-			ftype = data.substr(-3).toLowerCase();
+			ftype = data.substr(-4).replace('.','').toLowerCase();
 			console.log(ftype);
-			if ($.inArray(ftype,['jpg','png','peg','gif', 'ico']) > -1) {
+			if ($.inArray(ftype,['jpg','png','jpeg','gif', 'ico']) > -1) {
 				$('#upload-acceptor').html('<img id="upload-result" src="' + data + '" />');
 				filetype="image";
 			} else {

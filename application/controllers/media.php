@@ -107,8 +107,10 @@ class Media extends CI_Controller {
 		}
 	
 		$name = $_FILES['file']['name'];
-		$ext = substr($name, -4);
-		$name = substr($name, 0, -4);
+		$dot = strrpos($name,'.');//find ext start like .jpg or .jpeg
+		$dot = $dot-$dot-$dot-1; //dot position in filename with minus sign
+		$ext = substr($name, $dot);
+		$name = substr($name, 0, $dot);
 		$name = translate($_FILES['file']['name']);
 		$creation_time = time();
 

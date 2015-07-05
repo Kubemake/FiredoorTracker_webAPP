@@ -4,7 +4,7 @@
 <div class="container-fluid">
 	<div id="footer">
 		<div class="container-fluid">
-			<p class="text-right">Better Call Saul 555-55-55, saul@law.yer</p>
+			<p class="text-right">Better Call Saul 844.524.1212</p>
 		</div>
 	</div>
 </div>

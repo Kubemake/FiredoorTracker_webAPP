@@ -26,7 +26,7 @@ class Media_model  extends CI_Model
 		
 		if ($type)
 			$this->db->where('f.type', $type);
-
+		$this->db->where('UserId', $this->session->userdata('user_parent'));
 		$this->db->where('f.deleted', 0);
 		$this->db->order_by('idFiles', 'desc');
 		return $this->db->get()->result_array();

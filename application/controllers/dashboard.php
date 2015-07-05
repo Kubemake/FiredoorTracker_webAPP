@@ -56,6 +56,12 @@ class Dashboard extends CI_Controller {
 				break;
 
 				case 'add_inspection':
+					// if (!isset($postdata['aperture']) or empty($postdata['aperture']))
+					// {
+					// 	$header['msg'] = msg('warning', 'Can\'t add review without selected door.');
+					// 	break;
+					// }
+
 					$avail = $this->resources_model->get_inspection_by_aperture_id($postdata['aperture']);
 
 					/*LICENSING CHECK!*/
@@ -269,8 +275,8 @@ class Dashboard extends CI_Controller {
 			array('data' => ''   , 'style' => 'display: none !important;'),
 			'Door Id',
 			'Location',
-			array('data' => 'Create by'   , 'class' => 'not-mobile'),
-			array('data' => 'Create date' , 'class' => 'not-mobile'),
+			array('data' => 'Created by'   , 'class' => 'not-mobile'),
+			array('data' => 'Creation Date' , 'class' => 'not-mobile'),
 			array('data' => 'Start date'  , 'class' => 'not-mobile'),
 			array('data' => 'Completion' , 'class' => 'not-mobile'),
 			array('data' => 'Reviewer'	 , 'class' => 'not-mobile'),
@@ -350,7 +356,9 @@ class Dashboard extends CI_Controller {
 	{
 		if (!$building_id = $this->input->post('locid')) return '';
 		
-		$user_apertures = $this->resources_model->get_user_apertures_without_review($building_id);
+		$aperture = $this->input->post('aperture');
+		
+		$user_apertures = $this->resources_model->get_user_apertures_without_review($building_id, $aperture);
 		
 		$output = '<select name="aperture" class="selectpicker fullwidth" data-live-search="true">';
 		$output .= '<option value="0">Choose door</option>';
@@ -654,7 +662,7 @@ class Dashboard extends CI_Controller {
 			case 'ahjreport1':
 				$query['type'] = 'ahjreport1';
 				$query['inspections'] = $this->resources_model->get_inspections_by_complete_date($query['type']);
-
+				
 				if (!empty($query['inspections']))
 					$inspdata = $this->_get_report_cache($query); //take or make and take data for report using params above
 
@@ -1329,7 +1337,7 @@ class Dashboard extends CI_Controller {
 					continue;
 
 			if(isset($filter_data['end_date']) && !empty($filter_data['end_date']))
-				if (empty($inspection['Completion']) or strtotime($inspection['Completion']) < strtotime($filter_data['end_date']))
+				if (empty($inspection['CreateDate']) or strtotime($inspection['CreateDate']) > strtotime($filter_data['end_date']))
 					continue;
 
 			if(isset($filter_data['users']) && !empty($filter_data['users']) && !in_array('all', $filter_data['users']))
@@ -1715,11 +1723,12 @@ class Dashboard extends CI_Controller {
 
 				foreach ($params['inspections'] as $inspec_id)
 				{
-					$minz = !empty($cached_data[$inspec_id]) ? max(array_keys($cached_data[$inspec_id])) : 1405886400;//1430427600; //2015-05-01 or last record
+					$minz = !empty($cached_data[$inspec_id]) ? max(array_keys($cached_data[$inspec_id])) : 1430452800; //2015-05-01 or last record
 					$day = 86400;
-					for ($i = $minz+86400; $i < date('U'); $i = $i+$day) //loop +1 day
+					for ($i = $minz+86400; $i <= date('U'); $i = $i+$day) //loop +1 day
 					{ 
 						$nowdate = date('Y-m-d', $i);
+						
 						$histdata = $this->history_model->get_data_by_date_and_type('inspections', $inspec_id, $nowdate);
 						
 						if (!empty($histdata))

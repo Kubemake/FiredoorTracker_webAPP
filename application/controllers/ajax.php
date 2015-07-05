@@ -41,7 +41,7 @@ class Ajax extends CI_Controller {
 			case 'add_inspection_modal':
 				$this->load->model('user_model');
 				$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
-				$params['user_apertures'] 		= $this->resources_model->get_user_apertures_without_review();
+				// $params['user_apertures'] 		= $this->resources_model->get_user_apertures_without_review();
 				// $params['inspection_statuses'] 	= $this->resources_model->get_all_inspection_statuses();
 				
 				$params['users_reviewer'] = $this->session->userdata('user_id');
@@ -65,10 +65,11 @@ class Ajax extends CI_Controller {
 							$bid = $params['inspection']['Building'];
 					}
 				}
+
 				$params['user_buildings'] 		= $this->resources_model->get_user_buildings();
 				$params['current_location']		= $bid;
-				$params['user_apertures'] 		= $this->resources_model->get_user_apertures_without_review($bid);
-				$params['user_apertures'][] 	= array('idDoors' => $params['inspection']['idAperture'], 'barcode' => $params['inspection']['barcode']);
+				$params['user_apertures'] 		= $this->resources_model->get_user_apertures_without_review($bid, $params['inspection']['idAperture']);
+				// $params['user_apertures'][] 	= array('idDoors' => $params['inspection']['idAperture'], 'barcode' => $params['inspection']['barcode']);
 				$params['inspection_statuses'] 	= $this->resources_model->get_all_inspection_statuses();
 
 				$params['users_reviewer'] = $this->session->userdata('user_id');

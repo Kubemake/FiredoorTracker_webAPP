@@ -1099,6 +1099,8 @@ class Service extends CI_Controller {
 	/*
 	 * Get aperture issues and update overview info
 	 *
+	 * Call when user pess submit on DIO screen
+	 *
 	 * Input data:
 	 * token			=> auth id from login
 	 * inspection_id  	=> inspection id
@@ -1186,8 +1188,9 @@ class Service extends CI_Controller {
 		$this->load->model('resources_model');
 		$user = $this->user_model->get_user_info_by_user_id($user_id);
 		
+		$this->resources_model->update_inspection($data['inspection_id'], array('InspectionStatus' => 'In Progress', 'Inspector' => $user_id));
+		
 		//make right data for save for some fields
-		// $data = $this->_make_locations_data($data);
 		$data['wall_Rating']  = $wall_rating[$data['wall_Rating']];
 		$data['smoke_Rating'] = $smoke_rating[$data['smoke_Rating']];
 		$data['rating'] 	  = $rating[$data['rating']];

@@ -78,6 +78,7 @@
 			type: 'POST',
 			data: {locid: $(this).data('id')},
 			success: function(result) {
+				// console.log(result);
 				$('.apertureselect .dropdown-menu').remove();
 				$('.apertureselect').html(result);
 				$('.selectpicker').selectpicker();

@@ -774,7 +774,11 @@ class User extends CI_Controller {
 		verifyLogged();
 
 		if (!$field_id = $this->input->post('id')) die(json_encode(array('status' => 'error')));
-		// $field_id = $this->input->get();
+		
+		$this->load->library('history_library');
+	
+		$this->history_library->saveBuildings(array('line_id' => $field_id, 'new_val' => json_encode(array('deleted' => $this->session->userdata('user_id'))), 'type' => 'edit'));
+
 		$result = $this->user_model->delete_building_by_id($field_id);
 
 		if (!$result) {
@@ -788,9 +792,12 @@ class User extends CI_Controller {
 	{
 		verifyLogged();
 
-		$this->load->model('resources_model');
-
 		if (!$aperture_id = $this->input->post('id')) return print('empty id');
+		
+		$this->load->model('resources_model');
+		$this->load->library('history_library');
+
+		$this->history_library->saveDoors(array('line_id' => $aperture_id, 'new_val' => json_encode(array('deleted' => $this->session->userdata('user_id'))), 'type' => 'edit'));
 
 		if (!$this->resources_model->delete_aperture_by_id($aperture_id))  return print('can\'t delete door by id');
 
