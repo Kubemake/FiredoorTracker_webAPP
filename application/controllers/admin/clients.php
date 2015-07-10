@@ -10,10 +10,9 @@ class Clients extends CI_Controller {
 		$this->load->library('table');
 	}
 
-		function index()
+	function index()
 	{
 		$this->lang->load('resources');
-		$this->load->library('table');
 		$data = array();
 		if ($this->input->post())
 		{
@@ -60,8 +59,8 @@ class Clients extends CI_Controller {
 				{
 					$mail = send_mail(
 						$adddata['email'],
-						$this->lang->line('email_add_employeer_subject'),
-						sprintf($this->lang->line('email_add_employeer_body'),  $_SERVER['HTTP_HOST'], $adddata['email'], $postdata['new_password'])
+						$this->lang->line('email_add_client_subject'),
+						sprintf($this->lang->line('email_add_client_body'),  $_SERVER['HTTP_HOST'], $adddata['email'], $postdata['new_password'])
 					);
 				}
 

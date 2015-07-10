@@ -4,15 +4,41 @@ function verifyLogged($type='user') //can be checked exactly for admin rgihts if
 {
 	$CI = & get_instance();
 	$CI->session->set_flashdata('refferer', current_url());
-
-	$cook = unserialize($CI->input->cookie('islogged')); //собираем куки  //надо сделать чтобы данные в сессию свежие попадали а не из куки старые!!
-	if (isset($cook['islogged']) && $cook['islogged']>0)
+	$CI->load->model('user_model');
+	if (!$CI->session->userdata('islogged') && isset($_COOKIE["islogged"]) && !empty($_COOKIE["islogged"]))
 	{
-		$CI->session->set_userdata($cook); //сохраняем в сессию куки
+		$cook = $CI->user_model->get_user_info_by_user_id($_COOKIE["islogged"]); //собираем куки  //надо сделать чтобы данные в сессию свежие попадали а не из куки старые!!
+		$sessiondata = array( 
+			'isadmin' 		=> ($cook['role']==4) ? 1 : 0,
+			'islogged' 		=> 1,
+			'user_id' 		=> $cook['idUsers'],
+			'user_parent' 	=> $cook['parent'],
+			'user_role'		=> $cook['role'],
+			'firstName'		=> $cook['firstName'],
+			'lastName'		=> $cook['lastName'],
+			'lastlogin'		=> $cook['lastLogin'],
+			'logoFilePath'	=> $cook['logoFilePath'],
+		);
+
+		$CI->session->set_userdata($sessiondata); //сохраняем в сессию куки
 	 	return TRUE;
 	}
 	$logged_in = $CI->session->userdata('islogged');
 	$is_admin = $CI->session->userdata('isadmin');
+
+	/*LICENSE CHECK*/
+	/*$CI->load->model('licensing_model');
+	
+	$licensing = $CI->licensing_model->get_lic_info_by_client_id($CI->session->userdata('user_parent'));
+	
+	if (!empty($licensing) && !empty($licensing['expired']))
+	{
+		if (strtotime($licensing['expired'] . ' 23:59:59') < time())
+			redirect('/user/leave', 'refresh');//have not licensing data
+	}
+	else
+		redirect('/user/leave', 'refresh');//have not licensing data*/
+	/*END LICENSE CHECK*/
 
 	if ($logged_in == FALSE)
 	{
@@ -25,6 +51,7 @@ function verifyLogged($type='user') //can be checked exactly for admin rgihts if
 		// redirect('/user/login', 'refresh');
 		// return FALSE;
 	}
+
 	return TRUE;
 }
 
@@ -496,6 +523,29 @@ function unload_throbber()
 {
 	echo '$(\'#throbber\').empty();';
 }
+
+function generate_password($number)
+  {
+    $arr = array('a','b','c','d','e','f',
+                 'g','h','i','j','k','l',
+                 'm','n','o','p','r','s',
+                 't','u','v','x','y','z',
+                 'A','B','C','D','E','F',
+                 'G','H','I','J','K','L',
+                 'M','N','O','P','R','S',
+                 'T','U','V','X','Y','Z',
+                 '1','2','3','4','5','6',
+                 '7','8','9','0');
+    // Генерируем пароль
+    $pass = "";
+    for($i = 0; $i < $number; $i++)
+    {
+      // Вычисляем случайный индекс массива
+      $index = rand(0, count($arr) - 1);
+      $pass .= $arr[$index];
+    }
+    return $pass;
+  }
 
 /* End of file common_helper.php */
 /* Location: ./system/helpers/common_helper.php */

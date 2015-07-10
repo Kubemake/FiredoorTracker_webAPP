@@ -9,6 +9,7 @@
 				<?php if (has_permission('Allow view users tab')):						?><li><a href="/user/employees">Employees</a></li><?php endif; ?>
 				<?php if (has_permission('Allow view clients tab')):					?><li><a href="/admin/clients">Clients</a></li><?php endif; ?>
 				<?php if (in_array($this->session->userdata('user_role'), array(1,4))):	?><li><a href="/admin/rules">Rules</a></li><?php endif; ?>
+				<?php if ($this->session->userdata('user_role') == 1):					?><li><a href="/licensing">Licensing</a></li><?php endif; ?>
 			</ul>
 		</div>
 	</div>

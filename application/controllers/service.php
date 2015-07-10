@@ -26,6 +26,95 @@ class Service extends CI_Controller {
 		$data['faqs'] = $this->info_model->get_all_faq();
 		$this->load->view('mobile/mobile_faq', $data);
 	}
+	
+	function order($show = FALSE)
+	{
+		$alldata = @file_get_contents("php://input");
+		// $alldata = file_get_contents(APPPATH.'cache/order');  //DEBUG
+		// $alldata = json_decode($alldata);					  //DEBUG
+		// if (strpos($alldata, '"livemode": false,') !== FALSE)
+		// 	exit;
+
+		$alldata = json_decode($alldata);
+		
+		if(!$charge = $alldata->data->object)
+			exit;
+		
+		if (!isset($charge->object) or $charge->object != 'charge')
+			exit;
+		if (!isset($charge->status) or $charge->status != 'succeeded')
+			exit;
+		if (!isset($charge->paid) or $charge->paid != 1)
+			exit;
+
+		if (!$metadata = $charge->metadata)
+			exit;
+
+		$reviews = array('75'  => 250, '100' => 500, '150' => 1000, '250' => 2000, '350' => 3000, '450' => 4000, '500' => 5000);
+
+		$regdata['email'] 	= $metadata->purchased_email;
+		$regdata['years'] 	= $metadata->purchased_years;
+		$regdata['reviews'] = $reviews[$metadata->purchased_reviews];
+		$regdata['dir'] 	= $metadata->purchased_dir;
+		$regdata['sv'] 		= $metadata->purchased_sv;
+		$regdata['mech'] 	= $metadata->purchased_mech;
+
+		$this->lang->load('resources');
+		$this->load->model('resources_model');
+		$this->load->model('licensing_model');
+		$this->load->library('History_library');
+		
+		$dororgregtext = '';
+
+		$client = $this->resources_model->get_user_by_email($regdata['email']); //check if it email used
+		if (!empty($client)) {
+			$client = $client['idUsers'];
+		}
+		else
+		{
+			$password = generate_password(12);
+			
+			$adddata = array(
+				'email'		=> $regdata['email'],
+				'password' 	=> pass_crypt($password),
+				'role'		=> 1,
+			);
+
+			$client = $this->resources_model->add_employer($adddata);	//add new user
+			
+			$this->resources_model->update_employer_data($client, array('parent' => $client));
+
+			$adddata['parent'] = $client;
+
+			$this->history_library->saveUsers(array('line_id' => $client, 'new_val' => json_encode($adddata), 'type' => 'add'));
+
+			$dororgregtext = sprintf($this->lang->line('email_add_client_body'),  $_SERVER['HTTP_HOST'], @$adddata['email'], @$password);
+		}
+
+		$years = ($regdata['years'] == 1) ? '+1 year' : '+' . $regdata['years'] . ' years';
+		$expdate = date('Y-m-d', strtotime($years));
+
+		$addlicdata = array(
+			'expired' 		=> $expdate,
+			'dir'			=> $regdata['dir'],
+			'sv'			=> $regdata['sv'],
+			'mech'			=> $regdata['mech'],
+			'inspections' 	=> $regdata['reviews']
+		);
+
+		$addlicdata['idUsers'] = $client;
+		$licid = $this->licensing_model->add_licensing_data($addlicdata);
+
+		$this->history_library->saveLic(array('line_id' => $licid, 'new_val' => json_encode($addlicdata), 'type' => 'add'));
+
+		send_mail(
+			$regdata['email'], //to
+			$this->lang->line('email_add_client_subject'), //subj
+			sprintf($this->lang->line('email_purchase_data'), $regdata['dir'], $regdata['sv'], $regdata['mech'], $regdata['reviews'], $expdate, $dororgregtext)  //body
+		);
+
+		exit;
+	}
 
 
 	/*
@@ -49,7 +138,7 @@ class Service extends CI_Controller {
 			if (empty($postdata))
 				$this->_show_output(array('status' => 'error', 'error' => 'no data'));
 			
-			file_put_contents('/home/firedoors/public_html/application/cache/postdata', $postdata . "\r\n", FILE_APPEND);  //DEBUG
+			file_put_contents(APPPATH . 'cache/postdata', $postdata . "\r\n", FILE_APPEND);  //DEBUG
 			$data = json_decode($postdata, TRUE); //name of JSON post data
 		}
 		

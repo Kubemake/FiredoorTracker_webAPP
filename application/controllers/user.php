@@ -72,6 +72,7 @@ class User extends CI_Controller {
 
 	function address()
 	{
+		verifyLogged();
 		$this->load->model('address_model');
 		$this->load->helper('form');
 		
@@ -139,17 +140,7 @@ class User extends CI_Controller {
 					'lastlogin'		=> $this->session->userdata('lastLogin'),
 					'logoFilePath'	=> $this->session->userdata('logoFilePath'),
 				);
-				$cookie = array(
-					'name'   => 'islogged',
-					'value'  => serialize($sessiondata),
-					'expire' => time()+60*60*24*30,
-					'domain' => '.'.$_SERVER['HTTP_HOST'],
-					'path'   => '/',
-					'prefix' => 'logindata_',
-					'secure' => TRUE
-				);
-				$this->input->set_cookie($cookie); 
-
+				setcookie('islogged', $this->session->userdata('user_id'), time()+60*60*24, '/');
 			}
 
 			if ($this->session->flashdata('refferer') && strpos($this->session->flashdata('refferer'), 'ajax') === FALSE)
@@ -200,7 +191,6 @@ class User extends CI_Controller {
 				$this->session->set_flashdata('showlicwarn', array(1=>$days));
 		}
 
-
 		$this->session->set_userdata($sessiondata);
 		$this->user_model->update_user_data($valid_login['idUsers'], array('LastLogin' => date('Y-m-d H:i:s')));
 
@@ -241,17 +231,10 @@ class User extends CI_Controller {
 
 	function leave()
 	{
+		setcookie('islogged', '', time() - 86600, '/'); 	//clear cookie
+
 		$this->session->sess_destroy();
-		$cookie = array(	//clear cookie
-			'name'   => 'islogged',
-			'value'  => '',
-			'expire' => time()-60*60*24*30,
-			'domain' => '.'.$_SERVER['HTTP_HOST'],
-			'path'   => '/',
-			'prefix' => 'logindata_',
-			'secure' => TRUE
-		);
-		$this->input->set_cookie($cookie); 
+	
 		redirect('/');
 	}
 	
