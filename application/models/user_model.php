@@ -24,7 +24,7 @@ class User_model  extends CI_Model
 		if (!empty($user))
 		{
 			$logofile = $this->db->where('idUsers', $user['parent'])->select('logoFilePath')->get('Users')->row_array();
-			$user['logoFilePath'] = (strlen($logofile['logoFilePath']) > 0) ? $logofile['logoFilePath'] : '/images/head-logo.png';
+			$user['logoFilePath'] = (isset($logofile['logoFilePath']) && strlen($logofile['logoFilePath']) > 0) ? $logofile['logoFilePath'] : '/images/head-logo.png';
 		}
 
 		return $user;

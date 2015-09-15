@@ -30,7 +30,7 @@
 <header>
 	<div class="container">
 		<div class="row">
-			<div class="col-md-3 col-xs-12"><a href="/" id="logo" style="background-image: url(<?=$this->session->userdata('logoFilePath')?>);"></a></div>
+			<div class="col-md-3 col-xs-12"><a href="/" id="logo" style="background-image: url('<?=$this->session->userdata('logoFilePath')?>');"></a></div>
 			<div class="col-md-3 col-xs-12 pull-right text-right" id="wellcome">
 				<div>WELCOME,</div><div> <?=$this->session->userdata('firstName')?> <?=$this->session->userdata('lastName')?></div>
 				<div class="lastlogin">LAST LOGIN <?=$this->session->userdata('lastlogin')?></div>

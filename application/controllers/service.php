@@ -1422,8 +1422,8 @@ class Service extends CI_Controller {
 
 		$field 		= $data['idFormFields'];
 		$inspection = $data['inspection_id'];
-		$user_id = $data['tokendata']['user_id'];
-		$user = $this->user_model->get_user_info_by_user_id($user_id);
+		$user_id 	= $data['tokendata']['user_id'];
+		$user 		= $this->user_model->get_user_info_by_user_id($user_id);
 		$value 		= $data['selected'];
 		$status  	= $data['status'];
 
@@ -1636,7 +1636,7 @@ class Service extends CI_Controller {
 		foreach ($userlocation as $loc)
 			$buildings[$loc['level']][$loc['name']] = $loc;
 
-		$userlocation = $buildings;
+		$userlocation = $buildings; //!!!!!!Слать после логина для офлайна
 
 		$aperture = $this->resources_model->get_aperture_info_by_barcode($data['barcode'], $user['parent']);
 
@@ -1689,6 +1689,7 @@ class Service extends CI_Controller {
 		//if aperture present and inspection present
 		if (!empty($available_review))
 		{
+			//!!!!!!if offline отправлять данные по сущ чтобы ты спросил пользовеляь что делать. если придёт с форс=тру то старую инспекц удалить а новую создать
 			$available_review['id'] = $available_review['idInspections'];
 			unset($available_review['Completion'], $available_review['StartDate'], $available_review['Buildings_idBuildings'], $available_review['idInspections'], $available_review['deleted']);
 

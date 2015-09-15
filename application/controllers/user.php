@@ -177,18 +177,38 @@ class User extends CI_Controller {
 			'logoFilePath'	=> $valid_login['logoFilePath'],
 		);
 
-		if (!empty($licensing))
+		if ($valid_login['role'] != 4)
 		{
-			if (strtotime($licensing['expired'] . ' 23:59:59') < time())
+			if (!empty($licensing))
+			{
+				if (empty($licensing['expired']) or strtotime($licensing['expired'] . ' 23:59:59') < time())
+				{
+					$this->form_validation->set_message('_check_in_database', '<div class="alert alert-danger">Your license term has expired; please <a target="_blank" href="https://firedoortracker.com/pricing/">RENEW NOW</a> in order to continue using the app. <br>If there are any questions, please call us at 844.524.1212 or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a></div>');
+					return FALSE;
+				}
+
+				$days = floor((strtotime($licensing['expired'] . ' 23:59:59') - time()) / (60*60*24));
+
+				if ($days < 8)
+					$this->session->set_flashdata('showlicwarn', array(1=>$days));
+
+				/*deactivate employees by license limitation*/
+				$users = $this->licensing_model->get_active_users_by_client_id($valid_login['parent']);
+				
+				if ($users[1] > $licensing['dir'])
+					$this->licensing_model->deactivate_by_limitation(1, $users[1] - $licensing['dir'], $valid_login['parent']);
+				if ($users[2] > $licensing['sv'])
+					$this->licensing_model->deactivate_by_limitation(2, $users[2] - $licensing['sv'], $valid_login['parent']);
+				if ($users[3] > $licensing['mech'])
+					$this->licensing_model->deactivate_by_limitation(3, $users[3] - $licensing['mech'], $valid_login['parent']);
+
+				/*END deactivate employees by license limitation*/
+			}
+			else
 			{
 				$this->form_validation->set_message('_check_in_database', '<div class="alert alert-danger">Your license term has expired; please <a target="_blank" href="https://firedoortracker.com/pricing/">RENEW NOW</a> in order to continue using the app. <br>If there are any questions, please call us at 844.524.1212 or visit our website at <a target="_blank" href="https://www.firedoortracker.com">www.firedoortracker.com</a></div>');
 				return FALSE;
 			}
-
-			$days = floor((strtotime($licensing['expired'] . ' 23:59:59') - time()) / (60*60*24));
-
-			if ($days < 8)
-				$this->session->set_flashdata('showlicwarn', array(1=>$days));
 		}
 
 		$this->session->set_userdata($sessiondata);
@@ -235,7 +255,7 @@ class User extends CI_Controller {
 
 		$this->session->sess_destroy();
 	
-		redirect('/');
+		redirect('/user/login');
 	}
 	
 	function buildings()

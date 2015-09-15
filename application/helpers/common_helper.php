@@ -8,6 +8,7 @@ function verifyLogged($type='user') //can be checked exactly for admin rgihts if
 	if (!$CI->session->userdata('islogged') && isset($_COOKIE["islogged"]) && !empty($_COOKIE["islogged"]))
 	{
 		$cook = $CI->user_model->get_user_info_by_user_id($_COOKIE["islogged"]); //собираем куки  //надо сделать чтобы данные в сессию свежие попадали а не из куки старые!!
+		
 		$sessiondata = array( 
 			'isadmin' 		=> ($cook['role']==4) ? 1 : 0,
 			'islogged' 		=> 1,
@@ -21,23 +22,20 @@ function verifyLogged($type='user') //can be checked exactly for admin rgihts if
 		);
 
 		$CI->session->set_userdata($sessiondata); //сохраняем в сессию куки
-	 	return TRUE;
 	}
 	$logged_in = $CI->session->userdata('islogged');
 	$is_admin = $CI->session->userdata('isadmin');
 
 	/*LICENSE CHECK*/
-	/*$CI->load->model('licensing_model');
+	$CI->load->model('licensing_model');
 	
 	$licensing = $CI->licensing_model->get_lic_info_by_client_id($CI->session->userdata('user_parent'));
 	
-	if (!empty($licensing) && !empty($licensing['expired']))
+	if ($CI->session->userdata('user_role') != 4)
 	{
-		if (strtotime($licensing['expired'] . ' 23:59:59') < time())
+		if (empty($licensing) or empty($licensing['expired']) or strtotime($licensing['expired'] . ' 23:59:59') < time())
 			redirect('/user/leave', 'refresh');//have not licensing data
 	}
-	else
-		redirect('/user/leave', 'refresh');//have not licensing data*/
 	/*END LICENSE CHECK*/
 
 	if ($logged_in == FALSE)
