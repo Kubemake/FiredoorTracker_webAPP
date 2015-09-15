@@ -700,21 +700,21 @@ class User extends CI_Controller {
 
 		$all_elem_list = $this->user_model->get_all_buildings();
 
-		$order = array();
+		// $order = array();
 
 		foreach (json_decode($postdata['buildings']) as $building) {
 			
-			$order = array();
+			// $order = array();
 
 			$issdata = $all_elem_list[$building->id];
 			$issdata['parent'] = 0;
 			$issdata['level'] = 0;
 			$issdata['root'] = $building->id;
 
-			if (!isset($order[$issdata['parent']]))
-				$order[$issdata['parent']] = 0;
-			else
-				$order[$issdata['parent']]++;
+			// if (!isset($order[$issdata['parent']]))
+			// 	$order[$issdata['parent']] = 0;
+			// else
+			// 	$order[$issdata['parent']]++;
 			
 			if (!isset($zeroorder))
 				$zeroorder = 0;
@@ -728,13 +728,13 @@ class User extends CI_Controller {
 			// }
 
 			if (isset($building->children)) {
-				$order = $this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $building->id, 1);
+				$order = $this->_submit_reorder($building->children, $all_elem_list, /*$order,*/ $building->id, $building->id, 1);
 			}
 		}
 
 	}
 	
-	function _submit_reorder($elemtree, $all_elem_list, $order, $parent_id, $root, $level)
+	function _submit_reorder($elemtree, $all_elem_list, /*$order,*/ $parent_id, $root, $level)
 	{
 		foreach ($elemtree as $building) {
 			
@@ -743,19 +743,24 @@ class User extends CI_Controller {
 			$issdata['level'] = $level;
 			$issdata['root'] = $root;
 
-			if (!isset($order[$issdata['parent']]))
-				$order[$issdata['parent']] = 0;
-			else
-				$order[$issdata['parent']]++;
+			// if (!isset($order[$issdata['parent']]))
+			// 	$order[$issdata['parent']] = 0;
+			// else
+			// 	$order[$issdata['parent']]++;
 
 			// if ($issdata['buildingOrder'] != $order[$issdata['parent']]) //if saved as final but it is not or if changed order UPDATE building data
 			// {
-				$issdata['buildingOrder'] = $order[$issdata['parent']];
+			if (!isset($zeroorder))
+				$zeroorder = 0;
+			else
+				$zeroorder++;
+			
+				$issdata['buildingOrder'] = $zeroorder;
 				$this->user_model->update_building_data($issdata);
 			// }
 
 			if (isset($building->children)) {
-				$order = $this->_submit_reorder($building->children, $all_elem_list, $order, $building->id, $root, $level+1);
+				$order = $this->_submit_reorder($building->children, $all_elem_list, /*$order,*/ $building->id, $root, $level+1);
 			}
 		}
 		return $order;

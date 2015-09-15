@@ -2115,6 +2115,37 @@ class Service extends CI_Controller {
 
 		$this->_show_output($userData);
 	}
+
+	/*
+	 * Delete inspection and it door
+	 *
+	 * Input data:
+	 * token			=> auth id from login
+	 *
+	 * Output data:
+	 * array of offline required data
+	 */
+	function _exec_function_get_offline_data($data)
+	{
+		$user_id = $data['tokendata']['user_id'];
+
+		$this->load->model('user_model');
+		$this->load->model('resources_model');
+
+		$user = $this->user_model->get_user_info_by_user_id($user_id);
+			
+		$userlocation = $this->resources_model->get_user_buildings($user['parent']);
+		$buildings 	  = array();
+
+		foreach ($userlocation as $loc)
+			$buildings[$loc['level']][$loc['name']] = $loc;
+
+		$userData['locations'] = $buildings;
+		$userData['status']    = 'ok';
+echo '<pre>';
+print_r($userData);die();
+		$this->_show_output($userData);
+	}
 }
 
 /* End of file service.php */
