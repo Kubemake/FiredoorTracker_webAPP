@@ -1180,8 +1180,9 @@ class Service extends CI_Controller {
 
 		$userData['status'] = 'ok';
 
-		// echo '<pre>';
-		// print_r($userData);die();
+		if (isset($data['for_offline']) && $data['for_offline'] == 1)
+			return $userData;
+
 		$this->_show_output($userData);
 	}
 
@@ -1671,10 +1672,9 @@ class Service extends CI_Controller {
 		if (empty($aperture))
 		{
 			$location_name = array();
-			$apert_adddata['barcode'] 	= $data['barcode'];
-			$apert_adddata['UserId'] 	= $user['parent'];
-			
-
+			$apert_adddata['barcode'] 		= $data['barcode'];
+			$apert_adddata['UserId'] 		= $user['parent'];
+			$apert_adddata['offlineData'] 	= $user['parent'] . $data['aperture_id'];
 			$apert_adddata['IntExt']	= $data['location']['IntExt'];
 
 			$aperture_id = $this->resources_model->add_aperture($apert_adddata);
@@ -1689,12 +1689,59 @@ class Service extends CI_Controller {
 		//if aperture present and inspection present
 		if (!empty($available_review))
 		{
+			
 			//!!!!!!if offline отправлять данные по сущ чтобы ты спросил пользовеляь что делать. если придёт с форс=тру то старую инспекц удалить а новую создать
 			$available_review['id'] = $available_review['idInspections'];
 			unset($available_review['Completion'], $available_review['StartDate'], $available_review['Buildings_idBuildings'], $available_review['idInspections'], $available_review['deleted']);
 
 			$available_review['building_name'] = $building_name;
 			$available_review['location_name'] = $location_name;
+
+			if (isset($data['offline']))
+			{
+				if (!isset($data['force']))
+				{
+					$userData['status'] = 'error';
+					$userData['error'] = 'inspection allready exists';
+					$userData['inspection'] = $available_review;
+
+					$this->_show_output($userData);
+				}
+				else //if force then save new version of review and delete old version
+				{
+					if ($data['force'] == 1)
+					{
+						$this->resources_model->delete_review_by_id($available_review['id'], $user);
+
+						$adddata['idAperture'] 		 = $aperture_id;
+						$adddata['InspectionStatus'] = 'New';
+						$adddata['Inspector'] 		 = $user_id;
+						$adddata['Creator']	 		 = $user_id;
+						$adddata['CreateDate'] 		 = date('Y-m-d');
+						$adddata['UserId'] 			 = $user['parent'];
+						$adddata['summary'] 		 = @$data['summary'];
+						$adddata['offlineData'] 	 = $user['parent'] . $data['inspection_id'];
+
+						$iid = $this->resources_model->add_inspection($adddata);
+		
+						$this->history_library->saveInspections(array('user_id' => $user_id, 'line_id' => $iid, 'new_val' => json_encode($adddata), 'type' => 'add'));
+
+						$adddata['id'] = $iid;
+						$adddata['aperture_id']   = $aperture_id;
+						$adddata['building_name'] = $building_name;
+						$adddata['location_name'] = @$location_name;
+
+						$userData['status'] = 'ok';
+						$userData['CreatedInspection'] 	= $adddata;
+						$this->_show_output($userData);
+					}
+					else
+					{
+						$available_review['offlineData'] = $data['inspection_id'];
+						$this->resources_model->update_inspection($available_review['id'], array('offlineData' => $user['parent'] . $data['inspection_id']));
+					}
+				}
+			}
 
 			$userData['CreatedInspection'] 	= $available_review;
 			$userData['status'] = 'ok';
@@ -2108,8 +2155,16 @@ class Service extends CI_Controller {
 		$user_id = $data['tokendata']['user_id'];
 		$user = $this->user_model->get_user_info_by_user_id($user_id);
 
-		$this->resources_model->delete_aperture_by_id($data['aperture_id'], $user);
-		$this->resources_model->delete_review_by_id($data['inspection_id'], $user);
+		if (isset($data['offline']))
+		{
+			$this->resources_model->delete_aperture_by_offline_id($data['aperture_id'], $user);
+			$this->resources_model->delete_review_by_offline_id($data['inspection_id'], $user);
+		}
+		else
+		{
+			$this->resources_model->delete_aperture_by_id($data['aperture_id'], $user);
+			$this->resources_model->delete_review_by_id($data['inspection_id'], $user);
+		}
 
 		$userData['status']   = 'ok';
 
@@ -2140,10 +2195,184 @@ class Service extends CI_Controller {
 		foreach ($userlocation as $loc)
 			$buildings[$loc['level']][$loc['name']] = $loc;
 
-		$userData['locations'] = $buildings;
-		$userData['status']    = 'ok';
-echo '<pre>';
-print_r($userData);die();
+		$dummydoor = $this->resources_model->get_aperture_info_by_aperture_id(1);
+		if (empty($dummydoor))
+			$this->resources_model->add_aperture(array('idDoors' => 1, 'barcode' => 666666, 'UserId' => 1, 'Building' => 8, 'Floor' => 0, 'Wing' => 0, 'Area' => 0, 'Level' => 0, 'IntExt' => 'N/A', 'wall_Rating' => 1, 'rating' => 1, 'smoke_Rating' => 1, 'material' => 1, 'doorLabel_Type' => 'Metal', 'doorLabel_Rating' => '60 Minute', 'doorLabel_Testing_Lab' => 'UL', 'doorLabel_Manufacturer' => '', 'doorLabel_serial' => '', 'doorLabel_Min_Latch' => 'N/A', 'doorLabel_Temp_Rise' => 'N/A', 'frameLabel_Type' => 'Metal', 'frameLabel_Rating' => '1 Hour', 'frameLabel_Testing_Lab' => 'UL', 'frameLabel_Manufacturer' => '', 'frameLabel_serial' => '', 'number_Doors' => 'Single Door', 'width' => '', 'height' => 84, 'door_type' => 'Swinging', 'vision_Light_Present' => 'Yes', 'vision_Light' => 'Other', 'singage' => 'Yes', 'auto_Operator' => 'No', 'comment' => '', 'deleted' => 0, 'offlineData' => '', 'location_name' => 'Building #1'));
+
+		$data['aperture_id'] = 1;
+		$data['for_offline'] = 1;
+		$diodata = $this->_exec_function_get_aperture_overview_info($data);
+		unset($diodata['status']);
+
+		foreach ($diodata['info'] as $group => &$values)
+		{
+			foreach ($values as &$parametr)
+			{
+				unset($parametr['selected']);
+				if (!empty($parametr['values']))
+				{
+					foreach ($parametr['values'] as &$value)
+					{
+						$value = array('value' => $value/*, 'hide' => '', 'depends' => ''*/);
+						
+						//hides
+						if ($parametr['name'] == 'smoke_Rating' && $value['value'] == 'No')
+							$value['hide'] = array(
+								array(
+									'group' => $group,
+									'name' => 'material',
+									'value'=> 'Aluminum'
+								),
+							);
+						
+						if ($parametr['name'] == 'vision_Light_Present' && $value['value'] == 'No')
+							$value['hide'] = array(
+								array(
+									'group' => $group,
+									'name' => 'vision_Light'
+								),
+							);
+
+						if ($parametr['name'] == 'frameLabel_Type' && $value['value'] == 'Not Present')
+							$value['hide'] = array(
+								array(
+									'group' => $group,
+									'name' => 'frameLabel_Rating'
+								),
+								array(
+									'group' => $group,
+									'name' => 'frameLabel_Testing_Lab'
+								),
+								array(
+									'group' => $group,
+									'name' => 'frameLabel_serial'
+								),
+
+							);
+
+						if ($parametr['name'] == 'doorLabel_Type' && $value['value'] == 'Not Present')
+							$value['hide'] = array(
+								array(
+									'group' => $group,
+									'name' => 'doorLabel_Rating'
+								),
+								array(
+									'group' => $group,
+									'name' => 'doorLabel_Testing_Lab'
+								),
+								array(
+									'group' => $group,
+									'name' => 'doorLabel_serial'
+								),
+								array(
+									'group' => $group,
+									'name' => 'doorLabel_Min_Latch'
+								),
+								array(
+									'group' => $group,
+									'name' => 'doorLabel_Temp_Rise'
+								),
+
+							);
+				
+
+					}
+
+					//depends
+					if ($parametr['name'] == 'vision_Light')
+						$parametr['depends'] = array(
+							array(
+								'group' => $group,
+								'name' => 'vision_Light_Present'
+							),
+						);
+					
+					if ($parametr['name'] == 'material')
+						$parametr['depends'] = array(
+							array(
+								'group' => $group,
+								'name' => 'smoke_Rating'
+							),
+						);
+					
+
+					if ($parametr['name'] == 'frameLabel_Rating')
+						$parametr['depends'] = array(
+							array(
+								'group' => $group,
+								'name' => 'frameLabel_Type'
+							),
+						);
+					
+					if ($parametr['name'] == 'frameLabel_Testing_Lab')
+						$parametr['depends'] = array(
+							array(
+								'group' => $group,
+								'name' => 'frameLabel_Type'
+							),
+						);
+
+					if ($parametr['name'] == 'frameLabel_serial')
+						$parametr['depends'] = array(
+							array(
+								'group' => $group,
+								'name' => 'frameLabel_Type'
+							),
+						);
+
+					if ($parametr['name'] == 'doorLabel_Rating')
+						$parametr['depends'] = array(
+							array(
+								'group' => $group,
+								'name' => 'doorLabel_Type'
+							),
+							array(
+								'group' => 'Ratings',
+								'name' => 'smoke_Rating'
+							),
+						);
+					
+					if ($parametr['name'] == 'doorLabel_Testing_Lab')
+						$parametr['depends'] = array(
+							array(
+								'group' => 'Ratings',
+								'name' => 'doorLabel_Type'
+							),
+						);
+
+					if ($parametr['name'] == 'doorLabel_serial')
+						$parametr['depends'] = array(
+							array(
+								'group' => $group,
+								'name' => 'doorLabel_Type'
+							),
+						);
+
+					if ($parametr['name'] == 'doorLabel_Min_Latch')
+						$parametr['depends'] = array(
+							array(
+								'group' => $group,
+								'name' => 'doorLabel_Type'
+							),
+						);
+
+					if ($parametr['name'] == 'doorLabel_Temp_Rise')
+						$parametr['depends'] = array(
+							array(
+								'group' => $group,
+								'name' => 'doorLabel_Type'
+							),
+						);
+
+				}
+			}
+		}
+
+		$userData['dio'] 		= $diodata;
+		$userData['locations'] 	= $buildings;
+		$userData['apertures'] 	= $this->resources_model->get_user_apertures();
+		$userData['status'] 	= 'ok';
+
 		$this->_show_output($userData);
 	}
 }

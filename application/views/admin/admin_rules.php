@@ -22,6 +22,7 @@
 				</table>
 				<div class="form-group text-center">
 					<button type="submit" class="btn btn-default">Save permissions</button>
+					<input type="hidden" name="page" value="rules" />
 				</div>
 			</form>
 		</div>

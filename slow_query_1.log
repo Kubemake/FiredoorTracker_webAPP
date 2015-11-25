@@ -1,0 +1,98 @@
+30.09.2015 17:11:21 : 1.0395
+SELECT `ff`.*, `cc`.`value` as status, `dff`.`value` as selected, `f`.`path`, `f`.`name` as fname
+FROM (`FormFields` ff)
+LEFT JOIN `DoorsFormFields` dff ON `dff`.`FormFields_idFormFields` = `ff`.`idFormFields` AND dff.Inspections_idInspections = 28
+LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `ff`.`idFormFields` AND cc.wallRates = 1 AND cc.ratesTypes = 2 AND cc.doorRating = 3 AND cc.doorMatherial = 3
+LEFT JOIN `InspectionFieldFiles` iff ON `iff`.`FormFields_idFormFields` = `ff`.`idFormFields` AND iff.deleted = 0 AND iff.Doors_idDoors = 33
+LEFT JOIN `Files` f ON `f`.`idFiles` = `iff`.`Files_idFiles`
+WHERE `ff`.`deleted` =  0
+
+-----------------------------
+15.10.2015 18:49:14 : 2.3479
+SELECT `idField`, `value`
+FROM (`ConditionalChoices`)
+WHERE `wallRates` =  '1'
+AND `ratesTypes` =  '1'
+AND `doorRating` =  '1'
+AND `doorMatherial` =  '1'
+
+-----------------------------
+15.10.2015 18:49:14 : 6.0034
+INSERT INTO `ReportCache` (`Inspections_idInspections`, `ReportType`, `InspectionTime`, `value`) VALUES ('225', 'ahjreport1', '2015-08', '')
+
+-----------------------------
+18.10.2015 18:13:34 : 1.4893
+SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
+FROM (`Inspections` i)
+LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
+LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
+LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
+WHERE `i`.`idInspections` IN ('234', '225', '83', '82', '81', '80', '79', '78', '62', '60', '57', '19', '18', '17', '15', '13') 
+AND cc.value IS NOT NULL
+
+-----------------------------
+19.10.2015 5:19:59 : 1.4135
+SELECT `i`.`idInspections` as inspection_id, `cc`.`value` as status
+FROM (`Inspections` i)
+LEFT JOIN `DoorsFormFields` dff ON `dff`.`Inspections_idInspections` = `i`.`idInspections`
+LEFT JOIN `Doors` d ON `d`.`idDoors` = `i`.`idAperture`
+LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `dff`.`FormFields_idFormFields` AND cc.wallRates = d.wall_Rating AND cc.ratesTypes = d.smoke_Rating AND cc.doorRating = d.rating AND cc.doorMatherial = d.material
+WHERE `i`.`idInspections` IN ('234', '225', '83', '82', '81', '80', '79', '78', '62', '60', '57', '19', '18', '17', '15', '13') 
+AND cc.value IS NOT NULL
+
+-----------------------------
+21.10.2015 5:03:40 : 3.2538
+SELECT `idField`, `value`
+FROM (`ConditionalChoices`)
+WHERE `wallRates` =  '3'
+AND `ratesTypes` =  '1'
+AND `doorRating` =  '2'
+AND `doorMatherial` =  '1'
+
+-----------------------------
+23.10.2015 16:59:25 : 1.0097
+SELECT *
+FROM (`History`)
+WHERE timestamp <=1446350399
+AND  `new_val`  LIKE '%\"Inspections\_idInspections\":\"15\"%'
+AND  `entity`  LIKE 'dff'
+ORDER BY `timestamp` ASC
+
+-----------------------------
+23.10.2015 16:59:25 : 3.3524
+SELECT `idField`, `value`
+FROM (`ConditionalChoices`)
+WHERE `wallRates` =  '1'
+AND `ratesTypes` =  '1'
+AND `doorRating` =  '1'
+AND `doorMatherial` =  '1'
+
+-----------------------------
+1.11.2015 13:45:28 : 1.1381
+SELECT *
+FROM (`History`)
+WHERE timestamp <=1446350399
+AND  `new_val`  LIKE '%\"Inspections\_idInspections\":\"100\"%'
+AND  `entity`  LIKE 'dff'
+ORDER BY `timestamp` ASC
+
+-----------------------------
+1.11.2015 13:45:28 : 3.3493
+SELECT `idField`, `value`
+FROM (`ConditionalChoices`)
+WHERE `wallRates` =  '1'
+AND `ratesTypes` =  '1'
+AND `doorRating` =  '3'
+AND `doorMatherial` =  '3'
+
+-----------------------------
+23.11.2015 10:42:06 : 1.2834
+SELECT `ff`.*, `cc`.`value` as status, `dff`.`value` as selected, `f`.`path`, `f`.`name` as fname
+FROM (`FormFields` ff)
+LEFT JOIN `DoorsFormFields` dff ON `dff`.`FormFields_idFormFields` = `ff`.`idFormFields` AND dff.Inspections_idInspections = 217
+LEFT JOIN `ConditionalChoices` cc ON `cc`.`idField` = `ff`.`idFormFields` AND cc.wallRates = 1 AND cc.ratesTypes = 2 AND cc.doorRating = 3 AND cc.doorMatherial = 2
+LEFT JOIN `InspectionFieldFiles` iff ON `iff`.`FormFields_idFormFields` = `ff`.`idFormFields` AND iff.deleted = 0 AND iff.Doors_idDoors = 224
+LEFT JOIN `Files` f ON `f`.`idFiles` = `iff`.`Files_idFiles`
+WHERE `ff`.`deleted` =  0
+
+-----------------------------

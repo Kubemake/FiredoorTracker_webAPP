@@ -545,7 +545,8 @@ class Dashboard extends CI_Controller {
 				foreach ($inspections as $inspection)
 					$apertures[] = $inspection['aperture_id'];
 
-				$apertdata = $this->resources_model->get_apertures_info_by_aperture_ids($apertures);
+				if (!empty($apertures))
+					$apertdata = $this->resources_model->get_apertures_info_by_aperture_ids($apertures);
 
 				if (!empty($apertdata))
 				{

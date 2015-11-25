@@ -160,6 +160,28 @@ class Resources_model  extends CI_Model
 		return $this->db->update('Inspections', array('deleted' => $userid));
 	}
 
+	function delete_aperture_by_offline_id($aperture_id, $user = FALSE)
+	{
+		$parent =  $user ? $user['parent'] : $this->session->userdata('user_parent'); //use director id
+		$userid =  $user ? $user['idUsers'] : $this->session->userdata('user_id');
+
+		$this->db->where('offlineData', $parent . $aperture_id);
+		$this->db->where('UserId', $parent);
+
+		return $this->db->update('Doors', array('deleted' => $userid));
+	}
+
+	function delete_review_by_offline_id($review_id, $user = FALSE)
+	{
+		$parent =  $user ? $user['parent'] : $this->session->userdata('user_parent'); //use director id
+		$userid =  $user ? $user['idUsers'] : $this->session->userdata('user_id');
+
+		$this->db->where('offlineData', $parent . $review_id);
+		$this->db->where('UserId', $parent);
+
+		return $this->db->update('Inspections', array('deleted' => $userid));
+	}
+
 	function add_issue($adddata)
 	{
 		$this->db->insert('FormFields', $adddata);
